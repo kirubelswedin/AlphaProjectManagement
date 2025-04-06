@@ -1,0 +1,67 @@
+@model ClientsFormViewModel
+
+<div id="addClientModal" class="modal" tabindex="-1" aria-labelledby="addClientModalLabel" aria-hidden="true">
+    <div class="form-modal-dialog">
+        <div class="form-modal-content">
+
+            <div class="form-modal-header">
+                <h3 id="addClientModalLabel">Add Client</h3>
+                <button type="button" class="form-modal-close" data-close="true" data-target="#addClientModal">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="form-modal-body">
+                <form id="addClientForm" asp-controller="Clients" asp-action="AddClient" method="post">
+                    <input type="hidden" id="clientId" name="Id" />
+
+                    <!-- Client Name -->
+                    <div class="form-field">
+                        <label class="form-label" for="clientName">Client Name</label>
+                        <input type="text" class="form-input" id="clientName" name="ClientName"
+                            placeholder="Enter client name" required />
+                        <span class="field-error" data-valmsg-for="ClientName"></span>
+                    </div>
+
+                    <!-- Contact Person -->
+                    <div class="form-field">
+                        <label class="form-label" for="contactPerson">Contact Person</label>
+                        <input type="text" class="form-input" id="contactPerson" name="ContactPerson"
+                            placeholder="Enter contact name" required />
+                        <span class="field-error" data-valmsg-for="ContactPerson"></span>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-field">
+                        <label class="form-label" for="email">Email</label>
+                        <input type="email" class="form-input" id="email" name="Email" placeholder="Enter email address"
+                            required />
+                        <span class="field-error" data-valmsg-for="Email"></span>
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="form-field">
+                        <label class="form-label" for="phone">Phone</label>
+                        <input type="tel" class="form-input" id="phone" name="Phone" placeholder="Enter phone number"
+                            minlength="6" maxlength="15" />
+                        <span class="field-error" data-valmsg-for="Phone"></span>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="form-actions">
+                        @{
+                            var buttonModel = new ButtonViewModel
+                            {
+                                Text = "Add Client",
+                                IsSubmit = true,
+                                Variant = "primary"
+                            };
+                        }
+                        <partial name="Partials/Components/ui/_Button" model="@buttonModel" />
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>

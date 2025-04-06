@@ -1,0 +1,40 @@
+@model SelectorViewModel
+
+<div class="selector-field">
+  <label class="form-label" for="@Model.Id">@Model.Label</label>
+  <div class="picker">
+    <div class="selected-items-list">
+      <!-- Selected items will be rendered by JavaScript -->
+    </div>
+
+    <div class="search-input">
+      <input type="text" placeholder="@Model.Placeholder" class="form-input" />
+      <i class="@Model.Icon"></i>
+    </div>
+
+    <div class="options-dropdown">
+      <!-- Options will be rendered by JavaScript -->
+    </div>
+
+    <!-- Hidden select element -->
+    <select class="hidden-select" id="@Model.Id" name="@Model.HiddenInputName" @(Model.IsMultiple ? "multiple" : "")
+      @(Model.IsRequired ? "required" : "")>
+      @if (!Model.IsMultiple)
+      {
+        <option value="">Select @Model.Label</option>
+      }
+      @foreach (var item in Model.Items)
+      {
+        <option value="@item.Id" selected="@item.IsSelected" data-image="@item.ImageUrl">
+          @item.Text
+        </option>
+      }
+    </select>
+
+    <!-- Hidden input for form submission -->
+    <input type="hidden" name="@Model.HiddenInputName" id="@(Model.Id)Input" />
+  </div>
+
+  <!-- Validation message -->
+  <span class="field-error" data-valmsg-for="@Model.ValidationFor"></span>
+</div>

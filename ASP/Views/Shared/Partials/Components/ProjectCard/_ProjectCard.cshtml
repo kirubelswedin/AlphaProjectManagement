@@ -1,0 +1,68 @@
+@model ProjectCardViewModel
+
+<div class="project-card">
+  <div class="project-header">
+    <div class="project-image">
+      <img src="@Model.ProjectImage" alt="Project image" />
+    </div>
+    <div class="project-info">
+      <h3>@Model.ProjectName</h3>
+      <p>@Model.ClientName</p>
+      <div class="project-status @Model.Status.ToString().ToLower()">
+        @Model.Status.ToString().Replace("Not", "Not ")
+      </div>
+    </div>
+    <div class="dropdown-wrapper window" id="project-dropdown-@Model.Id">
+      <button class="dropdown-toggle" data-window="dropdown" data-target="project-dropdown-@Model.Id" aria-label="Project menu" aria-haspopup="true" aria-expanded="false">
+        <span class="dots"></span>
+      </button>
+      @{
+        var dropdownModel = new DropdownWindowViewModel
+        {
+          Items =
+        [
+        new DropdownWindowItemViewModel
+            {
+            Icon = "fa-duotone fa-solid fa-pencil",
+            Text = "Edit Project",
+            OnClick = $"window.dispatchEvent(new CustomEvent('openModal', {{ detail: {{ modalId: 'editProjectModal-{Model.Id}' }} }}))",
+            HasDivider = false
+            },
+            new DropdownWindowItemViewModel
+            {
+            Icon = "fa-duotone fa-solid fa-user-plus",
+            Text = "Add Member",
+            OnClick = $"window.dispatchEvent(new CustomEvent('openModal', {{ detail: {{ modalId: 'addProjectMemberModal-{Model.Id}' }} }}))",
+            HasDivider = true
+            },
+            new DropdownWindowItemViewModel
+            {
+            Icon = "fa-duotone fa-solid fa-trash-can",
+            Text = "Delete Project",
+            OnClick = $"window.dispatchEvent(new CustomEvent('openModal', {{ detail: {{ modalId: 'deleteProjectModal-{Model.Id}' }} }}))",
+            IsDanger = true
+            }
+        ]
+        };
+      }
+      <partial name="Partials/Components/ui/_DropdownWindow" model="@dropdownModel" data-for="project-dropdown-@Model.Id" />
+    </div>
+  </div>
+  <div class="project-description">
+    <p>@Model.Description</p>
+  </div>
+  <div class="project-footer">
+    <partial name="Partials/Components/ProjectCard/_ProjectDeadline" model="@Model" />
+    <div class="team-members">
+      @foreach (var member in Model.TeamMembers)
+      {
+        <div class="avatar">
+          @if (!string.IsNullOrEmpty(member.Avatar))
+          {
+            <img src="@member.Avatar" alt="Team member" />
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>

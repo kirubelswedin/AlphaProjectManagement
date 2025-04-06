@@ -1,0 +1,95 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>@(ViewData["Title"] == null ? "Alpha" : ViewData["Title"] + " - Alpha")</title>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "./theme.js": "/js/theme.js",
+            "./windowManager.js": "/js/windowManager.js",
+            "./sidebarResizer.js": "/js/sidebarResizer.js",
+            "./mobileMenu.js": "/js/mobileMenu.js",
+            "./notifications.js": "/js/notifications.js",
+            "./tabScroll.js": "/js/tabScroll.js",
+            "./clientList.js": "/js/clientList.js",
+            "./forms.js": "/js/forms.js",
+            "./selector.js": "/js/selector.js",
+            "./projects.js": "/js/projects.js",
+            "./members.js": "/js/members.js",
+            "./clients.js": "/js/clients.js",
+            "./global.js": "/js/global.js",
+            "./constants.js": "/js/constants.js"
+        }
+    }
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"
+        integrity="sha512-7SRCYIJtR6F8ocwW7UxW6wGKqbSyqREDbfCORCbGLatU0iugBLwyOXpzhkPyHIFdBO0K2VCu57fvP2Twgx1o2A=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://kit.fontawesome.com/a576612222.css" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/layout.bundle.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/mediaqueries.css" asp-append-version="true" />
+
+
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+
+<body data-theme="light">
+    <!-- Mobile Menu -->
+    <div class="mobile-menu">
+        <div class="mobile-menu-content">
+            <partial name="Partials/Components/Sidebar/_LogoTypeLink" />
+            <partial name="Partials/Components/Sidebar/_NavLinks" />
+        </div>
+    </div>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay"></div>
+
+    <div class="theme-toggle" onclick="toggleTheme()">
+        <span class="light-icon">☀️</span>
+        <span class="dark-icon">🌙</span>
+        @* <i class="fa-duotone fa-solid fa-moon-stars"></i>
+        <i class="fa-duotone fa-solid fa-sun-bright"></i> *@
+    </div>
+
+    <div class="alpha-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <partial name="Partials/Components/Sidebar/_LogoTypeLink" />
+            <partial name="Partials/Components/Sidebar/_NavLinks" />
+
+            <!-- Sidebar Resizer -->
+            <div class="sidebar-resizer" title="click to resize"></div>
+        </aside>
+
+        <!-- Header -->
+        <header class="header">
+            <partial name="Partials/Components/Header/_Header" />
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            @RenderBody()
+        </main>
+    </div>
+
+
+    <script src="~/js/global.js" type="module" asp-append-version="true"></script>
+    <script src="~/js/site.js" type="module" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>

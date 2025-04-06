@@ -1,0 +1,151 @@
+#signin,
+#signup {
+	width: 600px;
+	text-align: center;
+	background-color: var(--surface-background);
+	border-radius: 1.5rem;
+	padding: 4.5rem 4.5rem 2.5rem 4.5rem;
+	box-shadow: var(--box-shadow-2);
+    
+    & .primary-button,
+    & .secondary-button {
+        width: 100%;
+        padding: 0.875rem 1rem;
+    }
+
+	& .secondary-button{
+		color: var(--dark-100);
+	}
+}
+
+.card-header {
+	margin-bottom: 2rem;
+
+	& h1 {
+		font-size: 1.75rem;
+		font-weight: var(--font-bold);
+		color: var(--primary-text);
+		margin: 0;
+	}
+}
+
+.button-icon img {
+	display: flex;
+	width: 16px;
+	height: 16px;
+	object-fit: contain;
+}
+
+.divider {
+	display: flex;
+	align-items: center;
+	text-align: center;
+	margin: 2rem 0;
+	color: var(--gray-700);
+	font-size: 0.875rem;
+
+	&::before,
+	&::after {
+		content: "";
+		flex: 1;
+		border-bottom: 1px solid var(--border-color);
+	}
+
+	& span {
+		margin: 0 0.75rem;
+	}
+}
+
+.name-row {
+	display: flex;
+	gap: 1rem;
+	
+	& .form-group {
+		flex: 1;
+	}
+}
+
+
+.form-group {
+	margin-bottom: 2rem;
+	text-align: left;
+	
+	& label {
+		display: block;
+		font-weight: var(--font-medium);
+		color: var(--primary-text);
+		margin-bottom: 0.5rem;
+	}
+	
+	& input {
+		width: 100%;
+		padding: 0.75rem 1rem;
+		border: 1.5px solid var(--border-color);
+		border-radius: 0.75rem;
+		background-color: transparent;
+		color: var(--primary-text);
+		font-family: var(--font-standard);
+		transition: border-color 0.15s ease-in-out;
+	}
+	
+	& input:focus {
+		outline: none;
+		border-color: var(--border-focus-color);
+	}
+}
+
+
+.form-options {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin: 1rem 0;
+}
+
+.remember-me {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	color: var(--primary-text);
+}
+
+.forgot-password {
+	color: var(--accent);
+	text-decoration: none;
+	font-weight: var(--font-medium);
+}
+
+.card-footer {
+	margin-top: 3rem;
+	color: var(--tertiary-text);
+}
+
+.card-footer a {
+	color: var(--accent);
+	text-decoration: none;
+	font-weight: var(--font-medium);
+	margin-left: 0.5rem;
+}
+
+.card-footer a:hover {
+	text-decoration: underline;
+}
+
+.terms-accept {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin: 1rem 0;
+	color: var(--tertiary-text);
+	text-align: left;
+}
+
+.terms-accept a {
+	color: var(--accent);
+	text-decoration: none;
+}
+
+.terms-accept a:hover {
+	text-decoration: underline;
+}
+

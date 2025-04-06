@@ -1,0 +1,96 @@
+@model IEnumerable<Domain.Models.Client>
+
+@{
+  var clients = Model.ToList();
+}
+
+<section class="client-list-container">
+  <div class="client-list-scroll">
+    @if (clients.Count == 0)
+    {
+      <div class="client-list-empty">
+        <p>Oops. No clients found.</p>
+      </div>
+    }
+    else
+    {
+      <div class="table-wrapper">
+        <table class="client-list-table">
+          <thead>
+            <tr>
+              <th class="checkbox-column">
+                <input type="checkbox" id="selectAllClients" onchange="toggleSelectAllClients(this)" />
+              </th>
+              <th>Client Name</th>
+              <th>Contact Person</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Created Date</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var client in clients)
+            {
+              <tr class="client-row" data-id="@client.Id">
+                <td class="checkbox-column">
+                  <input type="checkbox" class="client-checkbox" data-id="@client.Id" onchange="toggleSelectClient(this)" />
+                </td>
+                <td>@client.ClientName</td>
+                <td>@client.ContactPerson</td>
+                <td>@client.Email</td>
+                <td>@client.Phone</td>
+                <td>@DateTime.UtcNow.ToString("yyyy-MM-dd")</td>
+                <td class="actions-cell">
+                  <div class="dropdown-wrapper window" id="client-dropdown-@client.Id">
+                    <button class="dropdown-toggle" data-window="dropdown" data-target="client-dropdown-@client.Id" aria-label="Client menu" aria-haspopup="true" aria-expanded="false">
+                      <i class="fa-duotone fa-solid fa-ellipsis-v"></i>
+                    </button>
+                    <!-- Dropdown-content moving outside overflow-container  -->
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="selected-clients-info" style="display: none;">
+        <span id="selectedClientsCount">(0 selected)</span>
+        <button class="unselect-all" onclick="unselectAllClients()">
+          Unselect all
+        </button>
+      </div>
+    }
+  </div>
+</section>
+
+<div class="dropdown-container">
+  @foreach (var client in clients)
+  {
+    var dropdownModel = new DropdownWindowViewModel
+    {
+      Items =
+    [
+    new DropdownWindowItemViewModel
+    {
+    Icon = "fa-duotone fa-solid fa-pencil",
+    Text = "Edit Client",
+    OnClick = $"window.dispatchEvent(new CustomEvent('openModal', {{ detail: {{ modalId: 'editClientModal', id: '{client.Id}' }} }})); document.querySelector('#client-dropdown-{client.Id}').classList.remove('active');",
+    HasDivider = true
+    },
+    new DropdownWindowItemViewModel
+    {
+    Icon = "fa-duotone fa-solid fa-trash-can",
+    Text = "Delete Client",
+    OnClick = $"deleteClient('{client.Id}'); document.querySelector('#client-dropdown-{client.Id}').classList.remove('active');",
+    IsDanger = true
+    }
+    ]
+    };
+
+    <div class="dropdown-content-wrapper" data-for="client-dropdown-@client.Id">
+      <partial name="Partials/Components/ui/_DropdownWindow" model="@dropdownModel" />
+    </div>
+  }
+</div>

@@ -1,0 +1,24 @@
+@model MembersViewModel
+
+@{
+    Layout = "_Layout_Alpha";
+    ViewData["Title"] = Model.PageHeader.Title;
+}
+
+<section class="members-container">
+    <partial name="Partials/Components/PageHeader/_PageHeader" model="@Model.PageHeader" />
+
+    <div class="members-grid">
+        @foreach (var member in Model.Members)
+        {
+                <partial name="Partials/Components/MemberCard/_MemberCard" model="@member" />
+        }
+    </div>
+
+    <partial name="Partials/Modals/_AddMemberModal" model="@Model.MemberForm" />
+    <partial name="Partials/Modals/_EditMemberModal" model="@Model.MemberForm" />
+</section>
+
+@section Scripts {
+                <script src="~/js/members.js" type="module"></script>
+}

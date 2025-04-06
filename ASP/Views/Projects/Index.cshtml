@@ -1,0 +1,29 @@
+@model ProjectsViewModel
+@{
+    Layout = "_Layout_Alpha";
+    ViewData["Title"] = Model.PageHeader.Title;
+}
+
+<section class="projects-container">
+    <partial name="Partials/Components/PageHeader/_PageHeader" model="@Model.PageHeader" />
+
+    <partial name="Partials/Components/TabFilter/_TabFilter" model="@Model.TabFilter" />
+
+    <div class="projects-grid">
+        @foreach (var project in Model.Projects)
+        {
+            <partial name="Partials/Components/ProjectCard/_ProjectCard" model="@project" />
+        }
+    </div>
+
+    <partial name="Partials/Modals/_AddProjectModal" model="@Model.ProjectForm" />
+    <partial name="Partials/Modals/_EditProjectModal" model="@Model.ProjectForm" />
+</section>
+
+@section Scripts {
+    <script>
+
+    </script>
+    <script src="~/js/projects.js" type="module"></script>
+    <script src="~/js/tabScroll.js" type="module"></script>
+}

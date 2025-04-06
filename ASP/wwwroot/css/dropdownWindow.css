@@ -1,0 +1,117 @@
+.dropdown-wrapper {
+	position: relative;
+}
+
+.dropdown-toggle {
+	background: none;
+	border: none;
+	border-radius: 0.75rem;
+	cursor: pointer;
+	padding: 0.25rem;
+	width: 2.5rem;
+	height: 2.5rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: background-color 0.15s ease-in-out;
+	position: relative;
+
+	/* Dots styling */
+	& .dots {
+		position: relative;
+		width: 0.28rem;
+		height: 0.28rem;
+		background-color: var(--dropdown-toggle);
+		border-radius: 50%;
+		margin-left: -0.5rem;
+
+		&::after {
+			content: "";
+			position: absolute;
+			width: 0.28rem;
+			height: 0.28rem;
+			background-color: var(--dropdown-toggle);
+			border-radius: 50%;
+			left: 0.5rem;
+			top: 0;
+		}
+	}
+}
+
+.dropdown-content {
+	position: absolute;
+	top: calc(100% + 0rem);
+	right: 0;
+	margin-top: 0.2rem;
+	min-width: 14rem;
+	padding: 0.5rem;
+	background-color: var(--surface-background);
+	border-radius: 0.875rem;
+	box-shadow: var(--box-shadow-3);
+	opacity: 0;
+	visibility: hidden;
+	transform: translateY(-10px);
+	transition: all 0.2s ease;
+	z-index: 5;
+}
+
+.dropdown-wrapper.active .dropdown-content {
+	opacity: 1;
+	visibility: visible;
+	transform: translateY(0);
+	z-index: 11;
+}
+
+.dropdown-item {
+	padding: 0.75rem 1rem;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	cursor: pointer;
+	transition: background-color 0.2s ease-in-out;
+	color: var(--primary-text);
+	text-decoration: none;
+	border-radius: 0.5rem;
+	font-size: 0.9rem;
+
+	&.empty-message {
+		justify-content: center;
+		color: var(--secondary-text);
+		cursor: default;
+
+		&:hover {
+			background: none;
+		}
+	}
+
+	.dropdown-item-content {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+	}
+
+	&.danger {
+		color: var(--red);
+
+		&:hover {
+			background-color: var(--red-10);
+		}
+	}
+}
+
+.dropdown-toggle,
+.dropdown-item {
+	&:hover {
+		background-color: var(--hover-grey);
+	}
+
+	&:active {
+		background-color: var(--hover-grey);
+	}
+}
+
+.dropdown-divider {
+	height: 1px;
+	background-color: var(--divider-color);
+	margin: 0.5rem 0;
+}

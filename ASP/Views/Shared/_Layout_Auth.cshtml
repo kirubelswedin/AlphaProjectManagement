@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>@(ViewData["Title"] == null ? "Alpha" : ViewData["Title"] + " - Alpha")</title>
+
+    <link rel="stylesheet" href="https://kit.fontawesome.com/a576612222.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/button.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/mediaqueries.css" asp-append-version="true" />
+
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+
+<body data-theme="light">
+
+    <div class="auth-wrapper">
+        <main>
+            @RenderBody()
+        </main>
+    </div>
+
+
+    @await RenderSectionAsync("Scripts", required: false)
+    <script type="module" src="~/js/site.js" asp-append-version="true"></script>
+    
+</body>
+
+</html>

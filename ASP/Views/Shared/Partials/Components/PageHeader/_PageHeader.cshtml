@@ -1,0 +1,28 @@
+@model PageHeaderViewModel
+
+<section class="page-header">
+  <div class="page-header-content">
+    <div class="page-header-text">
+      <h1 class="page-title">@Model.Title</h1>
+    </div>
+    @if (!string.IsNullOrEmpty(Model.ButtonText))
+    {
+      <div class="page-action">
+        @{
+          var buttonModel = new ButtonViewModel
+          {
+            Text = Model.ButtonText,
+            Icon = "<i class=\"fa-solid fa-plus\"></i>",
+            DataAttributes = new Dictionary<string, string>
+            {
+            { "window", "modal" },
+            { "target", $"#{Model.ModalId}" }
+            },
+            Variant = "primary"
+          };
+        }
+        <partial name="Partials/Components/ui/_Button" model="@buttonModel" />
+      </div>
+    }
+  </div>
+</section>

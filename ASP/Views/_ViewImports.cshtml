@@ -1,0 +1,11 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@inject UserManager<Data.Entities.UserEntity> userManager
+@inject INotificationService notificationService
+@inject IUserService userService
+
+@using ASP.ViewModels.Components
+@using ASP.ViewModels.Views
+@using ASP.ViewModels.forms
+@using Business.Dtos.Forms
+@using Business.Interfaces
+@using Microsoft.AspNetCore.Identity

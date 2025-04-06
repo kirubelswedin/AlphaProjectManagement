@@ -1,0 +1,120 @@
+@using System.Security.Claims
+
+@{
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
+    var roleName = User.FindFirstValue(ClaimTypes.Role) ?? "";
+
+    var displayName = await userService.GetDisplayNameAsync(userId);
+    var user = await userManager.FindByIdAsync(userId);
+    var userAvatar = user?.Image ?? "/images/avatars/Avatar-1.svg";
+
+    var notificationResult = await notificationService.GetNotificationsAsync(userId, roleName);
+    var notifications = (notificationResult.Result ?? []).OrderByDescending(x => x.CreatedAt).ToList();
+    var unreadCount = notifications.Count(n => !n.IsRead);
+}
+
+<input type="checkbox" id="hamburger-toggle" class="hamburger-checkbox" />
+<label for="hamburger-toggle" class="hamburger-icon">
+    <span></span>
+    <span></span>
+</label>
+
+<div class="searchbox">
+    <i class="fa-duotone fa-solid fa-magnifying-glass"></i>
+    <input type="text" placeholder="Search anything..." />
+</div>
+
+<div class="header-actions">
+    @* Notifications *@
+    <div class="dropdown-wrapper window" id="notification-dropdown">
+        <button id="notification-dropdown-button" class="dropdown-toggle notification-btn" data-window="dropdown"
+            data-target="notification-dropdown" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+            <i class="fa-duotone fa-solid fa-bell"></i>
+            @if (unreadCount > 0)
+            {
+                <span class="notification-indicator"></span>
+            }
+        </button>
+
+        @{
+            var notificationDropdownModel = new DropdownWindowViewModel
+            {
+                HeaderTitle = "Notifications",
+                NotificationCount = unreadCount,
+                Items = notifications.Select(n => new DropdownWindowItemViewModel
+                {
+                    Text = n.Title,
+                    OnClick = $"notificationManager.markAsRead('{n.Id}', event)",
+                    AdditionalContent = $@"
+                <div class=""notification-item"" data-id=""{n.Id}"" data-read=""{n.IsRead.ToString().ToLower()}"">
+                <img src=""{n.Image}"" alt=""Notification image"" class=""notification-image"" />
+                <div class=""notification-content"">
+                <span class=""notification-message"">{n.Message}</span>
+                <span class=""notification-time""
+                data-createdAt=""{n.CreatedAt:yyyy-MM-ddTHH:mm:ss}"">{n.CreatedAt:yyyy-MM-ddTHH:mm:ss}</span>
+                </div>
+                <button class=""notification-close"" onclick=""notificationManager.dismissNotification('{n.Id}', event)"">
+                <i class=""fa-solid fa-xmark""></i>
+                </button>
+                </div>
+                ",
+                    IsDanger = false
+                }).ToList()
+            };
+        }
+        <partial name="Partials/Components/ui/_DropdownWindow" model="@notificationDropdownModel" />
+    </div>
+
+    @* User Profile *@
+    <div class="dropdown-wrapper window" id="profile-dropdown">
+        <button id="profile-dropdown-button" class="dropdown-toggle user-profile-btn" data-window="dropdown"
+            data-target="profile-dropdown" aria-label="User Profile" aria-haspopup="true" aria-expanded="false">
+            <img src="@userAvatar" alt="User avatar" />
+        </button>
+        @{
+            var profileDropdownModel = new DropdownWindowViewModel
+            {
+                Items =
+            [
+            new DropdownWindowItemViewModel
+                {
+                Text = displayName,
+                AdditionalContent = $@"<img src=""{userAvatar}"" alt=""{displayName}"" class=""profile-avatar"" />"
+                },
+                new DropdownWindowItemViewModel
+                {
+                Icon = "fa-duotone fa-solid fa-user",
+                Text = "Profile",
+                OnClick = "window.location.href='/admin/profile'",
+                AdditionalContent = "<i class=\"fa-duotone fa-solid fa-gear settings-icon\"></i>"
+                },
+                new DropdownWindowItemViewModel
+                {
+                Text = "",
+                AdditionalContent = @"<div class=""theme-menu-item"">
+                <i class=""fa-duotone fa-solid fa-moon dark-icon""></i>
+                <i class=""fa-duotone fa-solid fa-sun light-icon""></i>
+                <span class=""theme-text"">
+                <span class=""dark-text"">Dark Mode</span>
+                <span class=""light-text"">Light Mode</span>
+                </span>
+                <label class=""switch"">
+                <input type=""checkbox"" id=""darkModeToggle"" onchange=""toggleTheme()"" />
+                <span class=""slider""></span>
+                </label>
+                </div>",
+                HasDivider = true
+                },
+                new DropdownWindowItemViewModel
+                {
+                Icon = "fa-duotone fa-solid fa-right-from-bracket",
+                Text = "Logout",
+                OnClick = "window.location.href='/auth/signout'",
+                IsDanger = true
+                }
+            ]
+            };
+        }
+        <partial name="Partials/Components/ui/_DropdownWindow" model="@profileDropdownModel" />
+    </div>
+</div>

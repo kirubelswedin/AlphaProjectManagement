@@ -1,0 +1,91 @@
+# .NET Core
+bin/
+obj/
+*.dll
+*.pdb
+*.user
+*.userosscache
+*.dbmdl
+*.jfm
+*.ide
+*.log
+*.tmp
+*.cache
+*.vspscc
+*.vssscc
+.vs/
+.vscode/
+*_i.c
+*_p.c
+*_h.h
+*.ilk
+*.meta
+*.obj
+*.iobj
+*.pch
+*.ipdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp_proj
+*_wpftmp.csproj
+*.pidb
+*.svclog
+*.scc
+
+# Rider specific
+.idea/
+*.sln.iml
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Sensitive data
+appsettings.json
+appsettings.*.json
+!appsettings.example.json
+secrets.json
+*.pfx
+*.key
+*.pem
+*.crt
+*.cer
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+
+# VS Code specific
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Local History for Visual Studio Code
+.history/
+
+# JetBrains Rider
+.idea/
+*.sln.iml 
+

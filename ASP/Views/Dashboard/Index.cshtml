@@ -1,0 +1,18 @@
+@model DashboardViewModel
+@{
+    Layout = "_Layout_Alpha";
+    ViewData["Title"] = Model.PageHeader.Title;
+}
+
+<section class="dashboard-container">
+    <partial name="Partials/Components/PageHeader/_PageHeader" model="@Model.PageHeader" />
+
+    <div class="user-info">
+        <h2>Welcome @ViewBag.UserEmail!</h2>
+        <p>Your role: @(ViewBag.IsAdmin ? "Admin" : "User")</p>
+    </div>
+
+    <div class="dashboard-content">
+
+    </div>
+</section>

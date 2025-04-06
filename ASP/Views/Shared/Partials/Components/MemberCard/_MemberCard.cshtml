@@ -1,0 +1,75 @@
+@model MemberCardViewModel
+
+<div class="member-card">
+    <div class="member-header">
+        <div class="member-avatar">
+            @if (!string.IsNullOrEmpty(Model.Avatar))
+            {
+                <img src="@Model.Avatar" alt="Member avatar" />
+            }
+        </div>
+        <div class="member-info">
+            <h3>@Model.FullName</h3>
+            <span>@Model.JobTitle</span>
+        </div>
+    </div>
+    <div class="dropdown-wrapper window" id="member-dropdown-@Model.Id">
+        <button class="dropdown-toggle" data-window="dropdown" data-target="member-dropdown-@Model.Id" aria-label="Member menu" aria-haspopup="true"
+            aria-expanded="false">
+            <span class="dots"></span>
+        </button>
+        @{
+            var dropdownModel = new DropdownWindowViewModel
+            {
+                Items =
+            [
+            new DropdownWindowItemViewModel
+                {
+                Icon = "fa-duotone fa-solid fa-pencil",
+                Text = "Edit Member",
+                OnClick = $"window.dispatchEvent(new CustomEvent('openModal', {{ detail: {{ modalId: 'editMemberModal', id: '{Model.Id}' }} }}))",
+                HasDivider = false
+                },
+                new DropdownWindowItemViewModel
+                {
+                Icon = "fa-duotone fa-solid fa-shield-check",
+                Text = "Admin Access",
+                AdditionalContent = $@"<label class=""switch""><input type=""checkbox"" onchange=""toggleAdminRole('{Model.Id}',
+                this.checked)"" {(Model.IsAdmin ? "checked" : "")} /><span class=""slider""></span></label>",
+                HasDivider = true
+                },
+                new DropdownWindowItemViewModel
+                {
+                Icon = "fa-duotone fa-solid fa-trash-can",
+                Text = "Delete Member",
+                OnClick = $"window.dispatchEvent(new CustomEvent('openModal', {{ detail: {{ modalId: 'deleteMemberModal-{Model.Id}' }} }}))",
+                IsDanger = true
+                }
+            ]
+            };
+        }
+        <partial name="Partials/Components/ui/_DropdownWindow" model="@dropdownModel" data-for="member-dropdown-@Model.Id" />
+    </div>
+    <div class="member-contact">
+        <div class="contact-item">
+            <i class="fa-duotone fa-solid fa-envelope"></i>
+            <span>@Model.Email</span>
+        </div>
+        <div class="contact-item">
+            <i class="fa-duotone fa-solid fa-phone"></i>
+            <span>@Model.PhoneNumber</span>
+        </div>
+        <div class="contact-item">
+            <i class="fa-duotone fa-solid fa-location-dot"></i>
+            <span>@Model.StreetName, @Model.City @Model.PostalCode</span>
+        </div>
+    </div>
+    @{
+        var messageButton = new ButtonViewModel
+        {
+            Text = "Message",
+            Variant = "secondary",
+        };
+    }
+    <partial name="Partials/Components/ui/_Button" model="@messageButton" />
+</div>

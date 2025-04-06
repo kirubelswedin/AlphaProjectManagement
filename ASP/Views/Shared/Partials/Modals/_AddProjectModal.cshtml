@@ -1,0 +1,192 @@
+@model ProjectFormViewModel
+
+<div id="addProjectModal" class="modal">
+  <div class="form-modal-dialog">
+    <div class="form-modal-content">
+      <div class="form-modal-header">
+        <h3>Add Project</h3>
+        <button type="button" class="form-modal-close" data-close="true" data-target="#addProjectModal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="form-modal-body">
+        <form id="projectForm" asp-controller="Projects" asp-action="AddProject" method="post"
+          enctype="multipart/form-data" data-id="add">
+
+          <!-- Project Image -->
+          <div class="form-field">
+            <label class="form-label" asp-for="Image"></label>
+            <div class="image-upload">
+              <div class="image-placeholder-container">
+                <input type="file" id="add-project-image" asp-for="Image" accept="image/*" style="display: none;" />
+                <div class="image-placeholder project-image-placeholder"
+                  onclick="document.getElementById('add-project-image').click()">
+                  <div class="upload-overlay">
+                    <i class="fa-duotone fa-solid fa-camera"></i>
+                  </div>
+                </div>
+              </div>
+              <span class="field-error" asp-validation-for="Image"></span>
+            </div>
+          </div>
+
+          <!-- Project Name -->
+          <div class="form-field">
+            <label class="form-label" for="Name">Project Name</label>
+            <input type="text" class="form-input" id="Name" name="Name" required placeholder="Type project name" />
+            <span class="field-error" data-valmsg-for="Name"></span>
+          </div>
+
+          <!-- Client -->
+          <div class="form-field">
+            @{
+              Func<Domain.Models.Client, SelectorItemViewModel> clientMapper = c => new SelectorItemViewModel
+              {
+                Id = c.Id.ToString(),
+                Text = c.ClientName,
+                ImageUrl = c.Image,
+                IsSelected = false
+              };
+
+              var clientSelector = new SelectorViewModel
+              {
+                Id = "projectClientSelect",
+                Label = "Client",
+                Placeholder = "Search for client...",
+                IsMultiple = false,
+                IsRequired = true,
+                HiddenInputName = "ClientId",
+                ValidationFor = "ClientId",
+                Items = ViewBag.Clients != null
+              ? ((List<Domain.Models.Client>)ViewBag.Clients).Select(clientMapper).ToList()
+              : new List<SelectorItemViewModel>()
+              };
+            }
+            <partial name="Partials/Components/ui/_Selector" model="@clientSelector" />
+          </div>
+
+          <!-- Description -->
+          <div class="form-field">
+            <label class="form-label" asp-for="Description"></label>
+            <div class="wysiwyg-container">
+              <textarea id="add-project-description" asp-for="Description"></textarea>
+              <div id="add-project-description-editor" class="wysiwyg-editor"></div>
+              <div id="add-project-description-toolbar" class="wysiwyg-toolbar">
+                <span class="ql-formats">
+                  <button class="ql-bold"></button>
+                  <button class="ql-italic"></button>
+                  <button class="ql-underline"></button>
+                </span>
+                <span class="ql-formats">
+                  <button class="ql-align" value=""></button>
+                  <button class="ql-align" value="center"></button>
+                  <button class="ql-align" value="right"></button>
+                </span>
+                <span class="ql-formats">
+                  <button class="ql-list" value="bullet"></button>
+                  <button class="ql-list" value="ordered"></button>
+                </span>
+                <span class="ql-formats">
+                  <button class="ql-link"></button>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-column">
+            <!-- Start Date -->
+            <div class="form-field half">
+              <label class="form-label" for="StartDate">Start Date</label>
+              <input type="date" class="form-input" id="StartDate" name="StartDate" required />
+              <span class="field-error" data-valmsg-for="StartDate"></span>
+            </div>
+
+            <!-- End Date -->
+            <div class="form-field half">
+              <label class="form-label" for="EndDate">End Date</label>
+              <input type="date" class="form-input" id="EndDate" name="EndDate" required />
+              <span class="field-error" data-valmsg-for="EndDate"></span>
+            </div>
+          </div>
+
+          <!-- Members -->
+          <div class="form-field">
+            @{
+              Func<MemberCardViewModel, SelectorItemViewModel> memberMapper = m => new SelectorItemViewModel
+              {
+                Id = m.Id.ToString(),
+                Text = m.FullName,
+                ImageUrl = m.Avatar,
+                IsSelected = false
+              };
+
+              var memberSelector = new SelectorViewModel
+              {
+                Id = "projectMemberSelect",
+                Label = "Members",
+                Placeholder = "Add team members...",
+                IsMultiple = true,
+                IsRequired = false,
+                HiddenInputName = "MemberIds",
+                Icon = "",
+                ValidationFor = "MemberIds",
+                Items = ViewBag.Members != null
+              ? ((List<MemberCardViewModel>)ViewBag.Members).Select(memberMapper).ToList()
+              : new List<SelectorItemViewModel>(),
+              };
+            }
+            <partial name="Partials/Components/ui/_Selector" model="@memberSelector" />
+          </div>
+
+          <!-- Budget -->
+          <div class="form-field">
+            <label class="form-label" for="Budget">Budget</label>
+            <div class="currency-input">
+              <span class="currency-symbol">$</span>
+              <input type="text" class="form-input" id="Budget" name="Budget" placeholder="0" />
+            </div>
+            <span class="field-error" data-valmsg-for="Budget"></span>
+          </div>
+
+          <!-- Status -->
+          <div class="form-field">
+            <label class="form-label" asp-for="StatusId">Status</label>
+            <select class="form-input" asp-for="StatusId">
+              <option value="">Select status</option>
+              <option value="1">Not Started</option>
+              <option value="2">In Progress</option>
+              <option value="3">Paused</option>
+              <option value="4">Completed</option>
+              <option value="5">Cancelled</option>
+            </select>
+            <span class="field-error" asp-validation-for="StatusId"></span>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="form-actions">
+            @{
+              var buttonModel = new ButtonViewModel
+              {
+                Text = "Create",
+                IsSubmit = true,
+                Variant = "primary"
+              };
+            }
+            <partial name="Partials/Components/ui/_Button" model="@buttonModel" />
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    initWysiwygEditor(
+      '#add-project-description-editor',
+      '#add-project-description-toolbar',
+      '#add-project-description',
+      '@Html.Raw(Model.Description ?? "")'
+    );
+  });
+</script>

@@ -1,0 +1,46 @@
+.base-button {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 0.5rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: background-color 0.15s ease-in-out;
+	font-family: var(--font-standard);
+	font-size: 0.9rem;
+}
+
+.primary-button {
+	background-color: var(--accent);
+	color: white;
+	border-radius: 0.875rem;
+	border: 1.5px solid var(--surface-background);
+	padding: 0.7rem 1.5rem;
+
+	&:hover {
+		background-color: var(--blue-dark);
+	}
+
+	& .button-icon {
+		font-weight: bold;
+		font-size: 1.1rem;
+	}
+}
+
+.secondary-button {
+	background-color: var(--white-200);
+	color: var(--primary-text);
+	border: none;
+	border-radius: 1rem;
+	padding: 0.875rem 1rem;
+	font-weight: var(--font-medium);
+
+	&:hover {
+		background-color: var(--gray-600);
+	}
+
+	& .button-icon {
+		font-weight: bold;
+		font-size: 1.1rem;
+	}
+}

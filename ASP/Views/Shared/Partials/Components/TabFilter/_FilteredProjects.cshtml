@@ -1,0 +1,6 @@
+@model List<ASP.ViewModels.Components.ProjectCardViewModel>
+
+@foreach (var project in Model)
+{
+  <partial name="Partials/Components/ProjectCard/_ProjectCard" model="@project" />
+}

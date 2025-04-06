@@ -1,0 +1,11 @@
+@model TabFilterViewModel
+
+<div class="projects-tabs">
+  @foreach (var tab in Model.Tabs)
+  {
+    <a class="tab @(tab.IsActive ? "active" : "")" role="button">
+      @tab.Text
+      <span class="count">[@tab.Count]</span>
+    </a>
+  }
+</div>

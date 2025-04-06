@@ -1,0 +1,20 @@
+@model ClientsViewModel
+
+@{
+    Layout = "_Layout_Alpha";
+    ViewData["Title"] = Model.PageHeader.Title;
+}
+
+<section class="clients-container">
+    <partial name="Partials/Components/PageHeader/_PageHeader" model="@Model.PageHeader" />
+
+    <partial name="Partials/Components/ClientList/_ClientList" model="@Model.Clients" />
+
+    <partial name="Partials/Modals/_AddClientModal" model="@Model.ClientForm" />
+    <partial name="Partials/Modals/_EditClientModal" model="@Model.ClientForm" />
+</section>
+
+@section Scripts {
+    <script src="~/js/clientList.js" type="module"></script>
+    <script src="~/js/clients.js" type="module"></script>
+}
