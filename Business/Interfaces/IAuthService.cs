@@ -5,7 +5,7 @@ namespace Business.Interfaces;
 
 public interface IAuthService
 {
-    Task<AuthResult> SignInAsync(SignInFormData formData);
+    Task<AuthResult> LoginAsync(LoginFormData formData);
     Task SignOutAsync();
     Task<AuthResult> SignUpAsync(SignUpFormData formData);
 }

@@ -1,15 +1,19 @@
 export function initWysiwygEditor(editorId, toolbarId, textareaId, content) {
 	const textarea = document.querySelector(textareaId);
 	const editorElement = document.querySelector(editorId);
+	const toolbarElement = document.querySelector(toolbarId);
 
-	if (editorElement) {
-		editorElement.innerHTML = "";
+	if (!editorElement || !textarea) {
+		console.error("Required elements not found:", { editorId, textareaId });
+		return;
 	}
 
-	const quill = new Quill(editorId, {
+	editorElement.innerHTML = "";
+
+	const quill = new Quill(editorElement, {
 		modules: {
 			syntax: true,
-			toolbar: toolbarId,
+			toolbar: toolbarElement,
 		},
 		placeholder: "Type something...",
 		theme: "snow",

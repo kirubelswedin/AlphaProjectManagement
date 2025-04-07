@@ -177,7 +177,6 @@ input:checked + .slider:before {
 }
 
 
-/* Notification dropdown */
 /* Notification */
 .dropdown-header {
 	padding: 1rem;

@@ -1,3 +1,5 @@
+import WindowManager from "./windowManager.js";
+
 class ClientManager {
 	constructor() {
 		this.init();
@@ -24,7 +26,7 @@ class ClientManager {
 			if (data.success) {
 				const client = data.client;
 				this.populateEditForm(client);
-				openModal("editClientModal");
+				WindowManager.openModal("editClientModal");
 			} else {
 				showToast("error", "Failed to load client");
 			}

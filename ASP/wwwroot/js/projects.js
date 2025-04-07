@@ -1,11 +1,11 @@
 import { SELECTORS, CLASSES } from "./constants.js";
-import { initWysiwygEditor } from "./wysiwyg.js";
+import WindowManager from "./windowManager.js";
 
 /**
  * Handles project management functionalities
  */
 
-class ProjectManager {
+export default class ProjectManager {
 	constructor() {
 		this.init();
 	}
@@ -14,12 +14,7 @@ class ProjectManager {
 		this.initModalEvents();
 		this.initImagePreview();
 		this.initDeleteProject();
-
-		initWysiwygEditor(
-			"#add-project-description-editor",
-			"#add-project-description-toolbar",
-			"#add-project-description"
-		);
+		this.initWysiwygEditors();
 	}
 
 	initModalEvents() {
@@ -45,7 +40,7 @@ class ProjectManager {
 			if (data.success) {
 				const project = data.project;
 				this.populateEditForm(project);
-				openModal("editProjectModal");
+				WindowManager.openModal("editProjectModal");
 			} else {
 				showToast("error", "Failed to load project");
 			}
@@ -120,12 +115,14 @@ class ProjectManager {
 		}
 
 		// Initialize WYSIWYG editor with project description
-		initWysiwygEditor(
-			"#edit-project-description-editor",
-			"#edit-project-description-toolbar",
-			"#Description",
-			project.description || ""
-		);
+		if (typeof window.initWysiwygEditor === "function") {
+			window.initWysiwygEditor(
+				"#edit-project-description-editor",
+				"#edit-project-description-toolbar",
+				"#Description",
+				project.description || ""
+			);
+		}
 	}
 
 	formatDate(dateString) {
@@ -263,6 +260,17 @@ class ProjectManager {
 			input.value = selectedOptions[0].value;
 		}
 	}
-}
 
-export default new ProjectManager();
+	initWysiwygEditors() {
+		const editors = document.querySelectorAll(SELECTORS.WYSIWYG_EDITOR);
+		if (editors.length > 0 && typeof window.initWysiwygEditor === "function") {
+			editors.forEach((editor) => {
+				const toolbar = editor.querySelector(SELECTORS.WYSIWYG_TOOLBAR);
+				const textarea = editor.querySelector(SELECTORS.WYSIWYG_TEXTAREA);
+				if (toolbar && textarea) {
+					window.initWysiwygEditor(editor, toolbar, textarea);
+				}
+			});
+		}
+	}
+}

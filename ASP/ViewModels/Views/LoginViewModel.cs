@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ASP.ViewModels.Views;
 
-public class SigninViewModel
+public class LoginViewModel
 {
     [Required(ErrorMessage = "is required.")]
     [DataType(DataType.EmailAddress)]

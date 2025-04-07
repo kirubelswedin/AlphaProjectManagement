@@ -19,7 +19,7 @@
           <thead>
             <tr>
               <th class="checkbox-column">
-                <input type="checkbox" id="selectAllClients" onchange="toggleSelectAllClients(this)" />
+                <input type="checkbox" id="selectAllClients" onchange="toggleSelectAllClient(this)" />
               </th>
               <th>Client Name</th>
               <th>Contact Person</th>
@@ -43,10 +43,13 @@
                 <td>@DateTime.UtcNow.ToString("yyyy-MM-dd")</td>
                 <td class="actions-cell">
                   <div class="dropdown-wrapper window" id="client-dropdown-@client.Id">
-                    <button class="dropdown-toggle" data-window="dropdown" data-target="client-dropdown-@client.Id" aria-label="Client menu" aria-haspopup="true" aria-expanded="false">
-                      <i class="fa-duotone fa-solid fa-ellipsis-v"></i>
-                    </button>
-                    <!-- Dropdown-content moving outside overflow-container  -->
+                    @{
+                      var clientDropdownModel = new ClientDropdownViewModel
+                      {
+                        Id = client.Id
+                      };
+                    }
+                    <partial name="Partials/Components/Dropdowns/_ClientDropdown" model="@clientDropdownModel" />
                   </div>
                 </td>
               </tr>
@@ -57,7 +60,7 @@
 
       <div class="selected-clients-info" style="display: none;">
         <span id="selectedClientsCount">(0 selected)</span>
-        <button class="unselect-all" onclick="unselectAllClients()">
+        <button class="unselect-all" onclick="unselectAllClient()">
           Unselect all
         </button>
       </div>
@@ -65,32 +68,32 @@
   </div>
 </section>
 
-<div class="dropdown-container">
-  @foreach (var client in clients)
-  {
-    var dropdownModel = new DropdownWindowViewModel
-    {
-      Items =
-    [
-    new DropdownWindowItemViewModel
-    {
-    Icon = "fa-duotone fa-solid fa-pencil",
-    Text = "Edit Client",
-    OnClick = $"window.dispatchEvent(new CustomEvent('openModal', {{ detail: {{ modalId: 'editClientModal', id: '{client.Id}' }} }})); document.querySelector('#client-dropdown-{client.Id}').classList.remove('active');",
-    HasDivider = true
-    },
-    new DropdownWindowItemViewModel
-    {
-    Icon = "fa-duotone fa-solid fa-trash-can",
-    Text = "Delete Client",
-    OnClick = $"deleteClient('{client.Id}'); document.querySelector('#client-dropdown-{client.Id}').classList.remove('active');",
-    IsDanger = true
-    }
-    ]
-    };
-
-    <div class="dropdown-content-wrapper" data-for="client-dropdown-@client.Id">
-      <partial name="Partials/Components/ui/_DropdownWindow" model="@dropdownModel" />
-    </div>
-  }
-</div>
+@* <div class="dropdown-container"> *@
+@*   @foreach (var client in clients) *@
+@*   { *@
+@*     var dropdownModel = new DropdownWindowViewModel *@
+@*     { *@
+@*       Items = *@
+@*     [ *@
+@*     new DropdownWindowItemViewModel *@
+@*     { *@
+@*     Icon = "fa-duotone fa-solid fa-pencil", *@
+@*     Text = "Edit Client", *@
+@*     OnClick = $"window.dispatchEvent(new CustomEvent('openModal', {{ detail: {{ modalId: 'editClientModal', id: '{client.Id}' }} }})); document.querySelector('#client-dropdown-{client.Id}').classList.remove('active');", *@
+@*     HasDivider = true *@
+@*     }, *@
+@*     new DropdownWindowItemViewModel *@
+@*     { *@
+@*     Icon = "fa-duotone fa-solid fa-trash-can", *@
+@*     Text = "Delete Client", *@
+@*     OnClick = $"deleteClient('{client.Id}'); document.querySelector('#client-dropdown-{client.Id}').classList.remove('active');", *@
+@*     IsDanger = true *@
+@*     } *@
+@*     ] *@
+@*     }; *@
+@* *@
+@*     <div class="dropdown-content-wrapper" data-for="client-dropdown-@client.Id"> *@
+@*       <partial name="Partials/Components/ui/_DropdownWindow" model="@dropdownModel" /> *@
+@*     </div> *@
+@*   } *@
+@* </div> *@

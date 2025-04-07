@@ -48,7 +48,7 @@ public class AuthService(SignInManager<UserEntity> signInManager, UserManager<Us
         }
     }
 
-    public async Task<AuthResult> SignInAsync(SignInFormData formData)
+    public async Task<AuthResult> LoginAsync(LoginFormData formData)
     {
         if (formData == null)
             return new AuthResult { Succeeded = false, StatusCode = 400, Error = "form data can't be null." };

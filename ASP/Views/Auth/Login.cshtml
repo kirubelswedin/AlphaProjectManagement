@@ -1,10 +1,10 @@
-@model SigninViewModel
+@model LoginViewModel
 @{
     Layout = "_Layout_Auth";
     ViewData["Title"] = "Login";
 }
 
-<section id="signin" class="card">
+<section id="login" class="card">
     @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
     {
         <div class="alert-notification error">
@@ -31,8 +31,7 @@
     </div>
 
     <div class="card-body">
-        <form asp-controller="Auth" asp-action="Signin" method="post" class="auth-form" 
-            novalidate>
+        <form asp-controller="Auth" asp-action="Login" method="post" class="auth-form" novalidate>
             <input type="hidden" name="returnUrl"
                 value="@(string.IsNullOrEmpty(ViewBag.ReturnUrl) ? "/admin/dashboard" : ViewBag.ReturnUrl)" />
 
@@ -62,7 +61,7 @@
             </div>
 
             @{
-                var signinButtonModel = new ButtonViewModel
+                var loginButtonModel = new ButtonViewModel
                 {
                     Text = "Log In",
                     IsSubmit = true,
@@ -70,7 +69,7 @@
                 };
             }
 
-            <partial name="Partials/Components/ui/_Button" model="signinButtonModel" />
+            <partial name="Partials/Components/ui/_Button" model="loginButtonModel" />
         </form>
     </div>
 
@@ -82,6 +81,6 @@
 
 @section Scripts {
     <script>
-        console.log('Signin page loaded');
+        console.log('Login page loaded');
     </script>
 }

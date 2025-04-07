@@ -40,6 +40,6 @@ public class ProjectFormViewModel
     [Display(Name = "Status", Prompt = "Select status")]
     public string StatusId { get; set; } = null!;
 
-    [Display(Name = "Members", Prompt = "Add team members")]
+    [Display(Name = "Member", Prompt = "Add team members")]
     public List<string> MemberIds { get; set; } = [];
 }

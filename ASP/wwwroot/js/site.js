@@ -7,7 +7,7 @@ import TabScroll from "./tabScroll.js";
 import ClientList from "./clientList.js";
 import FormManager from "./forms.js";
 import SelectorManager from "./selector.js";
-import Projects from "./projects.js";
+import ProjectManager from "./projects.js";
 import Members from "./members.js";
 import Clients from "./clients.js";
 import Global from "./global.js";
@@ -22,7 +22,7 @@ const managers = {
 	ClientList,
 	FormManager,
 	SelectorManager,
-	Projects,
+	ProjectManager,
 	Members,
 	Clients,
 	Global,
@@ -46,11 +46,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	if (currentPath.includes("/admin/projects")) {
 		TabScroll.init();
-		Projects.init();
+		window.projectManager = new ProjectManager();
 	}
 
 	if (currentPath.includes("/admin/members")) {
-		Members.init();
+		window.memberManager = Members;
 	}
 
 	if (currentPath.includes("/admin/clients")) {
@@ -61,7 +61,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Event listeners for manager interactions
 document.addEventListener("openModal", (e) => {
-	WindowManager.openModal(e.detail.modalId);
+	const { modalId, id } = e.detail;
+	if (modalId === "editProjectModal" && id) {
+		window.projectManager?.editProject(id);
+	} else if (modalId === "editMemberModal" && id) {
+		window.memberManager?.editMember(id);
+	} else if (modalId === "editClientModal" && id) {
+		window.clientManager?.editClient(id);
+	} else {
+		WindowManager.openModal(modalId);
+	}
 });
 
 document.addEventListener("closeModal", (e) => {

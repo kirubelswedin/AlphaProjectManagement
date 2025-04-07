@@ -31,6 +31,11 @@ export const SELECTORS = {
 	MODAL: ".modal",
 	MODAL_TRIGGER: '[data-modal="true"]',
 	MODAL_CLOSE: '[data-close="true"]',
+
+	// Wysiwyg
+	WYSIWYG_EDITOR: ".wysiwyg-editor",
+	WYSIWYG_TOOLBAR: ".wysiwyg-toolbar",
+	WYSIWYG_TEXTAREA: ".wysiwyg-textarea",
 };
 
 export const CLASSES = {

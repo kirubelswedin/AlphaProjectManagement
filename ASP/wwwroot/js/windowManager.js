@@ -50,6 +50,16 @@ class WindowManager {
 
 	initWindowOutsideClicks() {
 		document.addEventListener("click", (e) => {
+			// Skip if clicking a dropdown item with onclick attribute
+			const dropdownItem = e.target.closest(".dropdown-item[onclick]");
+			if (dropdownItem) {
+				// Close the dropdown after executing the onclick
+				setTimeout(() => {
+					this.closeAllDropdowns();
+				}, 100);
+				return;
+			}
+
 			// Ignorera klick på triggers
 			const clickedTrigger = e.target.closest("[data-window]");
 			if (clickedTrigger) return;

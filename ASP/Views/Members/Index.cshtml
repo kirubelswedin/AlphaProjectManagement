@@ -11,7 +11,7 @@
     <div class="members-grid">
         @foreach (var member in Model.Members)
         {
-                <partial name="Partials/Components/MemberCard/_MemberCard" model="@member" />
+            <partial name="Partials/Components/MemberCard/_MemberCard" model="@member" />
         }
     </div>
 
@@ -20,5 +20,5 @@
 </section>
 
 @section Scripts {
-                <script src="~/js/members.js" type="module"></script>
+    <script src="~/js/members.js" type="module"></script>
 }

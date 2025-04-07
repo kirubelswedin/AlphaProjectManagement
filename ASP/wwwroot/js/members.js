@@ -1,3 +1,5 @@
+import WindowManager from "./windowManager.js";
+
 class MemberManager {
 	constructor() {
 		this.initModalEvents();
@@ -41,6 +43,7 @@ class MemberManager {
 
 			if (data.success && data.member) {
 				this.populateEditForm(data.member);
+				WindowManager.openModal("editMemberModal");
 			}
 		} catch (error) {
 			console.error("Error fetching member:", error);

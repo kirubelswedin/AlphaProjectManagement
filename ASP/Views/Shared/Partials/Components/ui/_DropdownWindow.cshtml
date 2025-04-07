@@ -1,40 +1,59 @@
 @model DropdownWindowViewModel
 
 <div class="dropdown-content">
-    @if (Model.HeaderTitle == "Notifications")
+    @if (!string.IsNullOrEmpty(Model.HeaderTitle))
     {
         <div class="dropdown-header">
             <div class="header-title">
                 <h4>@Model.HeaderTitle</h4>
-                <span class="notification-number">@(Model.NotificationCount ?? 0)</span>
+                @if (Model.NotificationCount.HasValue)
+                {
+                    <span class="notification-number">@Model.NotificationCount</span>
+                }
             </div>
         </div>
     }
-    
+
     @if (!Model.Items.Any())
     {
-        <div class="dropdown-item @(Model.HeaderTitle == "Notifications" ? "empty-message" : "")">
-            <span>@(Model.HeaderTitle == "Notifications" ? "No notifications" : "No items")</span>
+        <div class="dropdown-item empty-message">
+            <span>@Model.EmptyMessage</span>
         </div>
     }
-    else 
+    else
     {
         @foreach (var item in Model.Items)
         {
-            <div class="dropdown-item @(item.IsDanger ? "danger" : "")" @(item.OnClick != null ? $"onclick={item.OnClick}" : "")>
-                @if (!string.IsNullOrEmpty(item.Icon) && Model.HeaderTitle != "Notifications")
+            <div class="dropdown-item @(item.IsDanger ? "danger" : "")" 
+                 @Html.Raw(item.HtmlAttributes) 
+                 @(string.IsNullOrEmpty(item.OnClick) ? "" : $"onclick=\"{item.OnClick}\"")>
+                
+                @if (item.ContentHtml != null)
                 {
-                    <i class="@item.Icon"></i>
+                    @item.ContentHtml
                 }
-                @if (!string.IsNullOrEmpty(item.Text) && Model.HeaderTitle != "Notifications")
+                else if (!string.IsNullOrEmpty(item.Content))
                 {
-                    <span>@item.Text</span>
+                    @Html.Raw(item.Content)
                 }
+                else
+                {
+                    @if (!string.IsNullOrEmpty(item.Icon))
+                    {
+                        <i class="@item.Icon"></i>
+                    }
+                    @if (!string.IsNullOrEmpty(item.Text))
+                    {
+                        <span>@item.Text</span>
+                    }
+                }
+                
                 @if (!string.IsNullOrEmpty(item.AdditionalContent))
                 {
                     @Html.Raw(item.AdditionalContent)
                 }
             </div>
+
             @if (item.HasDivider)
             {
                 <div class="dropdown-divider"></div>

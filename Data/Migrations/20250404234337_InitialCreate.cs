@@ -58,7 +58,7 @@ namespace Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Clients",
+                name: "Client",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
@@ -245,7 +245,7 @@ namespace Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Notifications",
+                name: "Dropdowns",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
@@ -306,7 +306,7 @@ namespace Data.Migrations
                     table.ForeignKey(
                         name: "FK_Projects_Clients_ClientId",
                         column: x => x.ClientId,
-                        principalTable: "Clients",
+                        principalTable: "Client",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -337,7 +337,7 @@ namespace Data.Migrations
                     table.ForeignKey(
                         name: "FK_DismissedNotifications_Notifications_NotificationId",
                         column: x => x.NotificationId,
-                        principalTable: "Notifications",
+                        principalTable: "Dropdowns",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -393,12 +393,12 @@ namespace Data.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_Notifications_NotificationTargetId",
-                table: "Notifications",
+                table: "Dropdowns",
                 column: "NotificationTargetId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Notifications_NotificationTypeId",
-                table: "Notifications",
+                table: "Dropdowns",
                 column: "NotificationTypeId");
 
             migrationBuilder.CreateIndex(
@@ -448,10 +448,10 @@ namespace Data.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "Notifications");
+                name: "Dropdowns");
 
             migrationBuilder.DropTable(
-                name: "Clients");
+                name: "Client");
 
             migrationBuilder.DropTable(
                 name: "Statuses");

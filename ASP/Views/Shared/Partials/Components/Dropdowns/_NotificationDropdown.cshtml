@@ -1,0 +1,36 @@
+@model NotificationDropdownViewModel
+@{
+  Layout = null;
+}
+
+<button id="notification-dropdown-button" class="dropdown-toggle notification-btn" data-window="dropdown"
+  data-target="notification-dropdown" aria-label="Notification" aria-haspopup="true" aria-expanded="false">
+  <i class="fa-duotone fa-solid fa-bell"></i>
+  @if (Model.UnreadCount > 0)
+  {
+    <span class="notification-indicator"></span>
+  }
+</button>
+
+@{
+  var dropdownModel = new DropdownWindowViewModel
+  {
+    HeaderTitle = "Notification",
+    NotificationCount = Model.UnreadCount,
+    EmptyMessage = "No notifications",
+    Items = []
+  };
+
+  foreach (var notification in Model.Notifications)
+  {
+    var item = new DropdownItemViewModel
+    {
+      ContentHtml = await Html.PartialAsync("Partials/Components/Dropdowns/_NotificationItem", notification),
+      HasDivider = false,
+      IsDanger = false
+    };
+    dropdownModel.Items.Add(item);
+  }
+}
+
+<partial name="Partials/Components/ui/_DropdownWindow" model="@dropdownModel" />

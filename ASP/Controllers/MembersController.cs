@@ -30,7 +30,7 @@ public class MembersController(
         {
             PageHeader = new()
             {
-                Title = "Members",
+                Title = "Member",
                 ButtonText = "Add Member",
                 ModalId = "addMemberModal"
             },

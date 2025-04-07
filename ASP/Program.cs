@@ -14,7 +14,7 @@ builder.Services.AddLocalIdentity(builder.Configuration);
 builder.Services.AddRepositories(builder.Configuration);
 builder.Services.AddServices(builder.Configuration);
 builder.Services.AddScoped<IFileUploadService, FileUploadService>();
-builder.Services.ConfigureApplicationCookie((options => options.LoginPath = "/auth/signin"));
+builder.Services.ConfigureApplicationCookie((options => options.LoginPath = "/auth/login"));
 
 var app = builder.Build();
 app.UseHsts();

@@ -1,0 +1,34 @@
+@model ClientDropdownViewModel
+@{
+    Layout = null;
+}
+
+<button class="dropdown-toggle" data-window="dropdown" data-target="client-dropdown-@Model.Id" 
+        aria-label="Client menu" aria-haspopup="true" aria-expanded="false">
+    <i class="fa-duotone fa-solid fa-ellipsis-v"></i>
+</button>
+
+@{
+    var dropdownModel = new DropdownWindowViewModel
+    {
+        Items =
+        [
+            new DropdownItemViewModel
+            {
+                Icon = "fa-duotone fa-solid fa-pencil",
+                Text = "Edit Client",
+                OnClick = $"window.dispatchEvent(new CustomEvent('openModal', {{ detail: {{ modalId: 'editClientModal', id: '{Model.Id}' }} }})); document.querySelector('#client-dropdown-{Model.Id}').classList.remove('active');",
+                HasDivider = true
+            },
+            new DropdownItemViewModel
+            {
+                Icon = "fa-duotone fa-solid fa-trash-can",
+                Text = "Delete Client",
+                OnClick = $"deleteClient('{Model.Id}'); document.querySelector('#client-dropdown-{Model.Id}').classList.remove('active');",
+                IsDanger = true
+            }
+        ]
+    };
+}
+
+<partial name="Partials/Components/UI/_DropdownWindow" model="@dropdownModel" />

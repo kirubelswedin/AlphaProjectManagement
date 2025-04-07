@@ -8,7 +8,7 @@ public class MembersViewModel
 {
     public PageHeaderViewModel PageHeader { get; set; } = new()
     {
-        Title = "Members",
+        Title = "Member",
         ButtonText = "Add Member",
         ModalId = "addMemberModal"
     };

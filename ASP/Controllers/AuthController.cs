@@ -1,29 +1,26 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using ASP.ViewModels.Views;
 using Business.Dtos;
 using Business.Interfaces;
+using Data.Entities;
+using Microsoft.AspNetCore.Identity;
 using Domain.Extensions;
-using System.Security.Claims;
-using Hubs;
-using Microsoft.AspNetCore.SignalR;
 
 namespace ASP.Controllers;
 
-public class AuthController(IAuthService authService, INotificationService notificationService, IUserService userService, IHubContext<NotificationHub> notificationHub) : Controller
+public class AuthController(IAuthService authService, INotificationService notificationService, IUserService userService) : Controller
 {
     private readonly IAuthService _authService = authService;
-    private readonly IUserService _userService = userService;
     private readonly INotificationService _notificationService = notificationService;
-    private readonly IHubContext<NotificationHub> _notificationHub = notificationHub;
+    private readonly IUserService _userService = userService;
     
-    #region Local SignUp
-    
+ 
     [Route("auth/signup")]
     public IActionResult SignUp(string returnUrl = "~/")
     {
         ViewBag.ReturnUrl = returnUrl;
         ViewBag.ErrorMessage = "";
-
         return View();
     }
 
@@ -51,41 +48,36 @@ public class AuthController(IAuthService authService, INotificationService notif
         ViewBag.ErrorMessage = authResult.Error;
         return View(model);
     }
-    #endregion
 
-
-    #region Sign In
     
-    [HttpGet]
-    [Route("auth/signin")]
-    public IActionResult Signin(string returnUrl = "~/")
+    [Route("auth/login")]
+    public IActionResult Login(string returnUrl = "~/")
     {
         ViewBag.ReturnUrl = returnUrl;
         ViewBag.ErrorMessage = "";
-
         return View();
     }
 
     [HttpPost]
-    [Route("auth/signin")]
-    public async Task<IActionResult> Signin(SigninViewModel model, string returnUrl = "~/")
+    [Route("auth/login")]
+    public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = "~/")
     {
         if (ModelState.IsValid)
         {
-            var signInFormData = model.MapTo<SignInFormData>();
-            var authResult = await _authService.SignInAsync(signInFormData);
+            var loginFormData = model.MapTo<LoginFormData>();
+            var authResult = await _authService.LoginAsync(loginFormData);
 
             if (authResult.Succeeded)
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var userResult = await _userService.GetUserByIdAsync(userId!);
                 var user = userResult.Result;
-
+                
                 if (user != null)
                 {
                     var notificationFormData = new NotificationFormData
                     {
-                        Title = "User Signin",
+                        Title = "User Login",
                         NotificationTypeId = 1,
                         NotificationTargetId = 1,
                         Message = $"{user.FirstName} {user.LastName} signed in.",
@@ -93,20 +85,7 @@ public class AuthController(IAuthService authService, INotificationService notif
                         CreatedAt = DateTime.UtcNow
                     };
 
-                    await _notificationService.AddNotificationAsync(notificationFormData, user.Id); 
-                    var notifications = await _notificationService.GetNotificationsAsync("");
-                    var newNotification = notifications.Result?.OrderByDescending(x => x.CreatedAt).FirstOrDefault();
-
-                    if (newNotification != null)
-                    {
-                        await _notificationHub.Clients.All.SendAsync("ReceiveNotification", newNotification);
-                    }
-                    
-                }
-
-                if (string.IsNullOrEmpty(returnUrl) || returnUrl == "~/")
-                {
-                    return RedirectToAction("Index", "Dashboard", new { area = "admin" });
+                    await _notificationService.AddNotificationAsync(notificationFormData);
                 }
 
                 return LocalRedirect(returnUrl);
@@ -114,21 +93,16 @@ public class AuthController(IAuthService authService, INotificationService notif
         }
 
         ViewBag.ReturnUrl = returnUrl;
-        ViewBag.ErrorMessage = "Unable to signin. Try another email or password.";
+        ViewBag.ErrorMessage = "Unable to login. Try another email or password.";
         return View(model);
-    }  
+    }
     
-    #endregion
     
-
-    #region Sign Out
-    
-    [Route("auth/signout")]
-    public async Task<IActionResult> Signout()
+    [HttpGet]
+    [Route("auth/logout")]
+    public async Task<IActionResult> Logout()
     {
         await _authService.SignOutAsync();
         return LocalRedirect("~/");
     }
-    
-    #endregion
   }

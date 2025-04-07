@@ -362,7 +362,6 @@ main {
 	display: none;
 }
 
-
 /* Theme switch in dropdown */
 .switch .light-icon,
 .switch .dark-icon {
@@ -384,10 +383,14 @@ main {
 	gap: 0.75rem;
 	width: 100%;
 	padding: 0.25rem 0;
-}
 
-.theme-menu-item i {
-	font-size: 1rem;
+	& i {
+		font-size: 1rem;
+	}
+
+	& .switch {
+		margin-left: auto;
+	}
 }
 
 .light-text {
@@ -412,10 +415,6 @@ main {
 
 [data-theme="dark"] .dark-icon {
 	display: none;
-}
-
-.theme-menu-item .switch {
-	margin-left: auto;
 }
 
 /* .error-message { */

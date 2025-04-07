@@ -13,39 +13,13 @@
       </div>
     </div>
     <div class="dropdown-wrapper window" id="project-dropdown-@Model.Id">
-      <button class="dropdown-toggle" data-window="dropdown" data-target="project-dropdown-@Model.Id" aria-label="Project menu" aria-haspopup="true" aria-expanded="false">
-        <span class="dots"></span>
-      </button>
       @{
-        var dropdownModel = new DropdownWindowViewModel
+        var projectDropdownModel = new ProjectDropdownViewModel
         {
-          Items =
-        [
-        new DropdownWindowItemViewModel
-            {
-            Icon = "fa-duotone fa-solid fa-pencil",
-            Text = "Edit Project",
-            OnClick = $"window.dispatchEvent(new CustomEvent('openModal', {{ detail: {{ modalId: 'editProjectModal-{Model.Id}' }} }}))",
-            HasDivider = false
-            },
-            new DropdownWindowItemViewModel
-            {
-            Icon = "fa-duotone fa-solid fa-user-plus",
-            Text = "Add Member",
-            OnClick = $"window.dispatchEvent(new CustomEvent('openModal', {{ detail: {{ modalId: 'addProjectMemberModal-{Model.Id}' }} }}))",
-            HasDivider = true
-            },
-            new DropdownWindowItemViewModel
-            {
-            Icon = "fa-duotone fa-solid fa-trash-can",
-            Text = "Delete Project",
-            OnClick = $"window.dispatchEvent(new CustomEvent('openModal', {{ detail: {{ modalId: 'deleteProjectModal-{Model.Id}' }} }}))",
-            IsDanger = true
-            }
-        ]
+          Id = Model.Id
         };
       }
-      <partial name="Partials/Components/ui/_DropdownWindow" model="@dropdownModel" data-for="project-dropdown-@Model.Id" />
+      <partial name="Partials/Components/Dropdowns/_ProjectDropdown" model="@projectDropdownModel" />
     </div>
   </div>
   <div class="project-description">

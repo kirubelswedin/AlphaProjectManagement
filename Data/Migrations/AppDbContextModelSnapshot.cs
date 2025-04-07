@@ -58,7 +58,7 @@ namespace Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Clients");
+                    b.ToTable("Client");
                 });
 
             modelBuilder.Entity("Data.Entities.NotificationDismissedEntity", b =>
@@ -121,7 +121,7 @@ namespace Data.Migrations
 
                     b.HasIndex("NotificationTypeId");
 
-                    b.ToTable("Notifications");
+                    b.ToTable("Dropdowns");
                 });
 
             modelBuilder.Entity("Data.Entities.NotificationTargetEntity", b =>
@@ -523,13 +523,13 @@ namespace Data.Migrations
             modelBuilder.Entity("Data.Entities.NotificationEntity", b =>
                 {
                     b.HasOne("Data.Entities.NotificationTargetEntity", "NotificationTarget")
-                        .WithMany("Notifications")
+                        .WithMany("Dropdowns")
                         .HasForeignKey("NotificationTargetId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Data.Entities.NotificationTypeEntity", "NotificationType")
-                        .WithMany("Notifications")
+                        .WithMany("Dropdowns")
                         .HasForeignKey("NotificationTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -640,12 +640,12 @@ namespace Data.Migrations
 
             modelBuilder.Entity("Data.Entities.NotificationTargetEntity", b =>
                 {
-                    b.Navigation("Notifications");
+                    b.Navigation("Dropdowns");
                 });
 
             modelBuilder.Entity("Data.Entities.NotificationTypeEntity", b =>
                 {
-                    b.Navigation("Notifications");
+                    b.Navigation("Dropdowns");
                 });
 
             modelBuilder.Entity("Data.Entities.StatusEntity", b =>

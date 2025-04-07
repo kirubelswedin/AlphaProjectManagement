@@ -1,0 +1,42 @@
+@model ProjectDropdownViewModel
+@{
+    Layout = null;
+}
+
+<button class="dropdown-toggle" data-window="dropdown" data-target="project-dropdown-@Model.Id" 
+        aria-label="Project menu" aria-haspopup="true" aria-expanded="false">
+    <span class="dots"></span>
+</button>
+
+@{
+    var dropdownModel = new DropdownWindowViewModel
+    {
+        Items = 
+        [
+            // Edit project
+            new DropdownItemViewModel
+            {
+                Content = $@"<i class=""fa-duotone fa-solid fa-pencil""></i><span>Edit Project</span>",
+                HtmlAttributes = $"onclick=\"window.dispatchEvent(new CustomEvent('openModal', {{ detail: {{ modalId: 'editProjectModal', id: '{Model.Id}' }} }}))\""
+            },
+            
+            // Add member
+            new DropdownItemViewModel
+            {
+                Content = $@"<i class=""fa-duotone fa-solid fa-user-plus""></i><span>Add Member</span>",
+                HtmlAttributes = $"onclick=\"window.dispatchEvent(new CustomEvent('openModal', {{ detail: {{ modalId: 'addProjectMemberModal-{Model.Id}' }} }}))\"",
+                HasDivider = true
+            },
+            
+            // Delete project
+            new DropdownItemViewModel
+            {
+                Content = $@"<i class=""fa-duotone fa-solid fa-trash-can""></i><span>Delete Project</span>",
+                HtmlAttributes = $"onclick=\"window.dispatchEvent(new CustomEvent('openModal', {{ detail: {{ modalId: 'deleteProjectModal-{Model.Id}' }} }}))\"",
+                IsDanger = true
+            }
+        ]
+    };
+}
+
+<partial name="Partials/Components/UI/_DropdownWindow" model="@dropdownModel" />
