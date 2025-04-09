@@ -54,7 +54,7 @@ public class MembersController(
         var member = new
         {
             Id = user.Id,
-            Avatar = user.Image,
+            Avatar = user.ImageUrl,
             FullName = $"{user.FirstName} {user.LastName}",
             Email = user.Email,
             PhoneNumber = user.PhoneNumber,
@@ -126,7 +126,7 @@ public class MembersController(
 
         var users = await _context.Users
             .Where(x => x.FirstName!.Contains(term) || x.LastName!.Contains(term) || x.Email!.Contains(term))
-            .Select(x => new { x.Id, x.Image, FullName = $"{x.FirstName} {x.LastName}" })
+            .Select(x => new { x.Id, x.ImageUrl, FullName = $"{x.FirstName} {x.LastName}" })
             .ToListAsync();
 
         return Json(users);

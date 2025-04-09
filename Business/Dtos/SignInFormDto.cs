@@ -1,6 +1,6 @@
 namespace Business.Dtos;
 
-public class LoginFormData
+public class SignInFormData
 {
     public string Email { get; set; } = null!;
     public string Password { get; set; } = null!;

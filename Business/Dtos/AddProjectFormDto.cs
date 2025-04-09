@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Http;
 
-namespace Business.Dtos.Forms;
+namespace Business.Dtos;
 
-public class ProjectFormData
+public class AddProjectDto
 {
-    public IFormFile? Image { get; set; }
+    public IFormFile? ImageUrl { get; set; }
     public string ProjectName { get; set; } = null!;
     public string Description { get; set; } = null!;
     public DateTime StartDate { get; set; }
