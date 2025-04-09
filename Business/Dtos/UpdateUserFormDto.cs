@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Business.Dtos;
 
-public class UpdateUserDto
+public class UpdateUserFormDto
 {
     public string Id { get; set; } = null!;
     

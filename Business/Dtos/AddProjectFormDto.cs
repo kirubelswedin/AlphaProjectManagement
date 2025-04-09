@@ -1,16 +1,33 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
 
 namespace Business.Dtos;
 
-public class AddProjectDto
+public class AddProjectFormDto
 {
     public IFormFile? ImageUrl { get; set; }
+    
+    [Required]
     public string ProjectName { get; set; } = null!;
-    public string Description { get; set; } = null!;
-    public DateTime StartDate { get; set; }
-    public DateTime EndDate { get; set; }
-    public decimal? Budget { get; set; }
+    
+    [Required]
     public string ClientId { get; set; } = null!;
-    public int StatusId { get; set; }
-    public List<string> MemberIds { get; set; } = [];
+    
+    public string Description { get; set; } = null!;
+    
+    [Required]
+    [DataType(DataType.Date)]
+    public DateTime StartDate { get; set; }
+
+    [Required]
+    [DataType(DataType.Date)]
+    public DateTime EndDate { get; set; }
+    
+    [Required]
+    public string UserId { get; set; } = null!;
+    
+    public decimal? Budget { get; set; }
+    
+    public int StatusId { get; set; } 
+    
 }

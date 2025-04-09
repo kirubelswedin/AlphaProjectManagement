@@ -2,6 +2,7 @@ using ASP.ViewModels.forms;
 using ASP.ViewModels.MockData;
 using ASP.ViewModels.Views;
 using Business.Interfaces;
+using Business.Services;
 using Data.Contexts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -12,7 +13,7 @@ using Data.Entities;
 namespace ASP.Controllers;
 
 [Authorize(Roles = "Admin")]
-public class MembersController(
+public class UsersController(
     IUserService userService, 
     AppDbContext context,
     UserManager<UserEntity> userManager,
@@ -125,8 +126,8 @@ public class MembersController(
             return Json(new List<object>());
 
         var users = await _context.Users
-            .Where(x => x.FirstName!.Contains(term) || x.LastName!.Contains(term) || x.Email!.Contains(term))
-            .Select(x => new { x.Id, x.ImageUrl, FullName = $"{x.FirstName} {x.LastName}" })
+            .Where(x => x.FirstName.Contains(term) || x.LastName.Contains(term) || x.Email!.Contains(term))
+            .Select(x => new { x.Id, x.ImageUrl, FullName = x.FirstName + " " + x.LastName })
             .ToListAsync();
 
         return Json(users);

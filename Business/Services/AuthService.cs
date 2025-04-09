@@ -1,11 +1,17 @@
 using Business.Dtos;
-using Business.Interfaces;
 using Data.Entities;
 using Domain.Extensions;
 using Domain.Responses;
 using Microsoft.AspNetCore.Identity;
 
 namespace Business.Services;
+
+public interface IAuthService
+{
+    Task<AuthResult> SignInAsync(SignInFormDto formDto);
+    Task<AuthResult> SignUpAsync(SignUpFormDto formDto);
+    Task SignOutAsync();
+}
 
 public class AuthService(SignInManager<UserEntity> signInManager, UserManager<UserEntity> userManager, IUserService userService) : IAuthService
 {
@@ -14,26 +20,26 @@ public class AuthService(SignInManager<UserEntity> signInManager, UserManager<Us
     private readonly IUserService _userService = userService;
 
 
-    public async Task<AuthResult> SignUpAsync(SignUpFormData formData)
+    public async Task<AuthResult> SignUpAsync(SignUpFormDto formDto)
     {
-        if (formData == null)
+        if (formDto == null)
             return new AuthResult { Succeeded = false, StatusCode = 400, Error = "form data can't be null." };
 
-        var userResult = await _userService.UserExistsByEmailAsync(formData.Email);
+        var userResult = await _userService.UserExistsByEmailAsync(formDto.Email);
         if (userResult.Succeeded)
             return new AuthResult { Succeeded = false, StatusCode = 409, Error = userResult.Error };
 
         try
         {
-            var userEntity = formData.MapTo<UserEntity>();
+            var userEntity = formDto.MapTo<UserEntity>();
             userEntity.UserName = userEntity.Email;
 
-            var identityResult = await _userManager.CreateAsync(userEntity, formData.Password);
+            var identityResult = await _userManager.CreateAsync(userEntity, formDto.Password);
             if (identityResult.Succeeded)
             {
-                if (formData.RoleName != null)
+                if (formDto.RoleName != null)
                 {
-                    var result = await _userService.AddUserToRoleAsync(userEntity, formData.RoleName);
+                    var result = await _userService.AddUserToRoleAsync(userEntity, formDto.RoleName);
                 }
 
                 return new AuthResult { Succeeded = true, StatusCode = 201, SuccessMessage = $"User was created successfully." };
@@ -48,12 +54,12 @@ public class AuthService(SignInManager<UserEntity> signInManager, UserManager<Us
         }
     }
 
-    public async Task<AuthResult> LoginAsync(LoginFormData formData)
+    public async Task<AuthResult> SignInAsync(SignInFormDto formDto)
     {
-        if (formData == null)
+        if (formDto == null)
             return new AuthResult { Succeeded = false, StatusCode = 400, Error = "form data can't be null." };
 
-        var signInResult = await _signInManager.PasswordSignInAsync(formData.Email, formData.Password, formData.IsPersistent, false);
+        var signInResult = await _signInManager.PasswordSignInAsync(formDto.Email, formDto.Password, formDto.IsPersistent, false);
         return signInResult.Succeeded
             ? new AuthResult { Succeeded = true, StatusCode = 200 }
             : new AuthResult { Succeeded = false, StatusCode = 401 };
@@ -63,4 +69,13 @@ public class AuthService(SignInManager<UserEntity> signInManager, UserManager<Us
     {
         await _signInManager.SignOutAsync();
     }
+    
+    // public async Task<IEnumerable<User>> UpdateCacheAsync()
+    // {
+    //     var entities = await _userManager.Users.ToListAsync();
+    //     var models = entities.Select(UserMapper.ToModel).ToList();
+    //
+    //     _cacheHandler.SetCache(_cacheKey, models);
+    //     return models;
+    // }
 }

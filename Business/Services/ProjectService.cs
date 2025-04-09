@@ -1,4 +1,4 @@
-using Business.Dtos.Forms;
+using Business.Dtos;
 using Business.Interfaces;
 using Data.Repositories;
 using Domain.Extensions;
@@ -7,6 +7,15 @@ using Domain.Responses;
 
 
 namespace Business.Services;
+
+public interface IProjectService
+{
+    Task<ProjectResult<IEnumerable<Project>>> GetProjectsAsync();
+    Task<ProjectResult<Project>> GetProjectByIdAsync(string id);
+    Task<ProjectResult> CreateProjectAsync(AddProjectFormDto formDto, string createdById);
+    Task<ProjectResult> UpdateProjectAsync(string id, AddProjectFormDto formDto);
+    Task<ProjectResult> DeleteProjectAsync(string id);
+}
 
 public class ProjectService(IProjectRepository projectRepository, IFileUploadService fileUploadService) : IProjectService
 {
@@ -66,27 +75,27 @@ public class ProjectService(IProjectRepository projectRepository, IFileUploadSer
         };
     }
 
-    public async Task<ProjectResult> CreateProjectAsync(ProjectFormData formData, string userId)
+    public async Task<ProjectResult> CreateProjectAsync(AddProjectFormDto formDto, string userId)
     {
         try
         {
             // Handle image upload
             string? imagePath = null;
-            if (formData.Image != null)
+            if (formDto.ImageUrl != null)
             {
-                imagePath = await _fileUploadService.UploadFileAsync(formData.Image, "projects");
+                imagePath = await _fileUploadService.UploadFileAsync(formDto.ImageUrl, "projects");
             }
 
             var entity = new Data.Entities.ProjectEntity
             {
-                Image = imagePath,
-                ProjectName = formData.ProjectName,
-                Description = formData.Description,
-                StartDate = formData.StartDate,
-                EndDate = formData.EndDate,
-                Budget = formData.Budget,
-                ClientId = formData.ClientId,
-                StatusId = formData.StatusId,
+                ImageUrl = imagePath,
+                ProjectName = formDto.ProjectName,
+                Description = formDto.Description,
+                StartDate = formDto.StartDate,
+                EndDate = formDto.EndDate,
+                Budget = formDto.Budget,
+                ClientId = formDto.ClientId,
+                StatusId = formDto.StatusId,
                 UserId = userId,
                 IsCompleted = false,
                 CompletedOnTime = false,
@@ -113,7 +122,7 @@ public class ProjectService(IProjectRepository projectRepository, IFileUploadSer
         }
     }
 
-    public async Task<ProjectResult> UpdateProjectAsync(string id, ProjectFormData formData)
+    public async Task<ProjectResult> UpdateProjectAsync(string id, AddProjectFormDto formDto)
     {
         try
         {
@@ -129,18 +138,18 @@ public class ProjectService(IProjectRepository projectRepository, IFileUploadSer
             var entity = existingProject.Result;
 
             // Handle image upload
-            if (formData.Image != null)
+            if (formDto.ImageUrl != null)
             {
-                entity.Image = await _fileUploadService.UploadFileAsync(formData.Image, "projects");
+                entity.ImageUrl = await _fileUploadService.UploadFileAsync(formDto.ImageUrl, "projects");
             }
 
-            entity.ProjectName = formData.ProjectName;
-            entity.Description = formData.Description;
-            entity.StartDate = formData.StartDate;
-            entity.EndDate = formData.EndDate;
-            entity.Budget = formData.Budget;
-            entity.ClientId = formData.ClientId;
-            entity.StatusId = formData.StatusId;
+            entity.ProjectName = formDto.ProjectName;
+            entity.Description = formDto.Description;
+            entity.StartDate = formDto.StartDate;
+            entity.EndDate = formDto.EndDate;
+            entity.Budget = formDto.Budget;
+            entity.ClientId = formDto.ClientId;
+            entity.StatusId = formDto.StatusId;
             entity.UpdatedAt = DateTime.UtcNow;
 
             // Check if status was changed to completed
@@ -152,7 +161,7 @@ public class ProjectService(IProjectRepository projectRepository, IFileUploadSer
                 entity.CompletedOnTime = DateTime.UtcNow <= entity.EndDate;
             }
             // Check if project was re-opened from completed state
-            else if (entity.IsCompleted && formData.StatusId != 4)
+            else if (entity.IsCompleted && formDto.StatusId != 4)
             {
                 entity.IsCompleted = false;
                 entity.CompletedAt = null;

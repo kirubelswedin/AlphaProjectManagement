@@ -11,7 +11,7 @@
       </div>
       <div class="form-modal-body">
         <form id="projectForm" asp-action="UpdateProject" asp-controller="Projects" method="post"
-              enctype="multipart/form-data" data-id="edit">
+          enctype="multipart/form-data" data-id="edit">
           <input type="hidden" id="Id" name="Id" />
 
           <!-- Project Image -->
@@ -26,7 +26,7 @@
                   </div>
                 </div>
                 <input type="file" class="hidden-input" name="ProjectImage" accept="image/*" />
-                <input type="hidden" id="CurrentProjectImageUrl" name="CurrentProjectImage" />
+                <input type="hidden" id="CurrentProjectImage" name="CurrentProjectImage" />
               </div>
             </div>
             <span class="field-error" data-valmsg-for="ProjectImage"></span>
@@ -39,34 +39,11 @@
             <span class="field-error" data-valmsg-for="Name"></span>
           </div>
 
-          <!-- Client -->
+          <!-- Member Selector -->
           <div class="form-field">
-            @{
-              Func<Domain.Models.Client, SelectorItemViewModel> clientMapper = c => new SelectorItemViewModel
-              {
-                Id = c.Id.ToString(),
-                Text = c.ClientName,
-                ImageUrl = c.Image,
-                IsSelected = false
-              };
-
-              var clientSelector = new SelectorViewModel
-              {
-                Id = "projectClientSelect",
-                Label = "Client",
-                Placeholder = "Search for client...",
-                IsMultiple = false,
-                IsRequired = true,
-                HiddenInputName = "ClientId",
-                Icon = "",
-                ValidationFor = "ClientId",
-                Items = ViewBag.Clients != null
-                  ? ((List<Domain.Models.Client>)ViewBag.Clients).Select(clientMapper).ToList()
-                  : new List<SelectorItemViewModel>()
-              };
-            }
-            <partial name="Partials/Components/ui/_Selector" model="@clientSelector" />
+            <partial name="Partials/Components/Selectors/_MemberSelector" />
           </div>
+
 
           <!-- Description -->
           <div class="form-field">
@@ -92,35 +69,9 @@
             </div>
           </div>
 
-          <!-- Member -->
-          <div class="form-field">
-            @{
-              Func<MemberCardViewModel, SelectorItemViewModel> memberMapper = m => new SelectorItemViewModel
-              {
-                Id = m.Id.ToString(),
-                Text = m.FullName,
-                ImageUrl = m.Avatar,
-                IsSelected = false
-              };
-
-              var memberSelector = new SelectorViewModel
-              {
-                Id = "projectMemberSelect",
-                Label = "Member",
-                Placeholder = "Add team members...",
-                IsMultiple = true,
-                IsRequired = false,
-                HiddenInputName = "MemberIds",
-                Icon = "",
-                ValidationFor = "MemberIds",
-                Items = ViewBag.Members != null
-                  ? ((List<MemberCardViewModel>)ViewBag.Members).Select(memberMapper).ToList()
-                  : new List<SelectorItemViewModel>()
-              };
-            }
-            <partial name="Partials/Components/ui/_Selector" model="@memberSelector" />
-          </div>
-
+          <!-- Member Selector -->
+          <partial name="Partials/Components/Selectors/_MemberSelector" />
+          
           <!-- Budget -->
           <div class="form-field">
             <label class="form-label" for="Budget">Budget</label>
@@ -148,6 +99,7 @@
     </div>
   </div>
 </div>
+
 
 <script>
   initWysiwygEditor('#edit-project-description-editor', '#edit-project-description-toolbar', '#Description', '@Html.Raw(Model?.Description ?? "")');

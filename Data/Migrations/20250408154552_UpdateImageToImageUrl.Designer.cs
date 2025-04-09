@@ -4,6 +4,7 @@ using Data.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250408154552_UpdateImageToImageUrl")]
+    partial class UpdateImageToImageUrl
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -569,7 +572,7 @@ namespace Data.Migrations
             modelBuilder.Entity("Data.Entities.UserAddressEntity", b =>
                 {
                     b.HasOne("Data.Entities.UserEntity", "User")
-                        .WithOne("UserAddress")
+                        .WithOne("Address")
                         .HasForeignKey("Data.Entities.UserAddressEntity", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -655,7 +658,7 @@ namespace Data.Migrations
 
             modelBuilder.Entity("Data.Entities.UserEntity", b =>
                 {
-                    b.Navigation("UserAddress");
+                    b.Navigation("Address");
 
                     b.Navigation("DismissedNotifications");
 

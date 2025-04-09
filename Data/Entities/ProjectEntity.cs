@@ -8,9 +8,12 @@ public class ProjectEntity
 {
     [Key]
     public string Id { get; set; } = Guid.NewGuid().ToString();
-
-    [MaxLength(200)]
-    public string? Image { get; set; }
+    public string? ImageUrl { get; set; }
+    
+    [Required]
+    [ForeignKey(nameof(Client))]
+    public string ClientId { get; set; } = null!;
+    public virtual ClientEntity Client { get; set; } = null!;
 
     [Required]
     [MaxLength(100)]
@@ -18,31 +21,25 @@ public class ProjectEntity
 
     [Required]
     [MaxLength(500)]
-    public string Description { get; set; } = null!;
-
-    [Required]
+    public string? Description { get; set; } = null!;
+    
     [DataType(DataType.Date)]
     [Column(TypeName = "date")]
-    public DateTime StartDate { get; set; }
-
-    [Required]
+    public DateTime? StartDate { get; set; }
+    
     [DataType(DataType.Date)]
     [Column(TypeName = "date")]
     public DateTime EndDate { get; set; }
 
-    [Column(TypeName = "money")]
+    [DataType(DataType.Currency)]
+    [Column(TypeName = "decimal(18,2)")]
     public decimal? Budget { get; set; }
 
     [Required]
     [ForeignKey(nameof(Status))]
     public int StatusId { get; set; }
     public virtual StatusEntity Status { get; set; } = null!;
-
-    [Required]
-    [ForeignKey(nameof(Client))]
-    public string ClientId { get; set; } = null!;
-    public virtual ClientEntity Client { get; set; } = null!;
-
+    
     [Required]
     [ForeignKey(nameof(User))]
     public string UserId { get; set; } = null!;

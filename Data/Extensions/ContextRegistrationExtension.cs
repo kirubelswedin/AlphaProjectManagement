@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Data.Extensions;
 
-public static class ContextServiceExtensions
+public static class ContextRegistrationExtension
 {
     public static IServiceCollection AddContexts(this IServiceCollection services, string connectionString)
     {

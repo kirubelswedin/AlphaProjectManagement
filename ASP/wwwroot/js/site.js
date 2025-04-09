@@ -6,6 +6,7 @@ import Notifications from "./notifications.js";
 import TabScroll from "./tabScroll.js";
 import ClientList from "./clientList.js";
 import FormManager from "./forms.js";
+import TagSelector from "./tags.js";
 import SelectorManager from "./selector.js";
 import ProjectManager from "./projects.js";
 import Members from "./members.js";
@@ -21,6 +22,7 @@ const managers = {
 	TabScroll,
 	ClientList,
 	FormManager,
+	TagSelector,
 	SelectorManager,
 	ProjectManager,
 	Members,

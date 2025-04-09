@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Business.Dtos;
 using Business.Interfaces;
+using Business.Services;
 using Hubs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,9 +18,9 @@ public class NotificationsController(IHubContext<NotificationHub> notificationHu
     private readonly INotificationService _notificationService = notificationService;
 
     [HttpPost]
-    public async Task<IActionResult> CreateNotification(NotificationFormData notificationFormData)
+    public async Task<IActionResult> CreateNotification(NotificationDetailsDto notificationDetailsDto)
     {
-        await _notificationService.AddNotificationAsync(notificationFormData);
+        await _notificationService.AddNotificationAsync(notificationDetailsDto);
         var notifications = await _notificationService.GetNotificationsAsync("");
         var newNotification = notifications.Result?.OrderByDescending(x => x.CreatedAt).FirstOrDefault();
 

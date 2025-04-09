@@ -36,15 +36,25 @@ class ThemeManager {
 	}
 
 	applyDarkTheme() {
-		document.body.setAttribute("data-theme", THEME.DARK);
-		localStorage.setItem(THEME.KEY, THEME.DARK);
+		document.documentElement.setAttribute("data-theme", THEME.DARK);
 		document.documentElement.style.colorScheme = "dark";
+		localStorage.setItem(THEME.KEY, THEME.DARK);
+
+		// Dispatch event for other components that might need to react to theme changes
+		window.dispatchEvent(
+			new CustomEvent("themeChanged", { detail: { theme: THEME.DARK } })
+		);
 	}
 
 	applyLightTheme() {
-		document.body.setAttribute("data-theme", THEME.LIGHT);
-		localStorage.setItem(THEME.KEY, THEME.LIGHT);
+		document.documentElement.setAttribute("data-theme", THEME.LIGHT);
 		document.documentElement.style.colorScheme = "light";
+		localStorage.setItem(THEME.KEY, THEME.LIGHT);
+
+		// Dispatch event for other components that might need to react to theme changes
+		window.dispatchEvent(
+			new CustomEvent("themeChanged", { detail: { theme: THEME.LIGHT } })
+		);
 	}
 }
 

@@ -75,7 +75,6 @@
 .form-column {
 	display: flex;
 	gap: 1rem;
-	margin-bottom: 1.5rem;
 }
 
 .half {
@@ -104,7 +103,7 @@
 	font-family: var(--font-standard);
 	font-size: 0.95rem;
 	background-color: var(--surface-background);
-	color: var(--tertiary-text);
+
 }
 
 .form-textarea {
@@ -200,6 +199,17 @@
 	& .primary-button {
 		width: 100%;
 		padding: 0.875rem 1rem;
+	}
+}
+
+btn-remove {
+	cursor: pointer;
+	color: var(--gray-600);
+	transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out, color 0.1s ease-in-out;
+
+	.btn-remove:hover {
+		cursor: pointer;
+		color: var(--dark-400);
 	}
 }
 

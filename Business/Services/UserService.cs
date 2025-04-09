@@ -8,6 +8,16 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Business.Services;
 
+public interface IUserService
+{
+    Task<UserResult> AddUserToRoleAsync(UserEntity user, string roleName);
+    Task<string> GetDisplayNameAsync(string userId);
+    Task<UserResult<User>> GetUserByIdAsync(string id);
+    Task<UserResult<IEnumerable<User>>> GetUsersAsync();
+    Task<UserResult> UserExistsByEmailAsync(string email);
+}
+
+
 public class UserService(IUserRepository userRepository, UserManager<UserEntity> userManager, RoleManager<IdentityRole> roleManager) : IUserService
 {
     private readonly IUserRepository _userRepository = userRepository;
@@ -28,6 +38,7 @@ public class UserService(IUserRepository userRepository, UserManager<UserEntity>
 
         return new UserResult<IEnumerable<User>> { Succeeded = true, StatusCode = 200, Result = users };
     }
+    
     public async Task<UserResult<User>> GetUserByIdAsync(string id)
     {
         var repositoryResult = await _userRepository.GetAsync(x => x.Id == id);
@@ -39,6 +50,7 @@ public class UserService(IUserRepository userRepository, UserManager<UserEntity>
         var user = entity.MapTo<User>();
         return new UserResult<User> { Succeeded = true, StatusCode = 200, Result = user };
     }
+    
     public async Task<UserResult> UserExistsByEmailAsync(string email)
     {
         var existsResult = await _userRepository.ExistsAsync(x => x.Email == email);
@@ -47,6 +59,7 @@ public class UserService(IUserRepository userRepository, UserManager<UserEntity>
 
         return new UserResult { Succeeded = false, StatusCode = 404, Error = "User was not found." };
     }
+    
     public async Task<UserResult> AddUserToRoleAsync(UserEntity user, string roleName)
     {
         if (await _roleManager.RoleExistsAsync(roleName))
@@ -54,9 +67,7 @@ public class UserService(IUserRepository userRepository, UserManager<UserEntity>
             await _userManager.AddToRoleAsync(user, roleName);
             return new UserResult { Succeeded = true, StatusCode = 200 };
         }
-
         return new UserResult { Succeeded = false };
-
     }
 
     public async Task<string> GetDisplayNameAsync(string? userId)

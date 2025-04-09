@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using ASP.ViewModels.Views;
 using Business.Dtos;
 using Business.Interfaces;
+using Business.Services;
 using Data.Entities;
 using Microsoft.AspNetCore.Identity;
 using Domain.Extensions;
@@ -35,7 +36,7 @@ public class AuthController(IAuthService authService, INotificationService notif
             return View(model);
         }
 
-        var signUpFormData = model.MapTo<SignUpFormData>();
+        var signUpFormData = model.MapTo<SignUpFormDto>();
         var authResult = await _authService.SignUpAsync(signUpFormData);
 
         if (authResult.Succeeded)
@@ -64,8 +65,8 @@ public class AuthController(IAuthService authService, INotificationService notif
     {
         if (ModelState.IsValid)
         {
-            var loginFormData = model.MapTo<LoginFormData>();
-            var authResult = await _authService.LoginAsync(loginFormData);
+            var loginFormData = model.MapTo<SignInFormDto>();
+            var authResult = await _authService.SignInAsync(loginFormData);
 
             if (authResult.Succeeded)
             {
@@ -75,13 +76,13 @@ public class AuthController(IAuthService authService, INotificationService notif
                 
                 if (user != null)
                 {
-                    var notificationFormData = new NotificationFormData
+                    var notificationFormData = new NotificationDetailsDto
                     {
                         Title = "User Login",
                         NotificationTypeId = 1,
                         NotificationTargetId = 1,
                         Message = $"{user.FirstName} {user.LastName} signed in.",
-                        Image = user.Image,
+                        ImageUrl = user.ImageUrl,
                         CreatedAt = DateTime.UtcNow
                     };
 

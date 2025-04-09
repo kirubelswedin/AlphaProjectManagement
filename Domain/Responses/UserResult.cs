@@ -4,7 +4,7 @@ public class UserResult : ResponseResult
 {
 }
 
-public class UserResult<T> : UserResult
+public class UserResult<T> : ResponseResult
 {
     public T? Result { get; set; }
 }

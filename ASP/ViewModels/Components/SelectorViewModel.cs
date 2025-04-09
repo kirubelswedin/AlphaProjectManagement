@@ -11,6 +11,12 @@ public class SelectorViewModel
   public string HiddenInputName { get; set; } = null!;
   public string ValidationFor { get; set; } = null!;
   public List<SelectorItemViewModel> Items { get; set; } = [];
+  
+  // For single select
+  public string? SelectedId { get; set; }
+  
+  // For multiple select
+  public List<string>? SelectedIds { get; set; }
 }
 
 public class SelectorItemViewModel

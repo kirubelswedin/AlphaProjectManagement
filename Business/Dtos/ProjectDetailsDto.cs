@@ -1,6 +1,6 @@
 namespace Business.Dtos;
 
-public class ProjectDetailsData
+public class ProjectDetailsDto
 {
     public string Id { get; set; } = null!;
     public string? ImageUrl { get; set; }
@@ -14,6 +14,10 @@ public class ProjectDetailsData
     public string ClientName { get; set; } = null!;
     public string StatusName { get; set; } = null!;
     public string CreatedByName { get; set; } = null!;
+    
+    public AddClientFormDto? Client { get; set; } 
+    public AddStatusFormDto? Status { get; set; } 
+    public AddUserFormDto? User { get; set; }
     public ICollection<ProjectMemberData> Members { get; set; } = [];
 }
 

@@ -4,12 +4,17 @@ using ASP.ViewModels.forms;
 using ASP.ViewModels.MockData;
 using ASP.ViewModels.Views;
 using Business.Dtos;
-using Business.Dtos.Forms;
 using Business.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using ASP.Helpers;
 using ASP.Constants;
+using Business.Services;
+using Data.Contexts;
+using Data.Entities;
+using Microsoft.CodeAnalysis;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace ASP.Controllers;
 
@@ -18,13 +23,15 @@ public class ProjectsController(
     IProjectService projectService,
     INotificationService notificationService,
     IUserService userService,
-    IWebHostEnvironment env
+    IWebHostEnvironment env,
+    AppDbContext context
   ) : Controller
 {
     private readonly IProjectService _projectService = projectService;
     private readonly INotificationService _notificationService = notificationService;
     private readonly IUserService _userService = userService;
     private readonly IWebHostEnvironment _env = env;
+    private readonly AppDbContext _context = context;
 
     [Route("admin/projects")]
     public IActionResult Index(string tab = "ALL")
@@ -45,9 +52,46 @@ public class ProjectsController(
 
         ViewBag.Members = MembersMockData.GetMembers();
         ViewBag.Clients = ClientsMockData.GetClients();
+        
+        
+        // var project = await _context.Projects
+        //     .Include(x => x.Members)
+        //     .ThenInclude(x => x.User)
+        //     .FirstOrDefaultAsync(x => x.Id == 1);
 
         return View(viewModel);
     }
+
+    // [HttpPost]
+    // public async Task<IActionResult> Add(ProjectEntity model, string SelectedUserIds)
+    // {
+    //     if (!ModelState.IsValid)
+    //         return View("index", model);
+    //     
+    //     var existingMembers = await _context.ProjectMembers
+    //         .Where(x => x.ProjectId == model.Id)
+    //         .ToListAsync();
+    //     
+    //     _context.ProjectMembers.RemoveRange(existingMembers);
+    //
+    //     if (!string.IsNullOrEmpty(SelectedUserIds))
+    //     {
+    //         var userIds = JsonSerializer.Deserialize<List<int>>(SelectedUserIds);
+    //         if (userIds != null)
+    //         {
+    //             foreach (var userId in userIds)
+    //             {
+    //                 _context.ProjectMembers.Add(new ProjectMemberEntity { ProjectId = model.Id, UserId = userId });
+    //             }
+    //         }
+    //     }
+    //
+    //     _context.Update(model);
+    //     await _context.SaveChangesAsync();
+    //     
+    //     return RedirectToAction("Index");
+    // }
+    
 
     [HttpPost]
     public async Task<IActionResult> AddProject(ProjectFormViewModel model)
@@ -65,7 +109,7 @@ public class ProjectsController(
         }
 
         // Map from ViewModel to DTO - passing the IFormFile directly to service layer
-        var formData = new ProjectFormData
+        var formData = new AddProjectFormDto
         {
             ProjectName = model.ProjectName,
             Description = model.Description ?? "",
@@ -74,8 +118,8 @@ public class ProjectsController(
             Budget = model.Budget,
             ClientId = model.ClientId,
             StatusId = model.StatusId != null ? int.Parse(model.StatusId) : 1, // Default to "Not Started"
-            MemberIds = model.MemberIds,
-            Image = model.Image
+            // MemberIds = model.MemberIds,
+            ImageUrl = model.Image
         };
 
         // Use current user as createdBy
@@ -88,13 +132,13 @@ public class ProjectsController(
         if (result.Succeeded)
         {
             // Create notification for new project
-            var notificationFormData = new NotificationFormData
+            var notificationFormData = new NotificationDetailsDto
             {
                 Title = "New Project Created",
                 NotificationTypeId = 2,
                 NotificationTargetId = 1,
                 Message = $"{user?.FirstName} {user?.LastName} created a new project: {model.ProjectName}",
-                Image = model.ImageUrl ?? FileUploadHelper.GetDefaultImage(UploadConstants.Directories.Projects),
+                ImageUrl = model.ImageUrl ?? FileUploadHelper.GetDefaultImage(UploadConstants.Directories.Projects),
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -121,7 +165,7 @@ public class ProjectsController(
         }
 
         // Map from ViewModel to DTO - passing the IFormFile directly to service layer
-        var formData = new ProjectFormData
+        var formData = new AddProjectFormDto
         {
             ProjectName = model.ProjectName,
             Description = model.Description ?? "",
@@ -130,8 +174,8 @@ public class ProjectsController(
             Budget = model.Budget,
             ClientId = model.ClientId,
             StatusId = int.Parse(model.StatusId),
-            MemberIds = model.MemberIds,
-            Image = model.Image  // Using Image instead of File
+            // MemberIds = model.MemberIds,
+            ImageUrl = model.Image  // Using Image instead of File
         };
 
         var result = await _projectService.UpdateProjectAsync(model.Id!, formData);

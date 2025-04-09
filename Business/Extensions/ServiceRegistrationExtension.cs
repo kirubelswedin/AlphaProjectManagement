@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Business.Extensions;
 
-public static class ServiceExtensions
+public static class ServiceRegistrationExtension
 {
     public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
     {

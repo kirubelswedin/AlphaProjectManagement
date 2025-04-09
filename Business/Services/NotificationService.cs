@@ -10,6 +10,13 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Business.Services;
 
+public interface INotificationService
+{
+    Task<NotificationResult> AddNotificationAsync(NotificationDetailsDto detailsDto, string userId = "");
+    Task<NotificationResult<IEnumerable<Notification>>> GetNotificationsAsync(string userId, string? roleName = null, int take = 10);
+    Task DismissNotificationAsync(string notificationId, string userId);
+}
+
 public class NotificationService(INotificationRepository notificationRepository, INotificationTypeRepository notificationTypeRepository, INotificationTargetRepository notificationTargetRepository, INotificationDismissedRepository notificationDismissedRepository, IHubContext<NotificationHub> notificationHub) : INotificationService
 {
     private readonly INotificationRepository _notificationRepository = notificationRepository;
@@ -18,29 +25,29 @@ public class NotificationService(INotificationRepository notificationRepository,
     private readonly INotificationDismissedRepository _notificationDismissedRepository = notificationDismissedRepository;
     private readonly IHubContext<NotificationHub> _notificationHub = notificationHub;
 
-    public async Task<NotificationResult> AddNotificationAsync(NotificationFormData formData, string userId = "")
+    public async Task<NotificationResult> AddNotificationAsync(NotificationDetailsDto detailsDto, string userId = "")
     {
-        if (formData == null)
+        if (detailsDto == null)
             return new NotificationResult { Succeeded = false, StatusCode = 400 };
 
-        if (string.IsNullOrEmpty(formData.Image))
+        if (string.IsNullOrEmpty(detailsDto.ImageUrl))
         {
-            formData.Image = formData.NotificationTypeId switch
+            detailsDto.ImageUrl = detailsDto.NotificationTypeId switch
             {
                 1 => "avatar-1.svg",
-                2 => "Image-1.svg",
-                _ => formData.Image
+                2 => "ImageUrl-1.svg",
+                _ => detailsDto.ImageUrl
             };
         }
 
-        formData.Image = formData.NotificationTypeId switch
+        detailsDto.ImageUrl = detailsDto.NotificationTypeId switch
         {
-            1 => $"/images/profiles/{formData.Image}",
-            2 => $"/images/projects/{formData.Image}",
-            _ => formData.Image
+            1 => $"/images/profiles/{detailsDto.ImageUrl}",
+            2 => $"/images/projects/{detailsDto.ImageUrl}",
+            _ => detailsDto.ImageUrl
         };
 
-        var notificationEntity = formData.MapTo<NotificationEntity>();
+        var notificationEntity = detailsDto.MapTo<NotificationEntity>();
         var result = await _notificationRepository.AddAsync(notificationEntity);
         
         var notifications = await GetNotificationsAsync(userId);

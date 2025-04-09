@@ -3,14 +3,14 @@ using Microsoft.AspNetCore.Http;
 
 namespace Business.Dtos;
 
-public class UpdateClientDto
+public class UpdateClientFormDto
 {
     [Required]
     public string Id { get; set; } = null!;
 
     [Display(Name = "Client Image", Prompt = "Upload Client Image")]
     [DataType(DataType.Upload)]
-    public string? ClientUrl{ get; set; }
+    public string? ImageUrl { get; set; }
     public IFormFile? NewImageUrl { get; set; }
 
     [Display(Name = "Client Name", Prompt = "Enter Client Name")]
@@ -27,5 +27,5 @@ public class UpdateClientDto
 
     [Display(Name = "Phone", Prompt = "Enter Phone")]
     [DataType(DataType.PhoneNumber)]
-    public string? Phone { get; set; } = null!;
+    public string? PhoneNumber { get; set; } = null!;
 }

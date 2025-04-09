@@ -1,6 +1,6 @@
 namespace Business.Dtos;
 
-public class NotificationDataDto
+public class NotificationDetailsDto
 {
     public int NotificationTypeId { get; set; }
     public int NotificationTargetId { get; set; }

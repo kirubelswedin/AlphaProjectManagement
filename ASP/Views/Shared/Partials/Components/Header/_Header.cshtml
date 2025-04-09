@@ -6,7 +6,7 @@
 
     var displayName = await userService.GetDisplayNameAsync(userId);
     var user = await userManager.FindByIdAsync(userId);
-    var userAvatar = user?.Image ?? "/images/avatars/Avatar-1.svg";
+    var userAvatar = user?.ImageUrl ?? "/images/avatars/Avatar-1.svg";
 
     var notificationResult = await notificationService.GetNotificationsAsync(userId, roleName);
     var notifications = (notificationResult.Result ?? []).OrderByDescending(x => x.CreatedAt).ToList();
@@ -36,7 +36,7 @@
                 {
                     Id = n.Id,
                     Message = n.Message,
-                    Image = n.Image,
+                    Image = n.ImageUrl,
                     CreatedAt = n.CreatedAt,
                     IsRead = n.IsRead
                 }).ToList()

@@ -7,6 +7,37 @@
 
     <title>@(ViewData["Title"] == null ? "Alpha" : ViewData["Title"] + " - Alpha")</title>
 
+    <script>
+        (function () {
+            // Set theme on html element
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+                document.documentElement.style.colorScheme = savedTheme;
+            }
+
+            // Set sidebar state
+            const savedWidth = localStorage.getItem('sidebar-width');
+            if (savedWidth) {
+                const width = parseFloat(savedWidth);
+                const minWidth = 4;
+
+                // Set width via CSS variable
+                document.documentElement.style.setProperty('--sidebar-width', `${width}rem`);
+
+                // Add minimized class after DOM is ready
+                if (width <= minWidth) {
+                    document.addEventListener('DOMContentLoaded', () => {
+                        requestAnimationFrame(() => {
+                            const sidebar = document.querySelector('aside');
+                            if (sidebar) sidebar.classList.add('minimized');
+                        });
+                    });
+                }
+            }
+        })();
+    </script>
+
     <script type="importmap">
     {
         "imports": {
@@ -40,6 +71,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/layout.bundle.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/mediaqueries.css" asp-append-version="true" />
+    <script src="~/js/tags.js" asp-append-version="true"></script>
 
 
     @await RenderSectionAsync("Styles", required: false)
@@ -88,7 +120,6 @@
 
     <script src="~/js/global.js" type="module" asp-append-version="true"></script>
     <script src="~/js/site.js" type="module" asp-append-version="true"></script>
-
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 

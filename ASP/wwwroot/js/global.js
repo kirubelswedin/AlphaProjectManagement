@@ -1,20 +1,38 @@
 import ThemeManager from "./theme.js";
 import { initWysiwygEditor } from "./wysiwyg.js";
 import WindowManager from "./windowManager.js";
+import { THEME } from "./constants.js";
+
+// Initialize managers
+const initManagers = () => {
+	try {
+		// Initialize WindowManager first as it's most critical
+		if (typeof WindowManager !== "undefined") {
+			WindowManager.init();
+		}
+
+		// Initialize ThemeManager
+		if (typeof ThemeManager !== "undefined") {
+			ThemeManager.init();
+		}
+	} catch (error) {
+		console.error("Error initializing managers:", error);
+	}
+};
 
 // Global functions
 window.toggleTheme = () => {
-	const body = document.body;
-	const currentTheme = body.getAttribute("data-theme");
-	const newTheme = currentTheme === "dark" ? "light" : "dark";
-
-	body.setAttribute("data-theme", newTheme);
-	localStorage.setItem("theme", newTheme);
+	const currentTheme = document.documentElement.getAttribute("data-theme");
+	if (currentTheme === THEME.DARK) {
+		ThemeManager.applyLightTheme();
+	} else {
+		ThemeManager.applyDarkTheme();
+	}
 };
 
 window.toggleAdminRole = async (userId, isAdmin) => {
 	try {
-		const response = await fetch(`/members/${userId}/toggle-admin`, {
+		const response = await fetch(`/Users/${userId}/toggle-admin`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -34,32 +52,42 @@ window.toggleAdminRole = async (userId, isAdmin) => {
 	}
 };
 
-const init = () => {
-	WindowManager.init();
-};
-
+// Window management functions
 const openModal = (modalId) => {
-	window.dispatchEvent(new CustomEvent("openModal", { detail: { modalId } }));
+	try {
+		window.dispatchEvent(new CustomEvent("openModal", { detail: { modalId } }));
+	} catch (error) {
+		console.error("Error opening modal:", error);
+	}
 };
 
 const closeModal = (modalId) => {
-	window.dispatchEvent(new CustomEvent("closeModal", { detail: modalId }));
+	try {
+		window.dispatchEvent(new CustomEvent("closeModal", { detail: modalId }));
+	} catch (error) {
+		console.error("Error closing modal:", error);
+	}
 };
 
 const closeAllModals = () => {
-	WindowManager.closeAllWindows();
+	try {
+		if (typeof WindowManager !== "undefined") {
+			WindowManager.closeAllWindows();
+		}
+	} catch (error) {
+		console.error("Error closing all modals:", error);
+	}
 };
 
 // Expose functions globally
-window.init = init;
-window.openModal = openModal;
-window.closeModal = closeModal;
-window.closeAllModals = closeAllModals;
+window.init = initManagers;
+window.openModal = WindowManager.openModal;
+window.closeModal = WindowManager.closeModal;
+window.closeAllModals = WindowManager.closeAllWindows;
+window.initWysiwygEditor = initWysiwygEditor;
 
 // Initialize on DOM ready
-document.addEventListener("DOMContentLoaded", init);
-
-window.initWysiwygEditor = initWysiwygEditor;
+document.addEventListener("DOMContentLoaded", initManagers);
 
 export default {
 	init() {

@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Data.Extensions;
 
-public static class AuthenticationServiceExtensions
+public static class AuthenticationRegistrationExtension
 {
     public static IServiceCollection AddLocalIdentity(this IServiceCollection services, IConfiguration configuration)
     {
@@ -20,11 +20,12 @@ public static class AuthenticationServiceExtensions
 
         services.ConfigureApplicationCookie(x =>
         {
-            x.LoginPath = configuration["Authentication:LoginPath"];
-            x.AccessDeniedPath = configuration["Authentication:AccessDeniedPath"];
+            x.LoginPath = "/auth/login";
+            x.AccessDeniedPath = "/auth/denied";
             x.ExpireTimeSpan = TimeSpan.FromMinutes(30);
             x.SlidingExpiration = true;
             x.Cookie.HttpOnly = true;
+            x.Cookie.IsEssential = true;
         });
 
         return services;

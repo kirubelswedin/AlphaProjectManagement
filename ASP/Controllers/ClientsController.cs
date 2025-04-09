@@ -1,8 +1,9 @@
 using ASP.ViewModels.forms;
 using ASP.ViewModels.MockData;
 using ASP.ViewModels.Views;
-using Business.Dtos.Forms;
+using Business.Dtos;
 using Business.Interfaces;
+using Business.Services;
 using Domain.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -47,7 +48,7 @@ public class ClientsController(IClientService clientService) : Controller
         }
 
         // Map from ViewModel to FormData (DTO)
-        var formData = model.MapTo<ClientFormData>();
+        var formData = model.MapTo<AddClientFormDto>();
         var result = await _clientService.CreateClientAsync(formData);
 
         if (result.Succeeded)
@@ -92,7 +93,7 @@ public class ClientsController(IClientService clientService) : Controller
             return Json(new { success = false, errors });
         }
 
-        var formData = model.MapTo<ClientFormData>();
+        var formData = model.MapTo<AddClientFormDto>();
         var result = await _clientService.UpdateClientAsync(id, formData);
 
         if (result.Succeeded)

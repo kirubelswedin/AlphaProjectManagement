@@ -16,7 +16,7 @@ class MemberManager {
 
 	async toggleAdminRole(userId, isAdmin) {
 		try {
-			const response = await fetch(`/members/${userId}/toggle-admin`, {
+			const response = await fetch(`/Users/${userId}/toggle-admin`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -38,7 +38,7 @@ class MemberManager {
 
 	async editMember(id) {
 		try {
-			const response = await fetch(`/members/${id}`);
+			const response = await fetch(`/Users/${id}`);
 			const data = await response.json();
 
 			if (data.success && data.member) {
@@ -102,7 +102,7 @@ class MemberManager {
 		window.deleteMember = async (id) => {
 			if (confirm("Are you sure you want to delete this member?")) {
 				try {
-					const response = await fetch(`/members/${id}`, {
+					const response = await fetch(`/Users/${id}`, {
 						method: "DELETE",
 					});
 

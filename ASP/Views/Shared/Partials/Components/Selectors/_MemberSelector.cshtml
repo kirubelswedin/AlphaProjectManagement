@@ -1,0 +1,57 @@
+@using System.Text.Json
+
+
+@{
+  Layout = null;
+  
+  var selectedUsersJson = JsonSerializer.Serialize(
+    Model.Members.Select(m => new
+    {
+      id = m.User.Id,
+      imageUrl = m.User.ImageUrl,
+      fullName = m.User.FullName + " " + m.User.Lastname
+    })
+  );
+}
+
+<div class="selector-field member-selector">
+  <label class="form-label">Members</label>
+  <div id="tagged-users" class="form-input" form-tag-select>
+    <input type="text" id="user-search" class="form-tag-input" placeholder="Add Team Members..." />
+    <label for="user-search" class="fa-solid fa-ellipsis"></label>
+    <div id="user-search-results" class="search-results"></div>
+  </div>
+</div>
+
+
+<script>
+  const preSelectedUsers = @Html.Raw(selectedUsersJson)
+
+  initTagSelector({
+    containerId: "tagged-users",
+    inputId: 'user-search',
+    resultsId: 'user-search-results',
+    searchUrl: (query) => '@Url.Action("SearchUsers", "Users")' + '?term=' + encodeURIComponent(query),
+    displayProperty: 'fullName',
+    imageProperty: 'imageUrl',
+    tagClass: 'user-tag',
+    avatarFolder: '/images/users/',
+    emptyMessage: 'No users found',
+    preSelected: preSelectedUsers,
+    selectedInputIds: 'SelectedUserIds'
+  })
+</script>
+
+
+ @* const preSelectedTags = [] *@
+ @*   *@
+ @*   initTagSelector({ *@
+ @*     containerId: "tags", *@
+ @*     inputId: 'tag-search', *@
+ @*     resultsId: 'tag-search-results', *@
+ @*     searchUrl: (query) => '@Url.Action("SearchTags", "Tags")' + '?term=' + encodeURIComponent(query), *@
+ @*     displayProperty: 'tagName', *@
+ @*     tagClass: 'tag', *@
+ @*     emptyMessage: 'No tags found', *@
+ @*     preSelected: preSelectedTags *@
+ @*   }) *@

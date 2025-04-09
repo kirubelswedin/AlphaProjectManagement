@@ -3,19 +3,22 @@ using Microsoft.AspNetCore.Http;
 
 namespace Business.Dtos;
 
-public class UpdateProjectDto
+public class UpdateProjectFormDto
 {
-    public string Id { get; set; }
+    [Required]
+    public string Id { get; set; } = null!;
 
+    [DataType(DataType.Upload)]
+    public IFormFile? newImageUrl { get; set; }
+    public string? ImageUrl { get; set; }
+    
     [Required(ErrorMessage = "Project name is required")]
-    [MaxLength(100)]
-    public string Name { get; set; }
+    public string ProjectName { get; set; } = null!;
 
     [Required(ErrorMessage = "Client name is required")]
-    [MaxLength(100)]
-    public string ClientName { get; set; }
+    public string ClientId { get; set; } = null!;
 
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     [Required]
     public DateTime StartDate { get; set; }
@@ -23,15 +26,13 @@ public class UpdateProjectDto
     [Required]
     public DateTime EndDate { get; set; }
 
-    public decimal Budget { get; set; }
-
-    public bool IsActive { get; set; }
-
-    public List<string> MemberIds { get; set; } = new List<string>();
+    [Required]
+    public string UserId { get; set; } = null!;
+    
+    public decimal? Budget { get; set; }
+    
 
     [Required(ErrorMessage = "Status is required")]
-    public string StatusId { get; set; } = string.Empty;
+    public int StatusId { get; set; } 
 
-    [DataType(DataType.Upload)]
-    public IFormFile? ProjectImage { get; set; }
 }

@@ -4,7 +4,7 @@ namespace ASP.ViewModels.forms;
 
 public class ClientsFormViewModel
 {
-    public string? ImageUrl { get; set; }
+    public string? Image { get; set; }
 
     [Required(ErrorMessage = "Client name is required")]
     [StringLength(100, ErrorMessage = "Client name cannot exceed 100 characters")]

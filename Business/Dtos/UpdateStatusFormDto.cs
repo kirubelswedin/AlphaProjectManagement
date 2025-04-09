@@ -2,10 +2,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Business.Dtos;
 
-public class UpdateStatusDto
+public class UpdateStatusFormDto
 {
     [Required]
-    public int Id { get; set; }
+    public string Id { get; set; } = null!;
 
     [Required]
     public string StatusName { get; set; } = null!;

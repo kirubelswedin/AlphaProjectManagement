@@ -1,5 +1,6 @@
 import { SELECTORS, CLASSES } from "./constants.js";
 import WindowManager from "./windowManager.js";
+import SelectorManager from "./selector.js";
 
 /**
  * Handles project management functionalities
@@ -76,8 +77,13 @@ export default class ProjectManager {
 		const clientInput = form.querySelector('input[name="ClientId"]');
 
 		if (clientSelect && clientInput && project.clientId) {
-			clientInput.value = project.clientId;
-			this.updateSelected(clientSelect, clientContainer, clientInput, false);
+			// Set the client option as selected
+			Array.from(clientSelect.options).forEach((option) => {
+				option.selected = option.value === project.clientId;
+			});
+
+			// Update display using SelectorManager
+			SelectorManager.updateSelected(clientSelect, clientContainer, clientInput);
 		}
 
 		// Members
@@ -101,8 +107,8 @@ export default class ProjectManager {
 				}
 			});
 
-			// Update display
-			this.updateSelected(memberSelect, memberContainer, memberInput, true);
+			// Update display using SelectorManager
+			SelectorManager.updateSelected(memberSelect, memberContainer, memberInput);
 		}
 
 		// Project image
@@ -147,7 +153,7 @@ export default class ProjectManager {
 				Array.from(memberSelect.options).forEach((option) => {
 					option.selected = false;
 				});
-				this.updateSelected(memberSelect, memberContainer, memberInput, true);
+				SelectorManager.updateSelected(memberSelect, memberContainer, memberInput);
 			}
 
 			// Reset client selection
@@ -159,7 +165,10 @@ export default class ProjectManager {
 
 			if (clientContainer && clientInput && clientSelect) {
 				clientInput.value = "";
-				this.updateSelected(clientSelect, clientContainer, clientInput, false);
+				Array.from(clientSelect.options).forEach((option) => {
+					option.selected = false;
+				});
+				SelectorManager.updateSelected(clientSelect, clientContainer, clientInput);
 			}
 
 			// Reset image preview
@@ -226,39 +235,6 @@ export default class ProjectManager {
 				reader.readAsDataURL(file);
 			}
 		});
-	}
-
-	updateSelected(select, container, input, isMultiple) {
-		if (!select || !container || !input) return;
-
-		// Clear existing items
-		container.innerHTML = "";
-
-		// Get selected options
-		const selectedOptions = Array.from(select.selectedOptions);
-
-		if (selectedOptions.length === 0) {
-			container.innerHTML = `<span class="placeholder">${select.getAttribute(
-				"data-placeholder"
-			)}</span>`;
-			input.value = "";
-			return;
-		}
-
-		// Add selected items to container
-		selectedOptions.forEach((option) => {
-			const item = document.createElement("div");
-			item.className = "selected-item";
-			item.textContent = option.textContent;
-			container.appendChild(item);
-		});
-
-		// Update hidden input value
-		if (isMultiple) {
-			input.value = selectedOptions.map((option) => option.value).join(",");
-		} else {
-			input.value = selectedOptions[0].value;
-		}
 	}
 
 	initWysiwygEditors() {

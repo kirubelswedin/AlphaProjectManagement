@@ -3,6 +3,9 @@
 
 /* Base variables */
 :root {
+	/* Layout */
+	--sidebar-width: 16.875rem;
+
 	/* Fonts */
 	--font-standard: "Nunito", sans-serif;
 	--font-logo: "Comfortaa", sans-serif;
@@ -79,6 +82,7 @@
 	--primary-text: var(--dark-100);
 	--secondary-text: var(--gray-800);
 	--tertiary-text: var(--dark-400);
+	
 
 	--main-background: var(--white-300);
 	--auth-background: var(--gray-300);
@@ -146,6 +150,14 @@
 	/* Member cards */
 	--jobtitle-text: var(--primary-text-inverted);
 	--jobtitle-background: var(--main-background-inverted);
+	
+	/* Forms */
+	--form-input-background: var(--surface-background);
+	--form-input-color: var(--primary-text);
+	--form-input-placeholder-color: var(--gray-700);
+	--form-input-border-color: var(--border-color);
+
+	
 
 	/* Shadows, borders & dividers */
 	--box-shadow-1: 0 5px 5px 1px rgba(0, 0, 0, 0.05);
@@ -421,3 +433,4 @@ main {
 .error {
 	color: var(--alert-notification-error-text-color);
 }
+

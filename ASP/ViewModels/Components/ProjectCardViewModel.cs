@@ -19,7 +19,7 @@ public class ProjectCardViewModel
   public string ProjectImage { get; set; } = "/images/project/Image-1.svg";
   public decimal? Budget { get; set; }
   public ProjectStatus Status { get; set; } = ProjectStatus.NotStarted;
-  public List<MemberViewModel> TeamMembers { get; set; } = new();
+  public List<MemberViewModel> TeamMembers { get; set; } = [];
 }
 
 public enum ProjectStatus

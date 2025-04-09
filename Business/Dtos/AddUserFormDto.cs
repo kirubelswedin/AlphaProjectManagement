@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Business.Dtos;
 
-public class AddUserDto
+public class AddUserFormDto
 {
     [Display(Name = "Profile Image", Prompt = "Upload Profile Image")]
     [DataType(DataType.Upload)]
