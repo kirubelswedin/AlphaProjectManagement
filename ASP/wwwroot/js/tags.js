@@ -3,12 +3,12 @@ function initTagSelector(config) {
 	let selectedIds = [];
 
 	const tagContainer = document.getElementById(config.containerId);
-	const Input = document.getElementById(config.inputId);
+	const input = document.getElementById(config.inputId);
 	const results = document.getElementById(config.resultsId);
 	const selectedInputsIds = document.getElementById(config.selectedInputsIds);
 
-	if (Array.isArray(config.preselected)) {
-		config.preselected.forEach((item) => {
+	if (Array.isArray(config.preSelected)) {
+		config.preSelected.forEach((item) => {
 			addTag(item);
 		});
 	}
@@ -87,7 +87,7 @@ function initTagSelector(config) {
 	function renderSearchResults(data) {
 		results.innerHTML = "";
 
-		if (data.length === 0) {
+		if (!data || data.length === 0) {
 			const noResults = document.createElement("div");
 			noResults.classList.add("search-item");
 			noResults.textContent = config.emptyMessage || "No results.";
@@ -150,18 +150,18 @@ function initTagSelector(config) {
 		removeBtn.addEventListener("click", (e) => {
 			selectedIds = selectedIds.filter(i => i !== id);
 			tag.remove();
-			updateSelectedIdsUnput();
+			updateSelectedIdsInput();
 			e.stopPropagation();
 		});
 
 		tag.appendChild(removeBtn);
-		tagContainer.insertBefore(tag, Input);
+		tagContainer.insertBefore(tag, input);
 
-		Input.value = "";
+		input.value = "";
 		results.innerHTML = "";
 		results.style.display = "none";
 		
-		updateSelectedIdsUnput();
+		updateSelectedIdsInput();
 	}
 
 	function removeLastTag() {
@@ -173,17 +173,14 @@ function initTagSelector(config) {
 
 		selectedIds = selectedIds.filter(id => id !== lastId);
 		lastTag.remove();
-		updateSelectedIdsUnput();
+		updateSelectedIdsInput();
 	}
 
-	function updateSelectedIdsUnput() {
+	function updateSelectedIdsInput() {
 		const hiddenInput = selectedInputsIds;
 		if (hiddenInput) {
 			hiddenInput.value = JSON.stringify(selectedIds);
 		}
 	}
-
-	
-
 	
 }

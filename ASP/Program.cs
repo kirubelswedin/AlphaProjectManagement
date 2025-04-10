@@ -1,19 +1,19 @@
 using Business.Extensions;
-using Business.Interfaces;
+using Business.Handlers;
 using Data.Extensions;
 using Microsoft.AspNetCore.Rewrite;
 using Hubs;
-using ASP.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR();
 
+builder.Services.AddScoped<IImageHandler, AzureImageHandler>();
+
 builder.Services.AddContexts(builder.Configuration.GetConnectionString("SqlServer")!);
 builder.Services.AddLocalIdentity(builder.Configuration);
 builder.Services.AddRepositories(builder.Configuration);
 builder.Services.AddServices(builder.Configuration);
-builder.Services.AddScoped<IFileUploadService, FileUploadService>();
 builder.Services.ConfigureApplicationCookie((options => options.LoginPath = "/auth/login"));
 
 var app = builder.Build();
@@ -37,6 +37,8 @@ app.UseDefaultAdminAccount(
     lastName: "Administrator",
     role: "Admin"
 );
+
+app.UseSeedData();
 
 app.MapControllerRoute(
         name: "default",

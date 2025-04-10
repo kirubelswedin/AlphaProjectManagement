@@ -1,283 +1,221 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using ASP.ViewModels.Components;
 using ASP.ViewModels.forms;
-using ASP.ViewModels.MockData;
+using Microsoft.AspNetCore.Authorization;
+using Business.Services;
 using ASP.ViewModels.Views;
 using Business.Dtos;
-using Business.Interfaces;
-using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
-using ASP.Helpers;
-using ASP.Constants;
-using Business.Services;
-using Data.Contexts;
-using Data.Entities;
-using Microsoft.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Domain.Models;
 
 namespace ASP.Controllers;
 
 [Authorize]
 public class ProjectsController(
     IProjectService projectService,
-    INotificationService notificationService,
+    IClientService clientService,
     IUserService userService,
-    IWebHostEnvironment env,
-    AppDbContext context
-  ) : Controller
+    IStatusService statusService,
+    INotificationService notificationService) : Controller
 {
     private readonly IProjectService _projectService = projectService;
-    private readonly INotificationService _notificationService = notificationService;
+    private readonly IClientService _clientService = clientService;
     private readonly IUserService _userService = userService;
-    private readonly IWebHostEnvironment _env = env;
-    private readonly AppDbContext _context = context;
+    private readonly IStatusService _statusService = statusService;
+    private readonly INotificationService _notificationService = notificationService;
 
     [Route("admin/projects")]
-    public IActionResult Index(string tab = "ALL")
+    public async Task<IActionResult> Index(string tab = "ALL")
     {
         var viewModel = new ProjectsViewModel
         {
-            PageHeader = new()
+            PageHeader = CreatePageHeader(),
+            TabFilter = await CreateTabFilterAsync(tab),
+            Projects = await GetProjectsAsync(tab),
+            AddProject = new AddProjectViewModel
             {
-                Title = "Projects",
-                ButtonText = "Add Project",
-                ModalId = "addProjectModal"
+                Clients = await GetClientSelectListAsync(),
+                Members = await GetMemberSelectListAsync()
+            },
+            EditProject = new EditProjectViewModel
+            {
+                Clients = await GetClientSelectListAsync(),
+                Members = await GetMemberSelectListAsync(),
+                Statuses = await GetStatusSelectListAsync()
             }
         };
-
-        var allProjects = ProjectsMockData.GetProjects();
-        viewModel.Projects = FilterProjects(allProjects, tab);
-        viewModel.TabFilter = TabFilterViewModel.CreateFromProjects(allProjects, tab);
-
-        ViewBag.Members = MembersMockData.GetMembers();
-        ViewBag.Clients = ClientsMockData.GetClients();
-        
-        
-        // var project = await _context.Projects
-        //     .Include(x => x.Members)
-        //     .ThenInclude(x => x.User)
-        //     .FirstOrDefaultAsync(x => x.Id == 1);
 
         return View(viewModel);
     }
 
-    // [HttpPost]
-    // public async Task<IActionResult> Add(ProjectEntity model, string SelectedUserIds)
-    // {
-    //     if (!ModelState.IsValid)
-    //         return View("index", model);
-    //     
-    //     var existingMembers = await _context.ProjectMembers
-    //         .Where(x => x.ProjectId == model.Id)
-    //         .ToListAsync();
-    //     
-    //     _context.ProjectMembers.RemoveRange(existingMembers);
-    //
-    //     if (!string.IsNullOrEmpty(SelectedUserIds))
-    //     {
-    //         var userIds = JsonSerializer.Deserialize<List<int>>(SelectedUserIds);
-    //         if (userIds != null)
-    //         {
-    //             foreach (var userId in userIds)
-    //             {
-    //                 _context.ProjectMembers.Add(new ProjectMemberEntity { ProjectId = model.Id, UserId = userId });
-    //             }
-    //         }
-    //     }
-    //
-    //     _context.Update(model);
-    //     await _context.SaveChangesAsync();
-    //     
-    //     return RedirectToAction("Index");
-    // }
-    
-
     [HttpPost]
-    public async Task<IActionResult> AddProject(ProjectFormViewModel model)
+    public async Task<IActionResult> AddProject([FromForm] AddProjectFormDto dto)
     {
         if (!ModelState.IsValid)
         {
-            var errors = ModelState
-                .Where(x => x.Value?.Errors.Count > 0)
-                .ToDictionary(
-                    kvp => kvp.Key,
-                    kvp => kvp.Value?.Errors.Select(x => x.ErrorMessage).ToArray()
-                );
-
-            return Json(new { success = false, errors });
+            return Json(new { success = false, errors = GetModelErrors() });
         }
 
-        // Map from ViewModel to DTO - passing the IFormFile directly to service layer
-        var formData = new AddProjectFormDto
+        var result = await _projectService.CreateProjectAsync(dto, User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "");
+        if (!result.Succeeded)
         {
-            ProjectName = model.ProjectName,
-            Description = model.Description ?? "",
-            StartDate = model.StartDate ?? DateTime.UtcNow,
-            EndDate = model.EndDate ?? DateTime.UtcNow.AddMonths(1),
-            Budget = model.Budget,
-            ClientId = model.ClientId,
-            StatusId = model.StatusId != null ? int.Parse(model.StatusId) : 1, // Default to "Not Started"
-            // MemberIds = model.MemberIds,
-            ImageUrl = model.Image
-        };
-
-        // Use current user as createdBy
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-        var userResult = await _userService.GetUserByIdAsync(userId);
-        var user = userResult.Result;
-
-        var result = await _projectService.CreateProjectAsync(formData, userId);
-
-        if (result.Succeeded)
-        {
-            // Create notification for new project
-            var notificationFormData = new NotificationDetailsDto
-            {
-                Title = "New Project Created",
-                NotificationTypeId = 2,
-                NotificationTargetId = 1,
-                Message = $"{user?.FirstName} {user?.LastName} created a new project: {model.ProjectName}",
-                ImageUrl = model.ImageUrl ?? FileUploadHelper.GetDefaultImage(UploadConstants.Directories.Projects),
-                CreatedAt = DateTime.UtcNow
-            };
-
-            await _notificationService.AddNotificationAsync(notificationFormData);
-            return Json(new { success = true, message = "Project created successfully" });
+            return Json(new { success = false, error = result.Error });
         }
 
-        return Json(new { success = false, message = result.Error });
+        await CreateProjectNotification("New Project Created", $"Project '{dto.ProjectName}' has been created");
+        return Json(new { success = true });
     }
 
     [HttpPost]
-    public async Task<IActionResult> UpdateProject(ProjectFormViewModel model)
+    public async Task<IActionResult> UpdateProject([FromForm] UpdateProjectFormDto dto)
     {
         if (!ModelState.IsValid)
         {
-            var errors = ModelState
-                .Where(x => x.Value?.Errors.Count > 0)
-                .ToDictionary(
-                    kvp => kvp.Key,
-                    kvp => kvp.Value?.Errors.Select(x => x.ErrorMessage).ToArray()
-                );
-
-            return Json(new { success = false, errors });
+            return Json(new { success = false, errors = GetModelErrors() });
         }
 
-        // Map from ViewModel to DTO - passing the IFormFile directly to service layer
-        var formData = new AddProjectFormDto
+        var result = await _projectService.UpdateProjectAsync(dto);
+        if (!result.Succeeded)
         {
-            ProjectName = model.ProjectName,
-            Description = model.Description ?? "",
-            StartDate = model.StartDate ?? DateTime.UtcNow,
-            EndDate = model.EndDate ?? DateTime.UtcNow.AddMonths(1),
-            Budget = model.Budget,
-            ClientId = model.ClientId,
-            StatusId = int.Parse(model.StatusId),
-            // MemberIds = model.MemberIds,
-            ImageUrl = model.Image  // Using Image instead of File
-        };
-
-        var result = await _projectService.UpdateProjectAsync(model.Id!, formData);
-
-        if (result.Succeeded)
-        {
-            return Json(new { success = true, message = "Project updated successfully" });
+            return Json(new { success = false, error = result.Error });
         }
 
-        return Json(new { success = false, message = result.Error });
-    }
-
-    [HttpGet("projects/list")]
-    public IActionResult GetFilteredProjects(string tab = "ALL")
-    {
-        var allProjects = ProjectsMockData.GetProjects();
-        var filteredProjects = FilterProjects(allProjects, tab);
-
-        if (Request.Headers.XRequestedWith == "XMLHttpRequest")
-        {
-            return PartialView("Partials/Components/TabFilter/_FilteredProjects", filteredProjects);
-        }
-
-        return RedirectToAction("Index", new { tab });
+        await CreateProjectNotification("Project Updated", $"Project '{dto.ProjectName}' has been updated");
+        return Json(new { success = true });
     }
 
     [HttpGet("projects/{id}")]
-    public IActionResult GetProject(string id)
+    public async Task<IActionResult> GetProject(string id)
     {
-        var project = ProjectsMockData.GetProjects().FirstOrDefault(p => p.Id == id);
-        if (project == null)
+        var result = await _projectService.GetProjectDetailsAsync(id);
+        if (!result.Succeeded)
         {
-            return NotFound();
+            return Json(new { success = false, error = result.Error });
         }
-
-        return Json(new { success = true, project });
+        return Json(new { success = true, project = result.Result });
     }
 
-    private static ProjectStatus DetermineProjectStatus(int statusId)
+    [HttpGet("projects/list")]
+    public async Task<IActionResult> GetFilteredProjects(string tab = "ALL")
     {
-        return statusId switch
+        var projects = await GetProjectsAsync(tab);
+        return Json(new { success = true, projects });
+    }
+
+    // Private helper methods
+    private static PageHeaderViewModel CreatePageHeader() => new()
+    {
+        Title = "Projects",
+        ButtonText = "Add Project",
+        ModalId = "addProjectModal"
+    };
+
+    private async Task<List<SelectListItem>> GetClientSelectListAsync()
+    {
+        var result = await _clientService.GetClientsAsync();
+        return result.Succeeded
+            ? result.Result!.Select(c => new SelectListItem
+            {
+                Value = c.Id,
+                Text = c.ClientName
+            }).ToList()
+            : [];
+    }
+
+    private async Task<List<SelectListItem>?> GetStatusSelectListAsync()
+    {
+        var statuses = await _statusService.GetStatusesAsync();
+        return statuses.Result?.Select(s => new SelectListItem
         {
-            1 => ProjectStatus.NotStarted,
-            2 => ProjectStatus.InProgress,
-            3 => ProjectStatus.Paused,
-            4 => ProjectStatus.Completed,
-            5 => ProjectStatus.Cancelled,
-            _ => ProjectStatus.NotStarted
+            Text = s.StatusName,
+            Value = s.StatusName
+        }).ToList();
+    }
+
+    private async Task<List<SelectorItemViewModel>> GetMemberSelectListAsync()
+    {
+        var result = await _userService.GetUsersAsync();
+        return result.Succeeded
+            ? result.Result!.Select(u => new SelectorItemViewModel
+            {
+                Id = u.Id,
+                Text = $"{u.FirstName} {u.LastName}",
+                ImageUrl = u.ImageUrl
+            }).ToList()
+            : [];
+    }
+
+    private async Task<List<Project>> GetProjectsAsync(string tab)
+    {
+        var result = await _projectService.GetProjectsAsync();
+        if (!result.Succeeded) return [];
+
+        var projects = result.Result!.ToList();
+        return tab.Equals("ALL"
+, StringComparison.CurrentCultureIgnoreCase)
+            ? projects
+            : projects.Where(p => p.Status.StatusName.Replace(" ", "") == tab).ToList();
+    }
+
+    private async Task CreateProjectNotification(string title, string message)
+    {
+        var notification = new NotificationDetailsDto
+        {
+            NotificationTypeId = 2, // Project type
+            NotificationTargetId = 2, // Admins
+            Title = title,
+            Message = message,
+            CreatedAt = DateTime.UtcNow
         };
+
+        await _notificationService.AddNotificationAsync(notification);
     }
 
-    private List<ProjectCardViewModel> FilterProjects(List<ProjectCardViewModel> projects, string tab)
+    private Dictionary<string, string[]> GetModelErrors()
     {
-        if (tab == "ALL") return projects;
-
-        if (Enum.TryParse(tab.Replace(" ", ""), true, out ProjectStatus status))
-        {
-            return projects.Where(p => p.Status == status).ToList();
-        }
-
-        return projects;
+        return ModelState
+            .Where(x => x.Value!.Errors.Any())
+            .ToDictionary(
+                kvp => kvp.Key,
+                kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
+            );
     }
 
-    private string CalculateTimeLeft(string endDateStr)
+    private async Task<TabFilterViewModel> CreateTabFilterAsync(string activeTab)
     {
-        if (!DateTime.TryParse(endDateStr, out DateTime endDate))
+        var projectsResult = await _projectService.GetProjectsAsync();
+        var statusesResult = await _statusService.GetStatusesAsync();
+
+        if (!statusesResult.Succeeded)
+            return new TabFilterViewModel();
+
+        var projects = projectsResult.Succeeded ? projectsResult.Result!.ToList() : [];
+        var statuses = statusesResult.Result!.OrderBy(s => s.SortOrder);
+
+        var tabs = new List<TabFilterViewModel.TabViewModel>
         {
-            return "Unknown";
+            new() { Text = "ALL", Count = projects.Count, IsActive = activeTab == "ALL" }
+        };
+
+        // create a dictionary to count projects by status
+        var projectCountByStatus = projects
+            .GroupBy(p => p.Status?.StatusName ?? "Unknown")
+            .ToDictionary(g => g.Key, g => g.Count());
+
+        // Add all statuses, even if they have no projects
+        foreach (var status in statuses)
+        {
+            var count = projectCountByStatus.GetValueOrDefault(status.StatusName, 0);
+
+            tabs.Add(new TabFilterViewModel.TabViewModel
+            {
+                Text = status.StatusName,
+                Count = count,
+                IsActive = status.StatusName.Replace(" ", "") == activeTab
+            });
         }
 
-        var timeSpan = endDate - DateTime.Now;
-
-        // If the deadline has passed
-        if (timeSpan.TotalDays < 0)
-        {
-            int days = Math.Abs((int)timeSpan.TotalDays);
-            return days == 1 ? "1 day overdue" : $"{days} days overdue";
-        }
-
-        // Less than a week
-        if (timeSpan.TotalDays < 7)
-        {
-            int days = (int)Math.Ceiling(timeSpan.TotalDays);
-            return days == 1 ? "1 day left" : $"{days} days left";
-        }
-
-        // Less than a month
-        if (timeSpan.TotalDays < 30)
-        {
-            int weeks = (int)Math.Ceiling(timeSpan.TotalDays / 7);
-            return weeks == 1 ? "1 week left" : $"{weeks} weeks left";
-        }
-
-        // Less than a year
-        if (timeSpan.TotalDays < 365)
-        {
-            int months = (int)Math.Ceiling(timeSpan.TotalDays / 30);
-            return months == 1 ? "1 month left" : $"{months} months left";
-        }
-
-        // More than a year
-        int years = (int)Math.Ceiling(timeSpan.TotalDays / 365);
-        return years == 1 ? "1 year left" : $"{years} years left";
+        return new TabFilterViewModel { Tabs = tabs };
     }
 }

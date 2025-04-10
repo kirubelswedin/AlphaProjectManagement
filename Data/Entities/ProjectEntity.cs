@@ -1,4 +1,3 @@
-
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -9,7 +8,7 @@ public class ProjectEntity
     [Key]
     public string Id { get; set; } = Guid.NewGuid().ToString();
     public string? ImageUrl { get; set; }
-    
+
     [Required]
     [ForeignKey(nameof(Client))]
     public string ClientId { get; set; } = null!;
@@ -22,11 +21,11 @@ public class ProjectEntity
     [Required]
     [MaxLength(500)]
     public string? Description { get; set; } = null!;
-    
+
     [DataType(DataType.Date)]
     [Column(TypeName = "date")]
     public DateTime? StartDate { get; set; }
-    
+
     [DataType(DataType.Date)]
     [Column(TypeName = "date")]
     public DateTime EndDate { get; set; }
@@ -39,7 +38,7 @@ public class ProjectEntity
     [ForeignKey(nameof(Status))]
     public int StatusId { get; set; }
     public virtual StatusEntity Status { get; set; } = null!;
-    
+
     [Required]
     [ForeignKey(nameof(User))]
     public string UserId { get; set; } = null!;
@@ -57,5 +56,5 @@ public class ProjectEntity
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
 
-
+    public virtual ICollection<ProjectMemberEntity> ProjectMembers { get; set; } = new List<ProjectMemberEntity>();
 }

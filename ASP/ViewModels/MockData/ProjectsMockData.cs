@@ -1,4 +1,5 @@
 using ASP.ViewModels.Components;
+using Domain.Models;
 
 namespace ASP.ViewModels.MockData;
 
@@ -15,7 +16,7 @@ public static class ProjectsMockData
         "/images/project/Image-7.svg",
         "/images/project/Image-8.svg"
     };
-    
+
     private static string GetRandomProjectImage()
     {
         var random = new Random();
@@ -35,10 +36,10 @@ public static class ProjectsMockData
             EndDate = "2024-06-30",
             TimeLeft = "3 months left",
             Budget = 150000,
-            Status = ProjectStatus.InProgress,
+            Status = new Status { StatusName = "In Progress" },
             ProjectImage = GetRandomProjectImage(),
             IsUrgent = false,
-            TeamMembers = MembersMockData.GetRandomMembers(3)
+            Members = MembersMockData.GetRandomMembers(3)
         },
         new()
         {
@@ -50,10 +51,10 @@ public static class ProjectsMockData
             EndDate = "2024-04-15",
             TimeLeft = "2 weeks left",
             Budget = 85000,
-            Status = ProjectStatus.InProgress,
+            Status = new Status { StatusName = "Cancelled" },
             ProjectImage = GetRandomProjectImage(),
             IsUrgent = true,
-            TeamMembers = MembersMockData.GetRandomMembers(4)
+            Members = MembersMockData.GetRandomMembers(4)
         },
         new()
         {
@@ -65,10 +66,10 @@ public static class ProjectsMockData
             EndDate = "2024-08-30",
             TimeLeft = "5 months left",
             Budget = 200000,
-            Status = ProjectStatus.NotStarted,
+            Status = new Status { StatusName = "Not Started" },
             ProjectImage = GetRandomProjectImage(),
             IsUrgent = false,
-            TeamMembers = MembersMockData.GetRandomMembers(2)
+            Members = MembersMockData.GetRandomMembers(2)
         },
         new()
         {
@@ -80,11 +81,11 @@ public static class ProjectsMockData
             EndDate = "2024-03-15",
             TimeLeft = "2 days overdue",
             Budget = 45000,
-            Status = ProjectStatus.Completed,
+            Status = new Status { StatusName = "Completed" },
             ProjectImage = GetRandomProjectImage(),
             IsUrgent = false,
             CompletedOnTime = false,
-            TeamMembers = MembersMockData.GetRandomMembers(2)
+            Members = MembersMockData.GetRandomMembers(2)
         },
         new()
         {
@@ -96,10 +97,10 @@ public static class ProjectsMockData
             EndDate = "2024-07-30",
             TimeLeft = "4 months left",
             Budget = 175000,
-            Status = ProjectStatus.InProgress,
+            Status = new Status { StatusName = "In Progress" },
             ProjectImage = GetRandomProjectImage(),
             IsUrgent = false,
-            TeamMembers = MembersMockData.GetRandomMembers(3)
+            Members = MembersMockData.GetRandomMembers(3)
         },
         new()
         {
@@ -111,10 +112,10 @@ public static class ProjectsMockData
             EndDate = "2024-03-10",
             TimeLeft = "5 days overdue",
             Budget = 95000,
-            Status = ProjectStatus.Paused,
+            Status = new Status { StatusName = "Paused" },
             ProjectImage = GetRandomProjectImage(),
             IsUrgent = true,
-            TeamMembers = MembersMockData.GetRandomMembers(3)
+            Members = MembersMockData.GetRandomMembers(3)
         },
         new()
         {
@@ -126,10 +127,10 @@ public static class ProjectsMockData
             EndDate = "2024-09-30",
             TimeLeft = "6 months left",
             Budget = 250000,
-            Status = ProjectStatus.NotStarted,
+            Status = new Status { StatusName = "Not Started" },
             ProjectImage = GetRandomProjectImage(),
             IsUrgent = false,
-            TeamMembers = MembersMockData.GetRandomMembers(4)
+            Members = MembersMockData.GetRandomMembers(4)
         },
         new()
         {
@@ -141,10 +142,10 @@ public static class ProjectsMockData
             EndDate = "2024-02-28",
             TimeLeft = "Completed on time",
             Budget = 120000,
-            Status = ProjectStatus.Completed,
+            Status = new Status { StatusName = "Completed" },
             ProjectImage = GetRandomProjectImage(),
             CompletedOnTime = true,
-            TeamMembers = MembersMockData.GetRandomMembers(4)
+            Members = MembersMockData.GetRandomMembers(4)
         }
     };
 }

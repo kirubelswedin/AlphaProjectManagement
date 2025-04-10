@@ -7,5 +7,4 @@ public class AddClientFormDto
     public string ContactPerson { get; set; } = null!;
     public string Email { get; set; } = null!;
     public string? PhoneNumber { get; set; }
-    public string ButtonText { get; set; } = "Add Client"; 
 }

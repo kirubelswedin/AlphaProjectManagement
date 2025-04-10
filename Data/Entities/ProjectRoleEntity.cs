@@ -14,7 +14,7 @@ public class ProjectRoleEntity
     [MaxLength(200)]
     public string? Description { get; set; }
     
-    public int SortOrder { get; set; }
+    public bool IsDefault { get; set; }
     
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }

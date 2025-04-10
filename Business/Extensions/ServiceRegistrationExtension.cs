@@ -1,5 +1,5 @@
-using Business.Interfaces;
 using Business.Services;
+using Business.Handlers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,6 +15,12 @@ public static class ServiceRegistrationExtension
         services.AddScoped<IStatusService, StatusService>();
         services.AddScoped<IClientService, ClientService>();
         services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<ITokenHandler, TokenHandler>();
+        services.AddScoped(typeof(ICacheHandler<>), typeof(CacheHandler<>));
+
+        // Handlers
+        services.AddScoped<IImageHandler>(provider =>
+            new LocalImageHandler(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images")));
 
         return services;
     }

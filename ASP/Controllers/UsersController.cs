@@ -1,7 +1,6 @@
 using ASP.ViewModels.forms;
 using ASP.ViewModels.MockData;
 using ASP.ViewModels.Views;
-using Business.Interfaces;
 using Business.Services;
 using Data.Contexts;
 using Microsoft.AspNetCore.Authorization;
@@ -87,8 +86,7 @@ public class UsersController(
 
             return Json(new { success = false, errors });
         }
-
-
+        
         return Json(new { success = true, message = "Member added successfully" });
     }
 
@@ -106,8 +104,7 @@ public class UsersController(
 
             return Json(new { success = false, errors });
         }
-
-
+        
         return Json(new { success = true, message = "Member updated successfully" });
     }
 

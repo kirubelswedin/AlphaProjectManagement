@@ -42,6 +42,7 @@
 	transition: color 0.15s ease-in-out;
 	flex-shrink: 0;
 	cursor: pointer;
+	text-transform: uppercase;
 }
 
 .tab.active {

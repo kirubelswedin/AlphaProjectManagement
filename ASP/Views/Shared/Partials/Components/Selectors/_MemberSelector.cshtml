@@ -1,57 +1,74 @@
 @using System.Text.Json
-
-
+@model SelectorViewModel
 @{
   Layout = null;
-  
+
   var selectedUsersJson = JsonSerializer.Serialize(
-    Model.Members.Select(m => new
+    Model.Items.Select(m => new
     {
-      id = m.User.Id,
-      imageUrl = m.User.ImageUrl,
-      fullName = m.User.FullName + " " + m.User.Lastname
+      id = m.Id,
+      imageUrl = m.ImageUrl,
+      fullName = m.Text
     })
   );
 }
 
 <div class="selector-field member-selector">
-  <label class="form-label">Members</label>
-  <div id="tagged-users" class="form-input" form-tag-select>
-    <input type="text" id="user-search" class="form-tag-input" placeholder="Add Team Members..." />
-    <label for="user-search" class="fa-solid fa-ellipsis"></label>
-    <div id="user-search-results" class="search-results"></div>
+  <label class="form-label">@Model.Label</label>
+  <div id="@Model.Id" class="form-input" form-tag-select>
+    <input type="text" id="@(Model.Id)-input" class="form-tag-input" placeholder="@Model.Placeholder" />
+    <label for="@(Model.Id)-input" class="@Model.Icon"></label>
+    <div id="@(Model.Id)-results" class="search-results"></div>
   </div>
+  
+  <!-- Hidden input för att lagra valda medlems-IDs -->
+  <input type="hidden" name="@Model.HiddenInputName" id="@Model.HiddenInputName" />
+  
+  @if (Model.IsRequired)
+  {
+    <span class="field-error" asp-validation-for="@Model.ValidationFor"></span>
+  }
 </div>
 
 
 <script>
-  const preSelectedUsers = @Html.Raw(selectedUsersJson)
+  document.addEventListener('DOMContentLoaded', function() {
+    const preSelectedUsers = @Html.Raw(selectedUsersJson);
 
-  initTagSelector({
-    containerId: "tagged-users",
-    inputId: 'user-search',
-    resultsId: 'user-search-results',
-    searchUrl: (query) => '@Url.Action("SearchUsers", "Users")' + '?term=' + encodeURIComponent(query),
-    displayProperty: 'fullName',
-    imageProperty: 'imageUrl',
-    tagClass: 'user-tag',
-    avatarFolder: '/images/users/',
-    emptyMessage: 'No users found',
-    preSelected: preSelectedUsers,
-    selectedInputIds: 'SelectedUserIds'
-  })
+    initTagSelector({
+      containerId: "@Model.Id",
+      inputId: '@(Model.Id)-input',
+      resultsId: '@(Model.Id)-results',
+      searchUrl: (query) => '@Url.Action("SearchUsers", "Users")' + '?term=' + encodeURIComponent(query),
+      displayProperty: 'fullName',
+      imageProperty: 'imageUrl',
+      tagClass: 'user-tag',
+      avatarFolder: '/images/users/',
+      emptyMessage: 'No users found',
+      preSelected: preSelectedUsers,
+      selectedInputIds: '@Model.HiddenInputName'
+    });  
+  });
 </script>
 
 
- @* const preSelectedTags = [] *@
- @*   *@
- @*   initTagSelector({ *@
- @*     containerId: "tags", *@
- @*     inputId: 'tag-search', *@
- @*     resultsId: 'tag-search-results', *@
- @*     searchUrl: (query) => '@Url.Action("SearchTags", "Tags")' + '?term=' + encodeURIComponent(query), *@
- @*     displayProperty: 'tagName', *@
- @*     tagClass: 'tag', *@
- @*     emptyMessage: 'No tags found', *@
- @*     preSelected: preSelectedTags *@
- @*   }) *@
+@* const preSelectedTags = [] *@
+@*   *@
+@*   initTagSelector({ *@
+@*     containerId: "tags", *@
+@*     inputId: 'tag-search', *@
+@*     resultsId: 'tag-search-results', *@
+@*     searchUrl: (query) => '@Url.Action("SearchTags", "Tags")' + '?term=' + encodeURIComponent(query), *@
+@*     displayProperty: 'tagName', *@
+@*     tagClass: 'tag', *@
+@*     emptyMessage: 'No tags found', *@
+@*     preSelected: preSelectedTags *@
+@*   }) *@
+
+
+@* Model.Members.Select(m => new
+    {
+      id = m.User.Id,
+      imageUrl = m.User.ImageUrl,
+      fullName = m.User.FullName + " " + m.User.Lastname
+    }) *@

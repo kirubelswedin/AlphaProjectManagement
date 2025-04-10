@@ -82,7 +82,6 @@
 	--primary-text: var(--dark-100);
 	--secondary-text: var(--gray-800);
 	--tertiary-text: var(--dark-400);
-	
 
 	--main-background: var(--white-300);
 	--auth-background: var(--gray-300);
@@ -136,7 +135,7 @@
 	--not-started: var(--gray-800);
 
 	--in-progress-background: var(--blue-10);
-	--in-progress: var(--accent);
+	--in-progress: var(--blue);
 
 	--paused-background: var(--orange-10);
 	--paused: var(--orange);
@@ -150,14 +149,12 @@
 	/* Member cards */
 	--jobtitle-text: var(--primary-text-inverted);
 	--jobtitle-background: var(--main-background-inverted);
-	
+
 	/* Forms */
 	--form-input-background: var(--surface-background);
 	--form-input-color: var(--primary-text);
 	--form-input-placeholder-color: var(--gray-700);
 	--form-input-border-color: var(--border-color);
-
-	
 
 	/* Shadows, borders & dividers */
 	--box-shadow-1: 0 5px 5px 1px rgba(0, 0, 0, 0.05);
@@ -356,6 +353,11 @@ main {
 	box-shadow: var(--box-shadow-3);
 	transition: transform 0.3s ease-in-out;
 
+	& i {
+		font-size: 1.25rem;
+		color: var(--primary-text);
+	}
+
 	&:hover {
 		background-color: var(--hover-grey);
 		transform: scale(1.1);
@@ -433,4 +435,3 @@ main {
 .error {
 	color: var(--alert-notification-error-text-color);
 }
-

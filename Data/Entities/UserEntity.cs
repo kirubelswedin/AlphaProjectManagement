@@ -10,11 +10,11 @@ public class UserEntity : IdentityUser
 
     [Required]
     [ProtectedPersonalData]
-    public string? FirstName { get; set; } = null!;
+    public string FirstName { get; set; } = null!;
 
     [Required]
     [ProtectedPersonalData]
-    public string? LastName { get; set; } = null!;
+    public string LastName { get; set; } = null!;
 
     [ProtectedPersonalData]
     public string? JobTitle { get; set; }

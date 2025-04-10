@@ -1,6 +1,6 @@
 import { SELECTORS, CLASSES } from "./constants.js";
 import WindowManager from "./windowManager.js";
-import SelectorManager from "./selector.js";
+import tags from "./tags.js";
 
 /**
  * Handles project management functionalities

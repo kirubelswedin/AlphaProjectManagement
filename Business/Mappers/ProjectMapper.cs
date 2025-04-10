@@ -2,11 +2,12 @@ using Business.Dtos;
 using Data.Entities;
 using Domain.Models;
 
-namespace Business.Mapper;
+namespace Business.Mappers;
 
 public static class ProjectMapper
 {
-    public static ProjectEntity ToEntity(AddProjectFormDto? dto, string? newImageUrl = null)
+    // AddProjectFormDto to ProjectEntity
+    public static ProjectEntity ToEntity(AddProjectFormDto? dto, string? newImageUrl = null, string? createdById = null)
     {
         if (dto == null) return null!;
         return new ProjectEntity
@@ -17,11 +18,15 @@ public static class ProjectMapper
             Description = dto.Description,
             StartDate = dto.StartDate,
             EndDate = dto.EndDate,
+            UserId = createdById ?? dto.UserId,
             Budget = dto.Budget,
-            UserId = dto.UserId,
+            StatusId = dto.StatusId,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
         };
     }
 
+    // UpdateProjectFormDto to ProjectEntity
     public static ProjectEntity ToEntity(UpdateProjectFormDto? dto, string? newImageUrl = null)
     {
         if (dto == null) return null!;
@@ -34,12 +39,13 @@ public static class ProjectMapper
             Description = dto.Description,
             StartDate = dto.StartDate,
             EndDate = dto.EndDate,
-            Budget = dto.Budget,
             UserId = dto.UserId,
+            Budget = dto.Budget,
             StatusId = dto.StatusId
         };
     }
 
+    // ProjectEntity to a Project
     public static Project ToModel(ProjectEntity? entity)
     {
         if (entity == null) return null!;
@@ -56,5 +62,72 @@ public static class ProjectMapper
             User = UserMapper.ToModel(entity.User),
             Status = StatusMapper.ToModel(entity.Status),
         };
+    }
+
+    // ProjectEntity to a ProjectDetailsDto
+    public static ProjectDetailsDto ToDetailsDto(ProjectEntity? entity)
+    {
+        if (entity == null)
+            return null!;
+
+        return new ProjectDetailsDto
+        {
+            // Basic Information
+            Id = entity.Id,
+            ImageUrl = entity.ImageUrl,
+            ProjectName = entity.ProjectName,
+            Description = entity.Description,
+            StartDate = entity.StartDate,
+            EndDate = entity.EndDate,
+            Budget = entity.Budget,
+
+            // Status Information
+            StatusId = entity.Status.Id,
+            StatusName = entity.Status.StatusName,
+            StatusColor = entity.Status.Color,
+
+            // Client Information
+            ClientId = entity.ClientId,
+            ClientName = entity.Client.ClientName,
+            ClientEmail = entity.Client.Email,
+            ClientContactPerson = entity.Client.ContactPerson,
+
+            // Creator Information
+            CreatedById = entity.UserId,
+            CreatedByName = $"{entity.User.FirstName} {entity.User.LastName}",
+            CreatedByImageUrl = entity.User.ImageUrl,
+
+            // Members
+            Members = entity.ProjectMembers.Select(member => new ProjectMemberDto
+            {
+                UserId = member.UserId,
+                FullName = $"{member.User.FirstName} {member.User.LastName}",
+                ImageUrl = member.User.ImageUrl,
+                RoleId = member.RoleId,
+                RoleName = member.Role.Name,
+                JoinedAt = member.JoinedAt
+            }).ToList(),
+
+            // Statistics
+            TotalMembers = entity.ProjectMembers.Count,
+            CompletedTasks = 0,
+            TotalTasks = 0,
+
+            // Time Tracking
+            IsCompleted = entity.IsCompleted,
+            CompletedOnTime = entity.CompletedOnTime,
+            CompletedAt = entity.CompletedAt
+        };
+    }
+
+    public static void UpdateFromDto(ProjectEntity entity, UpdateProjectFormDto dto)
+    {
+        entity.ProjectName = dto.ProjectName;
+        entity.Description = dto.Description;
+        entity.StartDate = dto.StartDate;
+        entity.EndDate = dto.EndDate;
+        entity.Budget = dto.Budget;
+        entity.StatusId = dto.StatusId;
+        entity.ClientId = dto.ClientId;
     }
 }

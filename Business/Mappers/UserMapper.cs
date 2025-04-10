@@ -2,7 +2,7 @@ using Business.Dtos;
 using Data.Entities;
 using Domain.Models;
 
-namespace Business.Mapper;
+namespace Business.Mappers;
 
 public static class UserMapper
 {
@@ -65,15 +65,14 @@ public static class UserMapper
             LastName = entity.LastName,
             Email = entity.Email!,
             PhoneNumber = entity.PhoneNumber,
-            Address = new UserAddress
+            Address = entity.Address != null ? new UserAddress
             {
                 Id = entity.Address.UserId,
                 StreetName = entity.Address.StreetName,
                 PostalCode = entity.Address.PostalCode,
                 City = entity.Address.City,
                 Country = entity.Address.Country
-                
-            }
+            } : null
         };
     }
 }

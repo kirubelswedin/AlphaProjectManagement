@@ -10,7 +10,8 @@ public static class MembersMockData
         {
             Id = "tm1",
             Avatar = "/images/avatars/Avatar-1.svg",
-            FullName = "Anna Johansson",
+            FirstName = "Anna",
+            LastName = "Johansson",
             Email = "anna.johansson@example.com",
             PhoneNumber = "070-123 45 67",
             JobTitle = "Senior Developer",
@@ -23,7 +24,8 @@ public static class MembersMockData
         {
             Id = "tm2",
             Avatar = "/images/avatars/Avatar-2.svg",
-            FullName = "Erik Lindberg",
+            FirstName = "Erik",
+            LastName = "Lindberg",
             Email = "erik.lindberg@example.com",
             PhoneNumber = "070-234 56 78",
             JobTitle = "UX Designer",
@@ -36,7 +38,8 @@ public static class MembersMockData
         {
             Id = "tm3",
             Avatar = "/images/avatars/Avatar-3.svg",
-            FullName = "Maria Svensson",
+            FirstName = "Maria",
+            LastName = "Svensson",
             Email = "maria.svensson@example.com",
             PhoneNumber = "070-345 67 89",
             JobTitle = "Product Manager",
@@ -49,7 +52,8 @@ public static class MembersMockData
         {
             Id = "tm4",
             Avatar = "/images/avatars/Avatar-4.svg",
-            FullName = "Johan Andersson",
+            FirstName = "Johan",
+            LastName = "Andersson",
             Email = "johan.andersson@example.com",
             PhoneNumber = "070-456 78 90",
             JobTitle = "Backend Developer",
@@ -62,7 +66,8 @@ public static class MembersMockData
         {
             Id = "tm5",
             Avatar = "/images/avatars/Avatar-5.svg",
-            FullName = "Lena Björk",
+            FirstName = "Lena",
+            LastName = "Björk",
             Email = "lena.bjork@example.com",
             PhoneNumber = "070-567 89 01",
             JobTitle = "Frontend Developer",
@@ -75,7 +80,8 @@ public static class MembersMockData
         {
             Id = "tm6",
             Avatar = "/images/avatars/Avatar-6.svg",
-            FullName = "Martin Ekström",
+            FirstName = "Martin",
+            LastName = "Ekström",
             Email = "martin.ekstrom@example.com",
             PhoneNumber = "070-678 90 12",
             JobTitle = "ProjectEntity Lead",
@@ -88,7 +94,8 @@ public static class MembersMockData
         {
             Id = "tm7",
             Avatar = "/images/avatars/Avatar-7.svg",
-            FullName = "Karin Nilsson",
+            FirstName = "Karin",
+            LastName = "Nilsson",
             Email = "karin.nilsson@example.com",
             PhoneNumber = "070-789 01 23",
             JobTitle = "CTO",
@@ -101,7 +108,8 @@ public static class MembersMockData
         {
             Id = "tm8",
             Avatar = "/images/avatars/Avatar-8.svg",
-            FullName = "Anders Larsson",
+            FirstName = "Anders",
+            LastName = "Larsson",
             Email = "anders.larsson@example.com",
             PhoneNumber = "070-890 12 34",
             JobTitle = "DevOps Engineer",

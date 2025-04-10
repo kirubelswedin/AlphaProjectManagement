@@ -12,8 +12,8 @@ public class ClientsViewModel
         ButtonText = "Add Client",
         ModalId = "addClientModal"
     };
-    
+
     public ClientsFormViewModel ClientForm { get; set; } = new();
-    
+
     public IEnumerable<Client> Clients { get; set; } = [];
 }

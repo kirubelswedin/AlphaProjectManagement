@@ -2,10 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using ASP.ViewModels.Views;
 using Business.Dtos;
-using Business.Interfaces;
 using Business.Services;
-using Data.Entities;
-using Microsoft.AspNetCore.Identity;
 using Domain.Extensions;
 
 namespace ASP.Controllers;

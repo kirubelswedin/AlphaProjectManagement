@@ -19,6 +19,11 @@ public class NotificationRepository(AppDbContext context) : BaseRepository<Notif
     {
         var entity = await _table.OrderByDescending(x => x.CreatedAt).FirstOrDefaultAsync();
         var notification = entity!.MapTo<Notification>();
-        return new NotificationResult<Notification> { Succeeded = true, StatusCode = 200, Result = notification };
+        return new NotificationResult<Notification>
+        {
+            Succeeded = true, 
+            StatusCode = 200, 
+            Result = notification
+        };
     }
 }

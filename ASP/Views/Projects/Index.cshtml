@@ -9,15 +9,15 @@
 
     <partial name="Partials/Components/TabFilter/_TabFilter" model="@Model.TabFilter" />
 
-    <div class="projects-grid">
+    <section class="projects-grid">
         @foreach (var project in Model.Projects)
         {
             <partial name="Partials/Components/ProjectCard/_ProjectCard" model="@project" />
         }
-    </div>
+    </section>
 
-    <partial name="Partials/Modals/_AddProjectModal" model="@Model.ProjectForm" />
-    <partial name="Partials/Modals/_EditProjectModal" model="@Model.ProjectForm" />
+    <partial name="Partials/Modals/_AddProjectModal" model="@Model.AddProject" />
+    <partial name="Partials/Modals/_EditProjectModal" model="@Model.EditProject" />
 </section>
 
 @section Scripts {

@@ -2,7 +2,7 @@ using Business.Dtos;
 using Data.Entities;
 using Domain.Models;
 
-namespace Business.Mapper;
+namespace Business.Mappers;
 
 public static class StatusMapper
 {

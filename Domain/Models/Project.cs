@@ -10,7 +10,7 @@ public class Project
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
     public decimal? Budget { get; set; }
-    
+
     public User User { get; set; } = null!;
     public Status Status { get; set; } = null!;
 
@@ -25,4 +25,6 @@ public class Project
 
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+    
+    public ICollection<ProjectMember> ProjectMembers { get; set; }
 }

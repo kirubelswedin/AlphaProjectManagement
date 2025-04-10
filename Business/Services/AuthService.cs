@@ -20,7 +20,7 @@ public class AuthService(SignInManager<UserEntity> signInManager, UserManager<Us
     private readonly IUserService _userService = userService;
 
 
-    public async Task<AuthResult> SignUpAsync(SignUpFormDto formDto)
+    public async Task<AuthResult> SignUpAsync(SignUpFormDto? formDto)
     {
         if (formDto == null)
             return new AuthResult { Succeeded = false, StatusCode = 400, Error = "form data can't be null." };
@@ -44,17 +44,13 @@ public class AuthService(SignInManager<UserEntity> signInManager, UserManager<Us
 
                 return new AuthResult { Succeeded = true, StatusCode = 201, SuccessMessage = $"User was created successfully." };
             }
-
             throw new Exception("Unable to sign up user");
-
         }
         catch (Exception ex)
-        {
-            return new AuthResult { Succeeded = false, StatusCode = 500, Error = ex.Message };
-        }
+        { return new AuthResult { Succeeded = false, StatusCode = 500, Error = ex.Message }; }
     }
 
-    public async Task<AuthResult> SignInAsync(SignInFormDto formDto)
+    public async Task<AuthResult> SignInAsync(SignInFormDto? formDto)
     {
         if (formDto == null)
             return new AuthResult { Succeeded = false, StatusCode = 400, Error = "form data can't be null." };
@@ -69,13 +65,4 @@ public class AuthService(SignInManager<UserEntity> signInManager, UserManager<Us
     {
         await _signInManager.SignOutAsync();
     }
-    
-    // public async Task<IEnumerable<User>> UpdateCacheAsync()
-    // {
-    //     var entities = await _userManager.Users.ToListAsync();
-    //     var models = entities.Select(UserMapper.ToModel).ToList();
-    //
-    //     _cacheHandler.SetCache(_cacheKey, models);
-    //     return models;
-    // }
 }

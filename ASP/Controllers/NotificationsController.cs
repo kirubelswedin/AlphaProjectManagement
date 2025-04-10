@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using Business.Dtos;
-using Business.Interfaces;
 using Business.Services;
 using Hubs;
 using Microsoft.AspNetCore.Authorization;
@@ -90,16 +89,5 @@ public class NotificationsController(IHubContext<NotificationHub> notificationHu
         await _notificationHub.Clients.All.SendAsync("NotificationDismissed", id);
         return Ok(new { success = true });
     }
-
-    // [HttpDelete("{id}")]
-    // public async Task<IActionResult> DeleteNotification(string id)
-    // {
-    //     var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
-
-    //     if (string.IsNullOrEmpty(userId))
-    //         return Unauthorized();
-
-    //     await _notificationService.DeleteNotificationAsync(id, userId);
-    //     return Ok(new { success = true });
-    // }
+    
 }

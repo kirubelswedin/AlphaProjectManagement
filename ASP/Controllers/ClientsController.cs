@@ -1,23 +1,23 @@
-using ASP.ViewModels.forms;
-using ASP.ViewModels.MockData;
 using ASP.ViewModels.Views;
 using Business.Dtos;
-using Business.Interfaces;
 using Business.Services;
-using Domain.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ASP.Controllers;
 
 [Authorize(Roles = "Admin")]
-public class ClientsController(IClientService clientService) : Controller
+public class ClientsController(
+    IClientService clientService,
+    INotificationService notificationService) : Controller
 {
     private readonly IClientService _clientService = clientService;
+    private readonly INotificationService _notificationService = notificationService;
 
     [Route("admin/clients")]
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
+        var clientsResult = await _clientService.GetClientsAsync();
         var viewModel = new ClientsViewModel
         {
             PageHeader = new()
@@ -26,93 +26,97 @@ public class ClientsController(IClientService clientService) : Controller
                 ButtonText = "Add Client",
                 ModalId = "addClientModal"
             },
-            Clients = ClientsMockData.GetClients()
+            ClientForm = new(),
+            Clients = clientsResult.Succeeded ? clientsResult.Result! : []
         };
 
         return View(viewModel);
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddClient(ClientsFormViewModel model)
+    public async Task<IActionResult> AddClient(AddClientFormDto dto)
     {
         if (!ModelState.IsValid)
         {
-            var errors = ModelState
-                .Where(x => x.Value?.Errors.Count > 0)
-                .ToDictionary(
-                    kvp => kvp.Key,
-                    kvp => kvp.Value?.Errors.Select(x => x.ErrorMessage).ToArray()
-                );
-
-            return Json(new { success = false, errors });
+            return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
         }
 
-        // Map from ViewModel to FormData (DTO)
-        var formData = model.MapTo<AddClientFormDto>();
-        var result = await _clientService.CreateClientAsync(formData);
-
-        if (result.Succeeded)
+        var result = await _clientService.CreateClientAsync(dto);
+        if (!result.Succeeded)
         {
-            return Json(new { success = true, message = "Client created successfully" });
+            return Json(new { success = false, error = result.Error });
         }
 
-        return Json(new { success = false, message = result.Error });
+        await CreateClientNotification("New Client Added", $"Client {dto.ClientName} has been added successfully.");
+        return Json(new { success = true });
     }
 
     [HttpGet("clients/list")]
-    public IActionResult GetClients()
+    public async Task<IActionResult> GetClients()
     {
-        var clients = ClientsMockData.GetClients();
-        return Json(new { success = true, clients });
+        var result = await _clientService.GetClientsAsync();
+        if (!result.Succeeded)
+        {
+            return Json(new { success = false, error = result.Error });
+        }
+
+        return Json(new { success = true, clients = result.Result });
     }
 
     [HttpGet("clients/{id}")]
-    public IActionResult GetClient(string id)
+    public async Task<IActionResult> GetClient(string id)
     {
-        var client = ClientsMockData.GetClientById(id);
-        if (client == null)
+        var result = await _clientService.GetClientByIdAsync(id);
+        if (!result.Succeeded || result.Result == null)
         {
             return NotFound();
         }
 
-        return Json(new { success = true, client });
+        return Json(new { success = true, client = result.Result });
     }
 
     [HttpPut("clients/{id}")]
-    public async Task<IActionResult> UpdateClient(string id, ClientsFormViewModel model)
+    public async Task<IActionResult> UpdateClient(string id, AddClientFormDto dto)
     {
         if (!ModelState.IsValid)
         {
-            var errors = ModelState
-                .Where(x => x.Value?.Errors.Count > 0)
-                .ToDictionary(
-                    kvp => kvp.Key,
-                    kvp => kvp.Value?.Errors.Select(x => x.ErrorMessage).ToArray()
-                );
-
-            return Json(new { success = false, errors });
+            return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
         }
 
-        var formData = model.MapTo<AddClientFormDto>();
-        var result = await _clientService.UpdateClientAsync(id, formData);
-
-        if (result.Succeeded)
+        var result = await _clientService.UpdateClientAsync(id, dto);
+        if (!result.Succeeded)
         {
-            return Json(new { success = true, message = "Client updated successfully" });
+            return Json(new { success = false, error = result.Error });
         }
 
-        return Json(new { success = false, message = result.Error });
+        await CreateClientNotification("Client Updated", $"Client {dto.ClientName} has been updated successfully.");
+        return Json(new { success = true });
     }
 
     [HttpDelete("clients/{id}")]
     public async Task<IActionResult> DeleteClient(string id)
     {
         var result = await _clientService.DeleteClientAsync(id);
-        if (result.Succeeded)
+        if (!result.Succeeded)
         {
-            return Json(new { success = true, message = "Client deleted successfully" });
+            return Json(new { success = false, error = result.Error });
         }
 
-        return Json(new { success = false, message = result.Error });
+        await CreateClientNotification("Client Deleted", "A client has been deleted");
+        return Json(new { success = true });
+    }
+
+    private async Task CreateClientNotification(string title, string message)
+    {
+        var notificationDto = new NotificationDetailsDto
+        {
+            NotificationTypeId = 3, // Client type
+            NotificationTargetId = 2, // Admins
+            Title = title,
+            Message = message,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        await _notificationService.AddNotificationAsync(notificationDto);
     }
 }

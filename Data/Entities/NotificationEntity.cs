@@ -24,7 +24,7 @@ public class NotificationEntity
 
     [Required]
     [MaxLength(200)]
-    public string ImageUrl { get; set; } = null!;
+    public string? ImageUrl { get; set; } = null!;
 
     [Required]
     [MaxLength(500)]

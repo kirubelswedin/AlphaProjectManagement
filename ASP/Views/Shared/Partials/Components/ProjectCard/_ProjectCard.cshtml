@@ -8,8 +8,8 @@
     <div class="project-info">
       <h3>@Model.ProjectName</h3>
       <p>@Model.ClientName</p>
-      <div class="project-status @Model.Status.ToString().ToLower()">
-        @Model.Status.ToString().Replace("Not", "Not ")
+      <div class="project-status @Model.Status.ToString()?.ToLower()">
+        @Model.Status.ToString()?.Replace("Not", "Not ")
       </div>
     </div>
     <div class="dropdown-wrapper window" id="project-dropdown-@Model.Id">
@@ -28,7 +28,7 @@
   <div class="project-footer">
     <partial name="Partials/Components/ProjectCard/_ProjectDeadline" model="@Model" />
     <div class="team-members">
-      @foreach (var member in Model.TeamMembers)
+      @foreach (var member in Model.Members)
       {
         <div class="avatar">
           @if (!string.IsNullOrEmpty(member.Avatar))

@@ -1,8 +1,7 @@
 using Business.Dtos;
-using Business.Interfaces;
+using Business.Mappers;
 using Data.Entities;
 using Data.Repositories;
-using Domain.Extensions;
 using Domain.Models;
 using Domain.Responses;
 using Hubs;
@@ -25,7 +24,7 @@ public class NotificationService(INotificationRepository notificationRepository,
     private readonly INotificationDismissedRepository _notificationDismissedRepository = notificationDismissedRepository;
     private readonly IHubContext<NotificationHub> _notificationHub = notificationHub;
 
-    public async Task<NotificationResult> AddNotificationAsync(NotificationDetailsDto detailsDto, string userId = "")
+    public async Task<NotificationResult> AddNotificationAsync(NotificationDetailsDto? detailsDto, string userId = "")
     {
         if (detailsDto == null)
             return new NotificationResult { Succeeded = false, StatusCode = 400 };
@@ -47,9 +46,9 @@ public class NotificationService(INotificationRepository notificationRepository,
             _ => detailsDto.ImageUrl
         };
 
-        var notificationEntity = detailsDto.MapTo<NotificationEntity>();
+        var notificationEntity = NotificationMapper.ToEntity(detailsDto);
         var result = await _notificationRepository.AddAsync(notificationEntity);
-        
+
         var notifications = await GetNotificationsAsync(userId);
         var newNotification = notifications.Result?.OrderByDescending(x => x.CreatedAt).FirstOrDefault();
 
@@ -66,7 +65,7 @@ public class NotificationService(INotificationRepository notificationRepository,
 
     public async Task<NotificationResult<IEnumerable<Notification>>> GetNotificationsAsync(string userId, string? roleName = null, int take = 10)
     {
-        var adminTargetName = "Admin";
+        const string adminTargetName = "Admin";
         var dismissedNotificationResult = await _notificationDismissedRepository.GetNotificationsIdsAsync(userId);
         var dismissedNotificationIds = dismissedNotificationResult.Result;
 
@@ -81,7 +80,7 @@ public class NotificationService(INotificationRepository notificationRepository,
         if (!notificationResult.Succeeded)
             return new NotificationResult<IEnumerable<Notification>> { Succeeded = false, StatusCode = 404 };
 
-        var notifications = notificationResult.Result!.Select(entity => entity.MapTo<Notification>());
+        var notifications = notificationResult.Result!.Select(NotificationMapper.ToModel);
         return new NotificationResult<IEnumerable<Notification>> { Succeeded = true, StatusCode = 200, Result = notifications };
     }
 
