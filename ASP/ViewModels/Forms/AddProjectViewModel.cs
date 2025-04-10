@@ -1,10 +1,11 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ASP.ViewModels.forms;
 
 public class ProjectFormViewModel
 {
-    public string? Id { get; set; }
+    
     
     [DataType(DataType.Upload)]
     [Display(Name = "Project Image", Prompt = "Select project image")]
@@ -35,6 +36,8 @@ public class ProjectFormViewModel
     [Required]
     [Display(Name = "Client", Prompt = "Select client")] 
     public string ClientId { get; set; } = null!;
+    
+    public IEnumerable<SelectListItem> Clients { get; set; } = [];
 
     [Required]
     [Display(Name = "Status", Prompt = "Select status")]
