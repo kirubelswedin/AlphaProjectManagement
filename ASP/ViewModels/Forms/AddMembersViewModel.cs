@@ -5,7 +5,10 @@ namespace ASP.ViewModels.forms;
 
 public class MembersFormViewModel
 {
-    public string? Image { get; set; }
+    [DataType(DataType.Upload)]
+    [Display(Name = "Image")]
+    public IFormFile? ImageFile { get; set; }
+    public string? ImageUrl { get; set; }
 
     [Required(ErrorMessage = "First name is required")]
     [StringLength(100, ErrorMessage = "First name cannot exceed 100 characters")]
@@ -23,12 +26,13 @@ public class MembersFormViewModel
     [Display(Name = "Email")]
     public string Email { get; set; } = null!;
 
-    [StringLength(100, ErrorMessage = "Job title cannot exceed 100 characters")]
-    [Display(Name = "Job Title")]
-    public string? JobTitle { get; set; }
-
     [Phone(ErrorMessage = "Invalid phone number")]
     [StringLength(20, ErrorMessage = "Phone number cannot exceed 20 characters")]
     [Display(Name = "Phone Number")]
     public string? PhoneNumber { get; set; }
+    
+    [StringLength(100, ErrorMessage = "Job title cannot exceed 100 characters")]
+    [Display(Name = "Job Title")]
+    public string? JobTitle { get; set; }
+
 }
