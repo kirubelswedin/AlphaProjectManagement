@@ -1,3 +1,4 @@
+using ASP.ViewModels.Components;
 using ASP.ViewModels.Views;
 using Business.Dtos;
 using Business.Services;
@@ -7,27 +8,30 @@ using Microsoft.AspNetCore.Mvc;
 namespace ASP.Controllers;
 
 [Authorize(Roles = "Admin")]
-public class ClientsController(
-    IClientService clientService,
-    INotificationService notificationService) : Controller
+public class ClientsController : Controller
 {
-    private readonly IClientService _clientService = clientService;
-    private readonly INotificationService _notificationService = notificationService;
+    private readonly IClientService _clientService;
+    private readonly INotificationService _notificationService;
+
+    public ClientsController(IClientService clientService, INotificationService notificationService)
+    {
+        _clientService = clientService;
+        _notificationService = notificationService;
+    }
 
     [Route("admin/clients")]
     public async Task<IActionResult> Index()
     {
-        var clientsResult = await _clientService.GetClientsAsync();
+        var clients = await _clientService.GetClientsAsync();
         var viewModel = new ClientsViewModel
         {
-            PageHeader = new()
+            PageHeader = new PageHeaderViewModel
             {
-                Title = "Client",
+                Title = "Clients",
                 ButtonText = "Add Client",
-                ModalId = "addClientModal"
+                ModalId = "addclientmodal"
             },
-            ClientForm = new(),
-            Clients = clientsResult.Succeeded ? clientsResult.Result! : []
+            Clients = clients.Result ?? []
         };
 
         return View(viewModel);
@@ -40,6 +44,10 @@ public class ClientsController(
         {
             return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
         }
+
+        // Set server-side timestamps
+        dto.CreatedAt = DateTime.UtcNow;
+        dto.UpdatedAt = DateTime.UtcNow;
 
         var result = await _clientService.CreateClientAsync(dto);
         if (!result.Succeeded)
@@ -104,6 +112,28 @@ public class ClientsController(
 
         await CreateClientNotification("Client Deleted", "A client has been deleted");
         return Json(new { success = true });
+    }
+
+    [HttpGet("clients/search")]
+    public async Task<IActionResult> SearchClients(string term)
+    {
+        var result = await _clientService.GetClientsAsync();
+        if (!result.Succeeded)
+        {
+            return Json(new List<object>());
+        }
+
+        var filteredClients = result.Result!
+            .Where(c => c.ClientName.Contains(term, StringComparison.OrdinalIgnoreCase))
+            .Select(c => new
+            {
+                id = c.Id,
+                text = c.ClientName,
+                image = c.ImageUrl
+            })
+            .ToList();
+
+        return Json(filteredClients);
     }
 
     private async Task CreateClientNotification(string title, string message)

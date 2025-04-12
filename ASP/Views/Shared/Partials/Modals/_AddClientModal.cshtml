@@ -1,50 +1,122 @@
-@model ClientsFormViewModel
+@model AddClientsViewModel
 
-<div id="addClientModal" class="modal" tabindex="-1" aria-labelledby="addClientModalLabel" aria-hidden="true">
-    <div class="form-modal-dialog">
+@{
+    const string modalId = "addclientmodal";
+}
+
+<section id="@modalId" class="modal">
+    <div class="form-modal-wrapper">
         <div class="form-modal-content">
-
             <div class="form-modal-header">
-                <h3 id="addClientModalLabel">Add Client</h3>
-                <button type="button" class="form-modal-close" data-close="true" data-target="#addClientModal">
+                <h3>Add Client</h3>
+                <button type="button" class="form-modal-close" data-close="true" data-target="#@modalId">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-
             <div class="form-modal-body">
-                <form id="addClientForm" asp-controller="Client" asp-action="AddClient" method="post">
+                <form asp-controller="Clients" asp-action="AddClient" method="post" enctype="multipart/form-data"
+                    novalidate id="clientForm" data-id="add">
                     <input type="hidden" id="clientId" name="Id" />
 
+                    <!-- Client Image -->
+                    <div class="form-group">
+                        <label class="form-label hide" for="ImageFile">Client Image</label>
+                        <div class="image-preview-container shape-round" data-file-upload>
+                            <img class="hide" alt="Client preview" />
+                            <div class="circle circle-gray upload-overlay">
+                                <i class="fa-duotone fa-solid fa-camera"></i>
+                            </div>
+                            <input asp-for="ImageFile" accept="image/*" type="file" name="ImageFile" id="ImageFile"
+                                autocomplete="off" />
+                        </div>
+                        <span class="field-error" data-valmsg-for="ImageFile"></span>
+                    </div>
+
                     <!-- Client Name -->
-                    <div class="form-field">
-                        <label class="form-label" for="clientName">Client Name</label>
+                    <div class="form-group">
+                        <label class="form-label" for="clientName">Name</label>
                         <input type="text" class="form-input" id="clientName" name="ClientName"
-                            placeholder="Enter client name" required />
+                               placeholder="Enter Company name" required autocomplete="off" />
                         <span class="field-error" data-valmsg-for="ClientName"></span>
+                    </div>
+                    
+                    <div class="form-column">
+                        <!-- Start Date -->
+                        <div class="form-group half">
+                            <label class="form-label" for="StartDate">Date</label>
+                            <input type="date" class="form-input" id="StartDate" name="StartDate" required autocomplete="off" />
+                            <span class="field-error" data-valmsg-for="StartDate"></span>
+                        </div>
+
+                        <!-- End Date -->
+                        <div class="form-group half ">
+                            @* <label class="form-label" for="EndDate">End Date</label> *@
+                            @* <input type="date" class="form-input" id="EndDate" name="EndDate" required autocomplete="off" /> *@
+                            @* <span class="field-error" data-valmsg-for="EndDate"></span> *@
+                        </div>
                     </div>
 
                     <!-- Contact Person -->
-                    <div class="form-field">
-                        <label class="form-label" for="contactPerson">Contact Person</label>
-                        <input type="text" class="form-input" id="contactPerson" name="ContactPerson"
-                            placeholder="Enter contact name" required />
-                        <span class="field-error" data-valmsg-for="ContactPerson"></span>
+                    <div class="form-column">
+                        <!-- First Name -->
+                        <div class="form-group half">
+                            <label class="form-label" for="firstName">Contact Person</label>
+                            <label class="form-label hide" for="firstName">First Name</label>
+                            <input type="text" class="form-input" id="firstName" name="FirstName" placeholder="Enter first name"
+                                   required autocomplete="off" />
+                            <span class="field-error" data-valmsg-for="FirstName"></span>
+                        </div>
+
+                        <!-- Last Name -->
+                        <div class="form-group half right">
+                            <label class="form-label hide" for="lastName">Last Name</label>
+                            <input type="text" class="form-input" id="lastName" name="LastName" placeholder="Enter last name" required
+                                   autocomplete="off" />
+                            <span class="field-error" data-valmsg-for="LastName"></span>
+                        </div>
                     </div>
 
-                    <!-- Email -->
-                    <div class="form-field">
-                        <label class="form-label" for="email">Email</label>
-                        <input type="email" class="form-input" id="email" name="Email" placeholder="Enter email address"
-                            required />
-                        <span class="field-error" data-valmsg-for="Email"></span>
+                    <div class="form-column">
+                        <!-- Email -->
+                        <div class="form-group half">
+                            <label class="form-label" for="email">Email</label>
+                            <input type="email" class="form-input" id="email" name="Email" placeholder="ex: myname@example.com"
+                                   required autocomplete="off" />
+                            <span class="field-error" data-valmsg-for="Email"></span>
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="form-group half">
+                            <label class="form-label" for="phone">Phone</label>
+                            <input type="tel" class="form-input" id="phone" name="PhoneNumber" placeholder="Enter phone number"
+                                   minlength="6" maxlength="15" autocomplete="off" />
+                            <span class="field-error" data-valmsg-for="PhoneNumber"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Street Address -->
+                    <div class="form-group">
+                        <label class="form-label" for="streetAddress">Address</label>
+                        <input type="text" class="form-input" id="streetAddress" name="StreetAddress"
+                               placeholder="Enter street address" autocomplete="off" />
+                        <span class="field-error" data-valmsg-for="StreetAddress"></span>
                     </div>
 
-                    <!-- Phone -->
-                    <div class="form-field">
-                        <label class="form-label" for="phone">Phone</label>
-                        <input type="tel" class="form-input" id="phone" name="Phone" placeholder="Enter phone number"
-                            minlength="6" maxlength="15" />
-                        <span class="field-error" data-valmsg-for="Phone"></span>
+                    <div class="form-column">
+                        <!-- Postal Code -->
+                        <div class="form-group half">
+                            <label class="form-label" for="postalCode">Postal / Code</label>
+                            <input type="text" class="form-input" id="postalCode" name="PostalCode" placeholder="Enter postal code"
+                                   autocomplete="off" />
+                            <span class="field-error" data-valmsg-for="PostalCode"></span>
+                        </div>
+
+                        <!-- City -->
+                        <div class="form-group half">
+                            <label class="form-label" for="city">City</label>
+                            <input type="text" class="form-input" id="city" name="City" placeholder="Enter city" autocomplete="off" />
+                            <span class="field-error" data-valmsg-for="City"></span>
+                        </div>
                     </div>
 
                     <!-- Submit Button -->
@@ -61,7 +133,6 @@
                     </div>
                 </form>
             </div>
-
         </div>
     </div>
-</div>
+</section>

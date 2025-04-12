@@ -124,3 +124,18 @@
 	background-color: var(--divider-color);
 	margin: 0.5rem 0;
 }
+
+.dropdown-item-toggle {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	padding: 0.5rem 1rem;
+	cursor: pointer;
+}
+
+.dropdown-item-content {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}

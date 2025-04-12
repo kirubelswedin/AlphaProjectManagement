@@ -11,7 +11,7 @@ public class UpdateClientFormDto
     [Display(Name = "Client Image", Prompt = "Upload Client Image")]
     [DataType(DataType.Upload)]
     public string? ImageUrl { get; set; }
-    public IFormFile? NewImageUrl { get; set; }
+    public IFormFile? NewImageFile { get; set; }
 
     [Display(Name = "Client Name", Prompt = "Enter Client Name")]
     [DataType(DataType.Text)]

@@ -1,15 +1,9 @@
 using System.ComponentModel.DataAnnotations;
-using ASP.ViewModels.Components;
-using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ASP.ViewModels.Forms;
 
 public class BaseProjectViewModel
 {
-    [DataType(DataType.Upload)]
-    [Display(Name = "")]
-    public IFormFile? Image { get; set; }
-
     [Required]
     [Display(Name = "Project Name", Prompt = "Enter project name")]
     public string ProjectName { get; set; } = null!;
@@ -36,7 +30,4 @@ public class BaseProjectViewModel
     [DataType(DataType.Currency)]
     [Display(Name = "Budget", Prompt = "Enter budget")]
     public decimal? Budget { get; set; }
-
-    public List<SelectListItem> Clients { get; set; } = [];
-    public List<SelectorItemViewModel> Members { get; set; } = [];
 }

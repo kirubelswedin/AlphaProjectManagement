@@ -77,6 +77,7 @@
 	--dark-900: #707070;
 
 	--dark-opacity-20: rgba(26, 25, 38, 0.2);
+	--dark-opacity-60: rgba(26, 25, 38, 0.6);
 
 	/* Text & Background */
 	--primary-text: var(--dark-100);
@@ -161,8 +162,14 @@
 	--box-shadow-2: 0 4px 20px rgba(0, 0, 0, 0.08);
 	--box-shadow-3: 0 4px 40px rgba(0, 0, 0, 0.2);
 
+	/* shapes - circle */
+	--circle-gray-text-color: var(--gray-600);
+	--circle-gray-background-color: var(--dark-900);
+	--hover-grey-icon: var(--gray-100);
+
+	--hover-theme-icon: var(--purple);
+
 	--hover-grey: var(--gray-100);
-	--active-grey: var(--gray-100);
 	--hover-blue: var(--blue-light);
 
 	--border-color: var(--gray-500);
@@ -187,7 +194,6 @@
 	/* Inverted */
 	--primary-text-inverted: var(--dark-100);
 	--main-background-inverted: var(--white-300);
-
 	--modal-overlay-color: rgba(0, 0, 0, 0.5);
 
 	/* Links */
@@ -245,6 +251,11 @@
 	--box-shadow-1: 0 5px 5px 1px rgba(0, 0, 0, 0.2);
 	--box-shadow-2: 0 4px 20px rgba(0, 0, 0, 0.3);
 	--box-shadow-3: 0 4px 40px rgba(0, 0, 0, 0.4);
+
+	/* shapes - circle */
+	--circle-gray-text-color: var(--dark-500);
+	--circle-gray-background-color: var(--dark-900);
+	--hover-grey-icon: var(--gray-600);
 
 	--hover-grey: var(--dark-500);
 	--active-grey: var(--dark-600);
@@ -359,7 +370,7 @@ main {
 	}
 
 	&:hover {
-		background-color: var(--hover-grey);
+		background-color: var(--hover-theme-icon);
 		transform: scale(1.1);
 	}
 }
@@ -434,4 +445,17 @@ main {
 /* .error-message { */
 .error {
 	color: var(--alert-notification-error-text-color);
+}
+
+/* Helpers */
+.hide {
+	display: none !important;
+}
+
+.show {
+	display: block !important;
+}
+
+.open {
+	display: flex !important;
 }

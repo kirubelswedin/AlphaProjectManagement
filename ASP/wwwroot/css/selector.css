@@ -5,6 +5,7 @@
 	flex-grow: 1;
 	font-family: var(--font-standard), sans-serif;
 	width: 95%;
+	background-color: transparent;
 }
 
 .form-tag-select.focused,
@@ -76,6 +77,16 @@
 }
 
 .tag {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	background-color: #f1f5f9;
+	border-radius: 0.75rem;
+	padding: 0.3rem 0.6rem;
+	font-size: 0.9rem;
+}
+
+.user-tag {
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;

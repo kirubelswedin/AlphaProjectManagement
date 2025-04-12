@@ -7,12 +7,12 @@ public class MembersViewModel
 {
     public PageHeaderViewModel PageHeader { get; set; } = new()
     {
-        Title = "Member",
+        Title = "Members",
         ButtonText = "Add Member",
-        ModalId = "addMemberModal"
+        ModalId = "addmembermodal"
     };
-    
-    public MembersFormViewModel MemberForm { get; set; } = new();
-    
+
+    public AddMembersViewModel AddMember { get; set; } = new();
+
     public IEnumerable<MemberCardViewModel> Members { get; set; } = [];
 }

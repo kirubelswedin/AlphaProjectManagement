@@ -15,10 +15,11 @@
         }
     </div>
 
-    <partial name="Partials/Modals/_AddMemberModal" model="@Model.MemberForm" />
-    <partial name="Partials/Modals/_EditMemberModal" model="@Model.MemberForm" />
+    <partial name="Partials/Modals/_AddMemberModal" model="@Model.AddMember" />
+    <partial name="Partials/Modals/_EditMemberModal" model="@Model.AddMember" />
 </section>
 
-@section Scripts {
-    <script src="~/js/members.js" type="module"></script>
-}
+
+@* <script src="~/js/members.js" type="module"></script> *@
+@* <script src="~/js/forms.js" type="module"></script> *@
+

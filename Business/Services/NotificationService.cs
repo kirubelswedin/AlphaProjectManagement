@@ -34,7 +34,7 @@ public class NotificationService(INotificationRepository notificationRepository,
             detailsDto.ImageUrl = detailsDto.NotificationTypeId switch
             {
                 1 => "avatar-1.svg",
-                2 => "ImageUrl-1.svg",
+                2 => "ImageFile-1.svg",
                 _ => detailsDto.ImageUrl
             };
         }

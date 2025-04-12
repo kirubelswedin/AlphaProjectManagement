@@ -46,7 +46,7 @@ public static class UserMapper
             Address = new UserAddressEntity
             {
                 UserId = dto.Id,
-                StreetName = dto.StreetName,
+                StreetAddress = dto.StreetName,
                 PostalCode = dto.PostalCode,
                 City = dto.City,
                 Country = dto.Country
@@ -68,7 +68,7 @@ public static class UserMapper
             Address = entity.Address != null ? new UserAddress
             {
                 Id = entity.Address.UserId,
-                StreetName = entity.Address.StreetName,
+                StreetAddress = entity.Address.StreetAddress,
                 PostalCode = entity.Address.PostalCode,
                 City = entity.Address.City,
                 Country = entity.Address.Country

@@ -21,8 +21,10 @@
             // Profile settings
             new DropdownItemViewModel
             {
-                Content = $"<i class=\"fa-duotone fa-solid fa-user\"></i><span>Profile</span><i class=\"fa-duotone fa-solid fa-gear settings-icon\"></i>",
-                HtmlAttributes = "onclick=\"window.location.href='/admin/profile'\""
+                Icon = "fa-duotone fa-solid fa-user",
+                Text = "Profile",
+                OnClick = "window.location.href='/admin/profile'",
+                AdditionalContent = "<i class=\"fa-duotone fa-solid fa-gear settings-icon\"></i>",
             },
             
             // Theme toggle
@@ -36,7 +38,7 @@
                         <span class=""light-text"">Light Mode</span>
                     </span>
                     <label class=""switch"">
-                        <input type=""checkbox"" id=""darkModeToggle"" onchange=""toggleTheme()"" " + (Model.IsDarkMode ? "checked" : "") + @" />
+                        <input type=""checkbox"" id=""darkModeToggle"" " + (Model.IsDarkMode ? "checked" : "") + @" />
                         <span class=""slider""></span>
                     </label>
                 </div>",
@@ -46,14 +48,14 @@
             // Logout
             new DropdownItemViewModel
             {
-                Content = $@"<a href=""{Model.LogoutUrl}"">
-                    <i class=""fa-duotone fa-solid fa-right-from-bracket""></i>
-                    <span>Logout</span>
-                </a>",
+                Content = $"<i class=\"fa-duotone fa-solid fa-right-from-bracket\"></i><span>Logout</span>",
+                HtmlAttributes = $"onclick=\"window.location.href='{Model.LogoutUrl}'\"",
                 IsDanger = true
-            }
+            },
+
+        
         ]
     };
 }
 
-<partial name="Partials/Components/UI/_DropdownWindow" model="@dropdownModel" />
+<partial name="Partials/Components/UI/_DropdownWindow" model="@dropdownModel" data-for="profile-dropdown" />

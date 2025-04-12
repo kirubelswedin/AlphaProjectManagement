@@ -108,7 +108,7 @@ public class ProjectsController(
     {
         Title = "Projects",
         ButtonText = "Add Project",
-        ModalId = "addProjectModal"
+        ModalId = "addprojectmodal"
     };
 
     private async Task<List<SelectListItem>> GetClientSelectListAsync()

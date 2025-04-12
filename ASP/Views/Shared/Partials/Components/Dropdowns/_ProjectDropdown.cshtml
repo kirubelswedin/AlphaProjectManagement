@@ -17,7 +17,7 @@
             new DropdownItemViewModel
             {
                 Content = $@"<i class=""fa-duotone fa-solid fa-pencil""></i><span>Edit Project</span>",
-                HtmlAttributes = $"onclick=\"window.dispatchEvent(new CustomEvent('openModal', {{ detail: {{ modalId: 'editProjectModal', id: '{Model.Id}' }} }}))\""
+                HtmlAttributes = $"data-modal=\"editProjectModal\" data-id=\"{Model.Id}\""
             },
             
             // Add member

@@ -87,10 +87,10 @@ public static class ProjectMapper
             StatusColor = entity.Status.Color,
 
             // Client Information
-            ClientId = entity.ClientId,
+            ClientId = entity.Client.Id,
             ClientName = entity.Client.ClientName,
             ClientEmail = entity.Client.Email,
-            ClientContactPerson = entity.Client.ContactPerson,
+            ClientContactPerson = $"{entity.Client.FirstName} {entity.Client.LastName}",
 
             // Creator Information
             CreatedById = entity.UserId,

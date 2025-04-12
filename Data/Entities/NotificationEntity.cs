@@ -8,8 +8,7 @@ public class NotificationEntity
 {
     [Key]
     public string Id { get; set; } = Guid.NewGuid().ToString();
-
-
+    
     [ForeignKey(nameof(NotificationType))]
     public int NotificationTypeId { get; set; }
     public virtual NotificationTypeEntity NotificationType { get; set; } = null!;

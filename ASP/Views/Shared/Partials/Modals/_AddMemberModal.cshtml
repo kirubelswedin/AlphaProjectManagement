@@ -1,127 +1,114 @@
-@model MembersFormViewModel
+@model AddMembersViewModel
 
-<div id="addMemberModal" class="modal">
-  <div class="form-modal-dialog">
+@{
+  const string modalId = "addmembermodal";
+}
+
+<section id="@modalId" class="modal">
+  <div class="form-modal-wrapper">
     <div class="form-modal-content">
       <div class="form-modal-header">
-        <h3>New Member</h3>
-        <button type="button" class="form-modal-close" data-close="true" data-target="#addMemberModal">
+        <h3>Add Member</h3>
+        <button type="button" class="form-modal-close" data-close="true" data-target="#@modalId">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
+
       <div class="form-modal-body">
+        <form asp-controller="Users" asp-action="AddMember" method="post" enctype="multipart/form-data" novalidate
+          id="memberForm" data-id="add">
+          <input type="hidden" id="memberId" name="Id" />
 
-        <form id="addMemberForm" asp-controller="Users" asp-action="AddMember" method="post"
-          enctype="multipart/form-data" novalidate>
-
-          <!-- Profile ImageUr Upload -->
-          <div class="image-upload text-center">
-            <div class="image-placeholder-container">
-              <div class="image-placeholder member-image-placeholder">
-                <img class="preview-image" style="display: none;" alt="Member preview" />
-                <div class="upload-overlay">
-                  <i class="fa-solid fa-camera"></i>
-                </div>
+          <!-- Member Image -->
+          <div class="form-group">
+            <label class="form-label hide" for="ImageFile">Member Image</label>
+            <div class="image-preview-container shape-round" data-file-upload>
+              <img class="hide" alt="Member preview" />
+              <div class="circle circle-gray upload-overlay">
+                <i class="fa-duotone fa-solid fa-camera"></i>
               </div>
-              <input type="file" class="hidden-input" name="ProfileImage" accept="image/*" />
+              <input asp-for="ImageFile" accept="image/*" type="file" name="ImageFile" id="ImageFile"
+                autocomplete="off" />
             </div>
+            <span class="field-error" data-valmsg-for="ImageFile"></span>
           </div>
 
-          <!-- Two Column Form Layout -->
           <div class="form-column">
             <!-- First Name -->
-            <div class="form-field half">
-              <label class="form-label" for="FirstName">First Name</label>
-              <input type="text" class="form-input" id="FirstName" name="FirstName" placeholder="Your first name"
-                required />
+            <div class="form-group half">
+              <label class="form-label" for="firstName">Name</label>
+              <label class="form-label hide" for="firstName">First Name</label>
+              <input type="text" class="form-input" id="firstName" name="FirstName" placeholder="Enter first name"
+                required autocomplete="off" />
               <span class="field-error" data-valmsg-for="FirstName"></span>
             </div>
 
             <!-- Last Name -->
-            <div class="form-field half">
-              <label class="form-label" for="LastName">Last Name</label>
-              <input type="text" class="form-input" id="LastName" name="LastName" placeholder="Your last name"
-                required />
+            <div class="form-group half right">
+              <label class="form-label hide" for="lastName">Last Name</label>
+              <input type="text" class="form-input" id="lastName" name="LastName" placeholder="Enter last name" required
+                autocomplete="off" />
               <span class="field-error" data-valmsg-for="LastName"></span>
             </div>
           </div>
 
-          <!-- Email -->
-          <div class="form-field">
-            <label class="form-label" for="Email">Email</label>
-            <input type="email" class="form-input" id="Email" name="Email" placeholder="Your email address" required />
-            <span class="field-error" data-valmsg-for="Email"></span>
-          </div>
+          <div class="form-column">
+            <!-- Email -->
+            <div class="form-group half">
+              <label class="form-label" for="email">Email</label>
+              <input type="email" class="form-input" id="email" name="Email" placeholder="ex: myname@example.com"
+                required autocomplete="off" />
+              <span class="field-error" data-valmsg-for="Email"></span>
+            </div>
 
-          <!-- Phone -->
-          <div class="form-field">
-            <label class="form-label" for="PhoneNumber">Phone</label>
-            <input type="tel" class="form-input" id="PhoneNumber" name="PhoneNumber" placeholder="Your phone number" />
-            <span class="field-error" data-valmsg-for="PhoneNumber"></span>
-          </div>
-
-          <!-- Job Title -->
-          <div class="form-field">
-            <label class="form-label" for="JobTitle">Job Title</label>
-            <input type="text" class="form-input" id="JobTitle" name="JobTitle" placeholder="Your job title" />
-            <span class="field-error" data-valmsg-for="JobTitle"></span>
-          </div>
-
-          <!-- UserAddress -->
-          <div class="form-field">
-            <label class="form-label" for="Address_StreetName">UserAddress</label>
-            <input type="text" class="form-input" id="Address_StreetName" name="UserAddress.StreetName"
-              placeholder="Your address" />
-            <span class="field-error" data-valmsg-for="UserAddress.StreetName"></span>
-          </div>
-
-          <!-- Date of Birth -->
-          <div class="form-field">
-            <label class="form-label">Date of Birth</label>
-            <div class="date-of-birth-container">
-              <div class="date-select-wrapper">
-                <select class="form-input" id="BirthDay" name="BirthDay">
-                  <option value="">Day</option>
-                  @for (int i = 1; i <= 31; i++)
-                  {
-                    <option value="@i">@i</option>
-                  }
-                </select>
-              </div>
-              <div class="date-select-wrapper">
-                <select class="form-input" id="BirthMonth" name="BirthMonth">
-                  <option value="">Month</option>
-                  <option value="1">January</option>
-                  <option value="2">February</option>
-                  <option value="3">March</option>
-                  <option value="4">April</option>
-                  <option value="5">May</option>
-                  <option value="6">June</option>
-                  <option value="7">July</option>
-                  <option value="8">August</option>
-                  <option value="9">September</option>
-                  <option value="10">October</option>
-                  <option value="11">November</option>
-                  <option value="12">December</option>
-                </select>
-              </div>
-              <div class="date-select-wrapper">
-                <select class="form-input" id="BirthYear" name="BirthYear">
-                  <option value="">Year</option>
-                  @for (int i = DateTime.Now.Year - 80; i <= DateTime.Now.Year - 18; i++)
-                  {
-                    <option value="@i">@i</option>
-                  }
-                </select>
-              </div>
+            <!-- Phone -->
+            <div class="form-group half">
+              <label class="form-label" for="phone">Phone</label>
+              <input type="tel" class="form-input" id="phone" name="PhoneNumber" placeholder="Enter phone number"
+                minlength="6" maxlength="15" autocomplete="off" />
+              <span class="field-error" data-valmsg-for="PhoneNumber"></span>
             </div>
           </div>
 
+          <!-- Job Title -->
+          <div class="form-group">
+            <label class="form-label" for="jobTitle">Title</label>
+            <input type="text" class="form-input" id="jobTitle" name="JobTitle" placeholder="Enter job title" required
+              autocomplete="off" />
+            <span class="field-error" data-valmsg-for="JobTitle"></span>
+          </div>
+
+          <!-- Street Address -->
+          <div class="form-group">
+            <label class="form-label" for="streetAddress">Address</label>
+            <input type="text" class="form-input" id="streetAddress" name="StreetAddress"
+              placeholder="Enter street address" autocomplete="off" />
+            <span class="field-error" data-valmsg-for="StreetAddress"></span>
+          </div>
+
+          <div class="form-column">
+            <!-- Postal Code -->
+            <div class="form-group half">
+              <label class="form-label" for="postalCode">Postal / Code</label>
+              <input type="text" class="form-input" id="postalCode" name="PostalCode" placeholder="Enter postal code"
+                autocomplete="off" />
+              <span class="field-error" data-valmsg-for="PostalCode"></span>
+            </div>
+
+            <!-- City -->
+            <div class="form-group half">
+              <label class="form-label" for="city">City</label>
+              <input type="text" class="form-input" id="city" name="City" placeholder="Enter city" autocomplete="off" />
+              <span class="field-error" data-valmsg-for="City"></span>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
           <div class="form-actions">
             @{
               var buttonModel = new ButtonViewModel
               {
-                Text = "Add Contact",
+                Text = "Add Member",
                 IsSubmit = true,
                 Variant = "primary"
               };
@@ -132,4 +119,4 @@
       </div>
     </div>
   </div>
-</div>
+</section>

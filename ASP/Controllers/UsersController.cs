@@ -1,3 +1,4 @@
+using ASP.ViewModels.Components;
 using ASP.ViewModels.forms;
 using ASP.ViewModels.MockData;
 using ASP.ViewModels.Views;
@@ -13,7 +14,7 @@ namespace ASP.Controllers;
 
 [Authorize(Roles = "Admin")]
 public class UsersController(
-    IUserService userService, 
+    IUserService userService,
     AppDbContext context,
     UserManager<UserEntity> userManager,
     RoleManager<IdentityRole> roleManager) : Controller
@@ -28,12 +29,13 @@ public class UsersController(
     {
         var viewModel = new MembersViewModel
         {
-            PageHeader = new()
+            PageHeader = new PageHeaderViewModel
             {
-                Title = "Member",
+                Title = "Members",
                 ButtonText = "Add Member",
-                ModalId = "addMemberModal"
+                ModalId = "addmembermodal"
             },
+            AddMember = new AddMembersViewModel(),
             Members = MembersMockData.GetMembers()
         };
 
@@ -56,9 +58,9 @@ public class UsersController(
             Id = user.Id,
             Avatar = user.ImageUrl,
             FullName = $"{user.FirstName} {user.LastName}",
+            JobTitle = user.JobTitle,
             Email = user.Email,
             PhoneNumber = user.PhoneNumber,
-            JobTitle = user.JobTitle,
             IsAdmin = isAdmin
         };
 
@@ -73,7 +75,7 @@ public class UsersController(
     }
 
     [HttpPost]
-    public IActionResult AddMember(MembersFormViewModel model)
+    public IActionResult AddMember(AddMembersViewModel model)
     {
         if (!ModelState.IsValid)
         {
@@ -86,12 +88,12 @@ public class UsersController(
 
             return Json(new { success = false, errors });
         }
-        
+
         return Json(new { success = true, message = "Member added successfully" });
     }
 
     [HttpPut("members/{id}")]
-    public IActionResult UpdateMember(string id, MembersFormViewModel model)
+    public IActionResult UpdateMember(string id, AddMembersViewModel model)
     {
         if (!ModelState.IsValid)
         {
@@ -104,7 +106,7 @@ public class UsersController(
 
             return Json(new { success = false, errors });
         }
-        
+
         return Json(new { success = true, message = "Member updated successfully" });
     }
 
@@ -114,7 +116,7 @@ public class UsersController(
 
         return Json(new { success = true, message = "Member deleted successfully" });
     }
-    
+
     // Search users in projects list
     [HttpGet("members/search")]
     public async Task<JsonResult> SearchUsers(string term)

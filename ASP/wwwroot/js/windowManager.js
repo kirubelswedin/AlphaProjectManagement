@@ -1,271 +1,261 @@
-import { SELECTORS, CLASSES } from "./constants.js";
+document.addEventListener("DOMContentLoaded", () => {
+	// Initialisera alla fönsterhanterare
+	initDropdownHandling();
+	initModalHandling();
+});
 
-/**
- * Centralized window management for both modals and dropdowns
+/*
+ * ------------------------------------------------------------------------------------------------
+ * Modal-hantering
+ * ------------------------------------------------------------------------------------------------
  */
-class WindowManager {
-	constructor() {
-		this.initialized = false;
-		this.openWindows = new Set();
-	}
-
-	init() {
-		if (this.initialized) return;
-
-		this.initWindowTriggers();
-		this.initWindowCloseTriggers();
-		this.initWindowOutsideClicks();
-		this.initWindowEscapeKey();
-
-		this.initialized = true;
-	}
-
-	initWindowTriggers() {
-		document.addEventListener("click", (e) => {
-			const trigger = e.target.closest("[data-window]");
-			if (!trigger) return;
-
-			const type = trigger.dataset.window;
-			const targetId = trigger.dataset.target?.replace("#", "");
-
-			if (type === "modal") {
-				this.openModal(targetId);
-			} else if (type === "dropdown") {
-				this.toggleDropdown(targetId, trigger);
-			}
-		});
-	}
-
-	initWindowCloseTriggers() {
-		document.querySelectorAll("[data-close]").forEach((button) => {
-			button.addEventListener("click", (e) => {
-				e.preventDefault();
-				const targetId = button.dataset.target?.replace("#", "");
-				if (targetId) {
-					this.closeWindow(targetId);
-				}
-			});
-		});
-	}
-
-	initWindowOutsideClicks() {
-		document.addEventListener("click", (e) => {
-			// Skip if clicking a dropdown item with onclick attribute
-			const dropdownItem = e.target.closest(".dropdown-item[onclick]");
-			if (dropdownItem) {
-				// Close the dropdown after executing the onclick
-				setTimeout(() => {
-					this.closeAllDropdowns();
-				}, 100);
-				return;
-			}
-
-			// Ignorera klick på triggers
-			const clickedTrigger = e.target.closest("[data-window]");
-			if (clickedTrigger) return;
-
-			// Hantera modaler
-			const clickedModal = e.target.closest(".modal");
-			if (clickedModal) {
-				// Om vi klickade inuti en modal men utanför dess innehåll
-				const clickedModalContent = e.target.closest(".form-modal-content");
-				if (!clickedModalContent) {
-					this.closeWindow(clickedModal.id);
-				}
-				return;
-			}
-
-			// Hantera dropdowns
-			const clickedDropdownContent = e.target.closest(".dropdown-content");
-			if (!clickedDropdownContent) {
-				// Stäng alla aktiva dropdowns
-				document.querySelectorAll(".dropdown-wrapper.active").forEach((wrapper) => {
-					const triggerId = wrapper
-						.querySelector("[data-target]")
-						?.dataset.target?.replace("#", "");
-					if (triggerId) {
-						this.closeWindow(triggerId);
-					}
-					wrapper.classList.remove("active");
-				});
-
-				// Stäng alla externa dropdown-content
-				document
-					.querySelectorAll(".dropdown-content-wrapper.active")
-					.forEach((content) => {
-						content.classList.remove("active");
-						const dropdown = content.querySelector(".dropdown-content");
-						if (dropdown) {
-							dropdown.style.opacity = "0";
-							dropdown.style.visibility = "hidden";
-							dropdown.style.transform = "translateY(-10px)";
-						}
-					});
-			}
-		});
-	}
-
-	initWindowEscapeKey() {
-		document.addEventListener("keydown", (e) => {
-			if (e.key === "Escape") {
-				this.closeAllWindows();
-			}
-		});
-	}
-
-	openModal(modalId) {
+const WindowManager = {
+	// Modal-hantering
+	openModal(modalId, data = null) {
 		// Stäng alla dropdowns först
-		this.closeAllDropdowns();
+		closeAllDropdowns();
 
 		const modal = document.getElementById(modalId);
-		if (!modal) {
-			console.warn(`Modal with id ${modalId} not found`);
-			return;
+		if (!modal) return;
+
+		if (data) {
+			const event = new CustomEvent("modalData", { detail: data });
+			modal.dispatchEvent(event);
 		}
 
 		modal.classList.add("show");
-		modal.style.display = "flex";
 		document.body.style.overflow = "hidden";
+	},
 
-		// Fokusera på första input-fältet om det finns
-		const firstInput = modal.querySelector("input, select, textarea");
-		if (firstInput) {
-			firstInput.focus();
-		}
-	}
+	closeModal(modalId) {
+		const modal = document.getElementById(modalId);
+		if (!modal) return;
 
-	toggleDropdown(targetId, trigger) {
-		// Stäng alla andra dropdowns först
-		const currentWrapper = trigger.closest(".dropdown-wrapper");
-		document.querySelectorAll(".dropdown-wrapper.active").forEach((wrapper) => {
-			if (wrapper !== currentWrapper) {
-				wrapper.classList.remove("active");
-			}
-		});
+		modal.classList.remove("show");
+		document.body.style.overflow = "";
+	},
 
-		document
-			.querySelectorAll(".dropdown-content-wrapper.active")
-			.forEach((content) => {
-				if (content.getAttribute("data-for") !== targetId) {
-					content.classList.remove("active");
-					const dropdown = content.querySelector(".dropdown-content");
-					if (dropdown) {
-						dropdown.style.opacity = "0";
-						dropdown.style.visibility = "hidden";
-						dropdown.style.transform = "translateY(-10px)";
-					}
-				}
-			});
+	handleModalTrigger(trigger) {
+		const modalId =
+			trigger.dataset.target?.replace("#", "") || trigger.dataset.modal;
+		if (!modalId) return;
 
-		const wrapper = trigger.closest(".dropdown-wrapper");
-		const isActive = wrapper.classList.contains("active");
+		const data = trigger.dataset.data ? JSON.parse(trigger.dataset.data) : null;
+		this.openModal(modalId, data);
+	},
 
-		// Om denna dropdown redan är aktiv, stäng den
-		if (isActive) {
-			this.closeWindow(targetId);
+	// Generell fönsterhantering
+	closeWindow(targetId) {
+		// Kontrollera om det är en dropdown
+		const dropdownWrapper = document
+			.querySelector(`[data-target="#${targetId}"]`)
+			?.closest(".dropdown-wrapper");
+		if (dropdownWrapper) {
+			closeDropdown(targetId);
 			return;
 		}
 
-		// Öppna denna dropdown
-		wrapper.classList.add("active");
-		trigger.setAttribute("aria-expanded", "true");
-
-		// Hantera intern dropdown
-		const regularDropdown = wrapper.querySelector(".dropdown-content");
-		if (regularDropdown) return;
-
-		// Hantera extern dropdown (som i ClientList)
-		const dropdownContent = document.querySelector(
-			`.dropdown-content-wrapper[data-for="${targetId}"]`
-		);
-		if (!dropdownContent) return;
-
-		dropdownContent.classList.add("active");
-		const dropdown = dropdownContent.querySelector(".dropdown-content");
-		if (!dropdown) return;
-
-		dropdown.style.opacity = "1";
-		dropdown.style.visibility = "visible";
-		dropdown.style.transform = "translateY(0)";
-
-		// Special hantering för ClientList
-		const clientListContainer = document.querySelector(".client-list-container");
-		if (clientListContainer) {
-			const rect = trigger.getBoundingClientRect();
-			const containerRect = clientListContainer.getBoundingClientRect();
-			const rightOffset = containerRect.right - rect.right;
-
-			clientListContainer.appendChild(dropdownContent);
-			dropdownContent.style.position = "absolute";
-			dropdownContent.style.top = rect.bottom - containerRect.top + 8 + "px";
-			dropdownContent.style.right = rightOffset + "px";
-			dropdownContent.style.left = "auto";
-			dropdownContent.style.zIndex = "1000000";
+		// Kontrollera om det är en modal
+		const modal = document.getElementById(targetId);
+		if (modal?.classList.contains("modal")) {
+			this.closeModal(targetId);
 		}
+	},
+};
+
+// Gör WindowManager tillgänglig globalt
+window.WindowManager = WindowManager;
+
+/*
+ * ------------------------------------------------------------------------------------------------
+ * Dropdown-hantering
+ * ------------------------------------------------------------------------------------------------
+ */
+
+// Huvudfunktioner för dropdowns
+function toggleDropdown(targetId, trigger) {
+	// Stäng alla modaler först
+	const activeModals = document.querySelectorAll(".modal.show");
+	activeModals.forEach((modal) => WindowManager.closeModal(modal.id));
+
+	const dropdownWrapper = document.getElementById(targetId);
+	if (!dropdownWrapper) return;
+
+	const isClientListDropdown = targetId.startsWith("client-dropdown-");
+
+	// Om denna dropdown redan är aktiv, stäng den bara
+	if (dropdownWrapper.classList.contains("active")) {
+		closeDropdown(targetId);
+		return;
 	}
 
-	closeWindow(windowId) {
-		const element = document.getElementById(windowId);
-		if (!element) return;
+	// Stäng alla andra dropdowns först
+	closeAllDropdowns();
 
-		if (element.classList.contains("modal")) {
-			element.classList.remove("show");
-			element.style.display = "none";
-			document.body.style.overflow = "";
-		} else {
-			// Om det är en dropdown, stäng den och dess wrapper
-			const wrapper = document
-				.querySelector(`[data-target="${windowId}"]`)
-				?.closest(".dropdown-wrapper");
-			if (wrapper) {
-				wrapper.classList.remove("active");
-			}
+	// Öppna den klickade dropdowm
+	dropdownWrapper.classList.add("active");
 
-			const dropdownContent = document.querySelector(
-				`.dropdown-content-wrapper[data-for="${windowId}"]`
-			);
-			if (dropdownContent) {
-				dropdownContent.classList.remove("active");
-				const dropdown = dropdownContent.querySelector(".dropdown-content");
-				if (dropdown) {
-					dropdown.style.opacity = "0";
-					dropdown.style.visibility = "hidden";
-					dropdown.style.transform = "translateY(-10px)";
-				}
-			}
-		}
-	}
-
-	closeAllWindows() {
-		// Stäng alla modaler
-		document.querySelectorAll(".modal.show").forEach((modal) => {
-			modal.classList.remove("show");
-			modal.style.display = "none";
-		});
-		document.body.style.overflow = "";
-
-		this.closeAllDropdowns();
-	}
-
-	closeAllDropdowns() {
-		// Stäng alla interna dropdowns
-		document.querySelectorAll(".dropdown-wrapper.active").forEach((wrapper) => {
-			wrapper.classList.remove("active");
-		});
-
-		// Stäng alla externa dropdowns
-		document
-			.querySelectorAll(".dropdown-content-wrapper.active")
-			.forEach((content) => {
-				content.classList.remove("active");
-				const dropdown = content.querySelector(".dropdown-content");
-				if (dropdown) {
-					dropdown.style.opacity = "0";
-					dropdown.style.visibility = "hidden";
-					dropdown.style.transform = "translateY(-10px)";
-				}
-			});
+	// Hantera specifika dropdown typer
+	if (isClientListDropdown) {
+		handleClientListDropdown(dropdownWrapper, trigger);
 	}
 }
 
-export default new WindowManager();
+function handleClientListDropdown(dropdownWrapper, trigger) {
+	// Stäng alla andra dropdowns först
+	closeAllDropdowns();
+
+	// Offset för finjustering av position
+	const offsetX = 0; // Negativ flyttar åt vänster, positiv åt höger
+	const offsetY = 2; // Negativ flyttar uppåt, positiv nedåt
+
+	const tableWrapper = trigger.closest(".table-wrapper");
+	const rect = trigger.getBoundingClientRect();
+	const tableRect = tableWrapper.getBoundingClientRect();
+
+	// Sätt initial position
+	dropdownWrapper.style.position = "absolute";
+	dropdownWrapper.style.top = "0";
+	dropdownWrapper.style.left = "0";
+	dropdownWrapper.style.visibility = "hidden";
+	dropdownWrapper.style.display = "block";
+
+	// Vänta på att DOM ska uppdateras
+	requestAnimationFrame(() => {
+		const dropdownWidth = dropdownWrapper.offsetWidth;
+
+		// Beräkna position
+		const top = rect.top - tableRect.top + rect.height + offsetY;
+		const left =
+			rect.left - tableRect.left - dropdownWidth + rect.width + offsetX;
+
+		// Applicera position
+		dropdownWrapper.style.top = `${top}px`;
+		dropdownWrapper.style.left = `${left}px`;
+		dropdownWrapper.style.visibility = "visible";
+		dropdownWrapper.classList.add("active");
+
+		// Uppdatera position vid scroll
+		const updatePosition = () => {
+			const newRect = trigger.getBoundingClientRect();
+			const newTableRect = tableWrapper.getBoundingClientRect();
+			dropdownWrapper.style.top = `${
+				newRect.top - newTableRect.top + newRect.height + offsetY
+			}px`;
+			dropdownWrapper.style.left = `${
+				newRect.left - newTableRect.left - dropdownWidth + newRect.width + offsetX
+			}px`;
+		};
+
+		// Lägg till event listeners
+		window.addEventListener("scroll", updatePosition);
+		tableWrapper.addEventListener("scroll", updatePosition);
+
+		// Stoppa event propagation för att förhindra att dropdown stängs direkt
+		dropdownWrapper.addEventListener("click", (e) => {
+			e.stopPropagation();
+		});
+
+		// Stäng dropdown när man klickar utanför
+		const closeOnClickOutside = (e) => {
+			if (!dropdownWrapper.contains(e.target) && !trigger.contains(e.target)) {
+				closeDropdown(dropdownWrapper.id);
+				document.removeEventListener("click", closeOnClickOutside);
+			}
+		};
+
+		// Vänta en kort stund innan vi lägger till click-event för att undvika att dropdown stängs direkt
+		setTimeout(() => {
+			document.addEventListener("click", closeOnClickOutside);
+		}, 100);
+
+		// Cleanup funktion
+		const cleanup = () => {
+			window.removeEventListener("scroll", updatePosition);
+			tableWrapper.removeEventListener("scroll", updatePosition);
+			document.removeEventListener("click", closeOnClickOutside);
+		};
+
+		// Lägg till cleanup när dropdown stängs
+		dropdownWrapper.addEventListener("close", cleanup);
+	});
+}
+
+function closeDropdown(targetId) {
+	const dropdownWrapper = document.getElementById(targetId);
+	if (!dropdownWrapper) return;
+	dropdownWrapper.classList.remove("active");
+}
+
+function closeAllDropdowns() {
+	document.querySelectorAll(".dropdown-wrapper.active").forEach((dropdown) => {
+		dropdown.classList.remove("active");
+	});
+}
+
+/*
+ * ------------------------------------------------------------------------------------------------
+ * Initialization Functions
+ * ------------------------------------------------------------------------------------------------
+ */
+function initDropdownHandling() {
+	// Hantera dropdown triggers med capture phase för att säkerställa att vi fångar events först
+	document.addEventListener(
+		"click",
+		(e) => {
+			const dropdownTrigger = e.target.closest("[data-window='dropdown']");
+			if (!dropdownTrigger) return;
+
+			const targetId = dropdownTrigger.dataset.target?.replace("#", "");
+			if (targetId) {
+				e.preventDefault();
+				e.stopPropagation();
+				toggleDropdown(targetId, dropdownTrigger);
+			}
+		},
+		true
+	); // Använd capture phase
+
+	// Stäng dropdowns när man klickar utanför
+	document.addEventListener("click", (e) => {
+		if (
+			!e.target.closest(".dropdown-wrapper") &&
+			!e.target.closest("[data-window='dropdown']")
+		) {
+			closeAllDropdowns();
+		}
+	});
+
+	// Stäng dropdowns med Escape
+	document.addEventListener("keydown", (e) => {
+		if (e.key === "Escape") {
+			closeAllDropdowns();
+		}
+	});
+}
+
+function initModalHandling() {
+	// Hantera modal triggers
+	document.addEventListener("click", (e) => {
+		const modalTrigger = e.target.closest("[data-window='modal']");
+		if (!modalTrigger) return;
+		WindowManager.handleModalTrigger(modalTrigger);
+	});
+
+	// Stäng modal när man klickar utanför
+	document.addEventListener("click", (e) => {
+		if (e.target.classList.contains("modal")) {
+			WindowManager.closeModal(e.target.id);
+		}
+	});
+
+	// Stäng modal med Escape
+	document.addEventListener("keydown", (e) => {
+		if (e.key === "Escape") {
+			const activeModal = document.querySelector(".modal.show");
+			if (activeModal) {
+				WindowManager.closeModal(activeModal.id);
+			}
+		}
+	});
+}

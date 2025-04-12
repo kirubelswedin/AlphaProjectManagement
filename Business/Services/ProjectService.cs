@@ -28,11 +28,11 @@ public class ProjectService(IProjectRepository projectRepository, IImageHandler 
             if (formDto == null)
                 return new ProjectResult { Succeeded = false, StatusCode = 400, Error = "All required fields are not provided" };
 
-            string? imageUrl = null;
-            if (formDto.ImageUrl != null)
-                imageUrl = await imageHandler.SaveImageAsync(formDto.ImageUrl, "projects");
+            string? ImageFile = null;
+            if (formDto.ImageFile != null)
+                ImageFile = await imageHandler.SaveImageAsync(formDto.ImageFile, "projects");
 
-            var entity = ProjectMapper.ToEntity(formDto, imageUrl, createdById);
+            var entity = ProjectMapper.ToEntity(formDto, ImageFile, createdById);
             var result = await projectRepository.AddAsync(entity);
 
             if (!result.Succeeded)
@@ -124,8 +124,8 @@ public class ProjectService(IProjectRepository projectRepository, IImageHandler 
 
             // Handle image upload
             string? newImageUrl = null;
-            if (formDto.newImageUrl != null)
-                newImageUrl = await imageHandler.SaveImageAsync(formDto.newImageUrl, "projects");
+            if (formDto.NewImageFile != null)
+                newImageUrl = await imageHandler.SaveImageAsync(formDto.NewImageFile, "projects");
 
             // Map DTO to entity using ProjectMapper
             var entity = ProjectMapper.ToEntity(formDto, newImageUrl);

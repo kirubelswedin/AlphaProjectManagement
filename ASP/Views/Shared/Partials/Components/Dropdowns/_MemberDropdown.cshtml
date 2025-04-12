@@ -3,7 +3,8 @@
     Layout = null;
 }
 
-<button class="dropdown-toggle" data-window="dropdown" data-target="member-dropdown-@Model.Id" aria-label="Member menu" aria-haspopup="true" aria-expanded="false">
+<button class="dropdown-toggle" data-window="dropdown" data-target="member-dropdown-@Model.Id" aria-label="Member menu"
+    aria-haspopup="true" aria-expanded="false">
     <span class="dots"></span>
 </button>
 
@@ -11,30 +12,34 @@
     var dropdownModel = new DropdownWindowViewModel
     {
         Items =
-        [
-            new DropdownItemViewModel
-            {
-                Icon = "fa-duotone fa-solid fa-pencil",
-                Text = "Edit Member",
-                OnClick = $"window.dispatchEvent(new CustomEvent('openModal', {{ detail: {{ modalId: 'editMemberModal', id: '{Model.Id}' }} }}))",
-                HasDivider = false
-            },
-            new DropdownItemViewModel
-            {
-                Icon = "fa-duotone fa-solid fa-shield-check",
-                Text = "Admin Access",
-                AdditionalContent = $@"<label class=""switch""><input type=""checkbox"" onchange=""toggleAdminRole('{Model.Id}', 
-                this.checked)"" {(Model.IsAdmin ? "checked" : "")} /><span class=""slider""></span></label>",
-                HasDivider = true
-            },
-            new DropdownItemViewModel
-            {
-                Icon = "fa-duotone fa-solid fa-trash-can",
-                Text = "Delete Member",
-                OnClick = $"window.dispatchEvent(new CustomEvent('openModal', {{ detail: {{ modalId: 'deleteMemberModal-{Model.Id}' }} }}))",
-                IsDanger = true
-            }
-        ]
+    [
+    new DropdownItemViewModel
+    {
+        Icon = "fa-duotone fa-solid fa-pencil",
+        Text = "Edit Member",
+        HtmlAttributes = $"data-modal=\"editMemberModal\" data-id=\"{Model.Id}\"",
+        HasDivider = false
+    },
+    new DropdownItemViewModel
+    {
+        ContentHtml = await Html.PartialAsync("Partials/Components/Dropdowns/_MemberItem",
+    new MemberItemViewModel
+    {
+        Id = Model.Id,
+        Icon = "fa-duotone fa-solid fa-shield-check",
+        Text = "Admin Access",
+        IsChecked = Model.IsAdmin
+        }),
+        HasDivider = true
+    },
+    new DropdownItemViewModel
+    {
+        Icon = "fa-duotone fa-solid fa-trash-can",
+        Text = "Delete Member",
+        HtmlAttributes = $"data-modal=\"deleteMemberModal\" data-id=\"{Model.Id}\"",
+        IsDanger = true
+    }
+    ]
     };
 }
 

@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ASP.ViewModels.forms;
 
-public class ClientsFormViewModel
+public class AddClientsViewModel
 {
     [DataType(DataType.Upload)]
     [Display(Name = "Image")]

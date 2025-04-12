@@ -15,10 +15,11 @@
 }
 
 .modal.show {
+	display: flex;
 	opacity: 1;
 }
 
-.form-modal-dialog {
+.form-modal-wrapper {
 	width: 100%;
 	max-width: 500px;
 	margin: 1.75rem auto;
@@ -26,6 +27,9 @@
 }
 
 .form-modal-content {
+	max-width: 500px;
+	margin: 1.75rem auto;
+	position: relative;
 	background-color: var(--surface-background);
 	border-radius: 1.25rem;
 	width: 100%;
@@ -68,7 +72,7 @@
 }
 
 /* Form styles */
-.form-field {
+.form-group {
 	margin-bottom: 1.5rem;
 }
 
@@ -79,6 +83,10 @@
 
 .half {
 	flex: 1;
+	
+	&.right {
+		margin-top: 1.9rem;
+	}
 }
 
 .form-label {
@@ -103,164 +111,75 @@
 	font-family: var(--font-standard);
 	font-size: 0.95rem;
 	background-color: var(--surface-background);
-
-}
-
-.form-textarea {
-	resize: vertical;
-	min-height: 100px;
 }
 
 /* Image upload styles */
-.image-upload {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	margin-bottom: 1.5rem;
-}
-
-.image-placeholder-container {
-	cursor: pointer;
+.image-preview-container {
 	position: relative;
-	display: inline-block;
-	margin-bottom: 1rem;
-}
-
-.image-placeholder {
-	width: 180px;
-	height: 180px;
-	border-radius: 50%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 160px;
+	height: 160px;
 	border: 2px dashed var(--border-color);
-	display: flex;
-	align-items: center;
-	justify-content: center;
+	margin: auto;
+	cursor: pointer;
 	overflow: hidden;
-	position: relative;
-	/*background-color: var(--white-300);*/
-}
 
-.member-image-placeholder {
-	border-radius: 50%;
-}
-
-.project-image-placeholder {
-	border-radius: 25px;
-}
-
-.preview-image {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-}
-
-.upload-overlay {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	transition: all 0.2s ease;
-}
-
-.upload-overlay:hover {
-	background-color: var(--hover-grey);
-}
-
-.upload-overlay::before {
-	content: "";
-	position: absolute;
-	width: 3rem;
-	height: 3rem;
-	background-color: var(--dark-900);
-	border-radius: 50%;
-}
-
-.upload-overlay i {
-	font-size: 1rem;
-	color: var(--gray-600);
-	transition: color 0.2s ease-in-out;
-	position: relative;
-	z-index: 1;
-}
-
-.image-placeholder:hover .upload-overlay i {
-	color: var(--hover-grey);
-}
-
-/* Form actions */
-.form-actions {
-	display: flex;
-	justify-content: center;
-	margin-top: 2rem;
-
-	& .primary-button {
+	/* Hide but keep it accessible */
+	& input[type="file"] {
+		position: absolute;
 		width: 100%;
-		padding: 0.875rem 1rem;
-	}
-}
-
-btn-remove {
-	cursor: pointer;
-	color: var(--gray-600);
-	transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out, color 0.1s ease-in-out;
-
-	.btn-remove:hover {
+		height: 100%;
+		top: 0;
+		left: 0;
+		opacity: 0;
 		cursor: pointer;
-		color: var(--dark-400);
 	}
-}
 
-/* Currency input */
-.currency-input {
-	position: relative;
-}
+	/* Preview image */
+	& img {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		z-index: 1;
+	}
 
-.currency-symbol {
-	position: absolute;
-	left: 10px;
-	top: 50%;
-	transform: translateY(-50%);
-	color: var(--secondary-text);
-}
+	& img.hide {
+		display: none;
+	}
 
-.currency-input .form-input {
-	padding-left: 30px;
-}
+	/* shape container */
+	&.shape-square {
+		border-radius: 25px;
+	}
 
-/* Form validation */
-.field-error {
-	display: block;
-	color: #e94e3f;
-	font-size: 0.8rem;
-	margin-top: 0.25rem;
-	font-weight: 500;
-}
+	&.shape-round {
+		border-radius: 50%;
+	}
 
-/* Date of Birth Container */
-.date-of-birth-container {
-	display: flex;
-	gap: 0.5rem;
-	width: 100%;
-}
+	/* shape circle */
+	& .circle {
+		position: relative;
+		z-index: 2;
+		border-radius: 50%;
+		height: 48px;
+		width: 48px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		/* color: var(--hover-grey-icon); */
+	}
 
-.date-select-wrapper {
-	position: relative;
-	flex: 1;
-}
+	& .circle.circle-gray {
+		color: var(--circle-gray-text-color);
+		background-color: var(--circle-gray-background-color);
+	}
 
-.date-select-wrapper select.form-input {
-	appearance: none;
-	padding-right: 30px;
-	background-repeat: no-repeat;
-	background-position: right 10px center;
-	background-size: 16px;
-	font-family: var(--font-standard);
-	color: var(--primary-text);
-	font-size: 0.95rem;
-	cursor: pointer;
+	&:hover .upload-overlay i {
+		color: var(--hover-grey-icon);
+	}
 }
 
 /* Description WYSIWYG */
@@ -335,4 +254,78 @@ btn-remove {
 	font-family: var(--font-standard);
 	left: 1rem;
 	right: 1rem;
+}
+
+/* Date of Birth Container */
+.date-of-birth-container {
+	display: flex;
+	gap: 0.5rem;
+	width: 100%;
+}
+
+.date-select-wrapper {
+	position: relative;
+	flex: 1;
+}
+
+.date-select-wrapper select.form-input {
+	appearance: none;
+	padding-right: 30px;
+	background-repeat: no-repeat;
+	background-position: right 10px center;
+	background-size: 16px;
+	font-family: var(--font-standard);
+	color: var(--primary-text);
+	font-size: 0.95rem;
+	cursor: pointer;
+}
+
+/* Currency input */
+.currency-input {
+	position: relative;
+}
+
+.currency-symbol {
+	position: absolute;
+	left: 10px;
+	top: 50%;
+	transform: translateY(-50%);
+	color: var(--secondary-text);
+}
+
+.currency-input .form-input {
+	padding-left: 30px;
+}
+
+/* Form actions */
+.form-actions {
+	display: flex;
+	justify-content: center;
+	margin-top: 2rem;
+
+	& .primary-button {
+		width: 100%;
+		padding: 0.875rem 1rem;
+	}
+}
+
+btn-remove {
+	cursor: pointer;
+	color: var(--gray-600);
+	transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out,
+		color 0.1s ease-in-out;
+
+	.btn-remove:hover {
+		cursor: pointer;
+		color: var(--dark-400);
+	}
+}
+
+/* Form validation */
+.field-error {
+	display: block;
+	color: #e94e3f;
+	font-size: 0.8rem;
+	margin-top: 0.25rem;
+	font-weight: 500;
 }

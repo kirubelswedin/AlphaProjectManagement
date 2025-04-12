@@ -11,7 +11,8 @@ public static class ClientsMockData
     {
       Id = "1",
       ClientName = "TechCorp Solutions",
-      ContactPerson = "John Anderson",
+      FirstName = "John",
+      LastName = "Anderson",
       Email = "john.anderson@techcorp.com",
       Phone = "+46 70 123 45 67",
       CreatedAt = DateTime.Now.AddMonths(-6)
@@ -20,7 +21,8 @@ public static class ClientsMockData
     {
       Id = "2",
       ClientName = "HealthCare Plus",
-      ContactPerson = "Sarah Johnson",
+      FirstName = "Sarah",
+      LastName = "Johnson",
       Email = "sarah.j@healthcareplus.com",
       Phone = "+46 73 456 78 90",
       CreatedAt = DateTime.Now.AddMonths(-4)
@@ -29,7 +31,8 @@ public static class ClientsMockData
     {
       Id = "3",
       ClientName = "Global Sales Inc",
-      ContactPerson = "Michael Brown",
+      FirstName = "Michael",
+      LastName = "Brown",
       Email = "m.brown@globalsales.com",
       Phone = "+46 76 789 01 23",
       CreatedAt = DateTime.Now.AddMonths(-3)
@@ -38,7 +41,8 @@ public static class ClientsMockData
     {
       Id = "4",
       ClientName = "Marketing Pro",
-      ContactPerson = "Emma Wilson",
+      FirstName = "Emma",
+      LastName = "Wilson",
       Email = "emma.w@marketingpro.com",
       Phone = "+46 72 345 67 89",
       CreatedAt = DateTime.Now.AddMonths(-2)
@@ -47,7 +51,8 @@ public static class ClientsMockData
     {
       Id = "5",
       ClientName = "DataViz Corp",
-      ContactPerson = "David Lee",
+      FirstName = "David",
+      LastName = "Lee",
       Email = "david.lee@datavizcorp.com",
       Phone = "+46 70 987 65 43",
       CreatedAt = DateTime.Now.AddMonths(-1)
@@ -77,7 +82,8 @@ public static class ClientsMockData
     {
       Id = c.Id,
       ClientName = c.ClientName,
-      ContactPerson = c.ContactPerson,
+      FirstName = c.FirstName,
+      LastName = c.LastName,
       Email = c.Email,
       Phone = c.Phone
     }).ToList();
@@ -92,7 +98,8 @@ public static class ClientsMockData
     {
       Id = client.Id,
       ClientName = client.ClientName,
-      ContactPerson = client.ContactPerson,
+      FirstName = client.FirstName,
+      LastName = client.LastName,
       Email = client.Email,
       Phone = client.Phone
     };
@@ -104,7 +111,8 @@ public static class ClientsMockData
     if (existingClient != null)
     {
       existingClient.ClientName = clientEntity.ClientName;
-      existingClient.ContactPerson = clientEntity.ContactPerson;
+      existingClient.FirstName = clientEntity.FirstName;
+      existingClient.LastName = clientEntity.LastName;
       existingClient.Email = clientEntity.Email;
       existingClient.Phone = clientEntity.Phone;
     }

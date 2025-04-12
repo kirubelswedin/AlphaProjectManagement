@@ -13,7 +13,7 @@ public class ClientsViewModel
         ModalId = "addClientModal"
     };
 
-    public ClientsFormViewModel ClientForm { get; set; } = new();
+    public AddClientsViewModel AddClient { get; set; } = new();
 
     public IEnumerable<Client> Clients { get; set; } = [];
 }

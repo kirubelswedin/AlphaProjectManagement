@@ -9,7 +9,7 @@ public class UpdateProjectFormDto
     public string Id { get; set; } = null!;
 
     [DataType(DataType.Upload)]
-    public IFormFile? newImageUrl { get; set; }
+    public IFormFile? NewImageFile { get; set; }
     public string? ImageUrl { get; set; }
 
     [Required(ErrorMessage = "Project name is required")]

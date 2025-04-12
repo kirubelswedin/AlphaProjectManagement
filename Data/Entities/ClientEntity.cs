@@ -1,21 +1,22 @@
-
-
 using System.ComponentModel.DataAnnotations;
 
 namespace Data.Entities;
 
 public class ClientEntity
 {
-    [Key] 
+    [Key]
     public string Id { get; set; } = Guid.NewGuid().ToString();
-    
+
     public string? ImageUrl { get; set; }
-    
+
     [Required]
     public string ClientName { get; set; } = null!;
 
     [Required]
-    public string ContactPerson { get; set; } = null!;
+    public string FirstName { get; set; } = null!;
+
+    [Required]
+    public string LastName { get; set; } = null!;
 
     [Required]
     [EmailAddress]
@@ -24,9 +25,17 @@ public class ClientEntity
     [Phone]
     public string? Phone { get; set; }
 
+    [StringLength(200)]
+    public string? StreetAddress { get; set; }
+
+    [StringLength(50)]
+    public string? PostalCode { get; set; }
+
+    [StringLength(100)]
+    public string? City { get; set; }
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
-
 
     public virtual ICollection<ProjectEntity> Projects { get; set; } = [];
 }

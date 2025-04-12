@@ -10,11 +10,7 @@
 
     <partial name="Partials/Components/ClientList/_ClientList" model="@Model.Clients" />
 
-    <partial name="Partials/Modals/_AddClientModal" model="@Model.ClientForm" />
-    <partial name="Partials/Modals/_EditClientModal" model="@Model.ClientForm" />
+    <partial name="Partials/Modals/_AddClientModal" model="@Model.AddClient" />
+    <partial name="Partials/Modals/_EditClientModal" model="@Model.AddClient" />
 </section>
 
-@section Scripts {
-    <script src="~/js/clientList.js" type="module"></script>
-    <script src="~/js/clients.js" type="module"></script>
-}

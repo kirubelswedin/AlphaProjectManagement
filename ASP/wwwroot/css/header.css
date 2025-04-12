@@ -207,7 +207,7 @@ input:checked + .slider:before {
 }
 
 /* Notification Item Styling */
-.notification-item {
+.content-item {
 	display: flex;
 	align-items: flex-start;
 	width: 100%;

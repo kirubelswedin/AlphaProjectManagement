@@ -21,12 +21,13 @@
               <th class="checkbox-column">
                 <input type="checkbox" id="selectAllClients" onchange="toggleSelectAllClient(this)" />
               </th>
-              <th>Client Name</th>
-              <th>Contact Person</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Created Date</th>
-              <th></th>
+              <th class="client-image">Logo / Image</th>
+              <th class="client-name">Company Name</th>
+              <th class="client-contact">Contact Person</th>
+              <th class="client-email">Email</th>
+              <th class="client-phone">Phone</th>
+              <th class="client-date">Date</th>
+              <th class="actions-cell"></th>
             </tr>
           </thead>
           <tbody>
@@ -36,21 +37,26 @@
                 <td class="checkbox-column">
                   <input type="checkbox" class="client-checkbox" data-id="@client.Id" onchange="toggleSelectClient(this)" />
                 </td>
-                <td>@client.ClientName</td>
-                <td>@client.ContactPerson</td>
-                <td>@client.Email</td>
-                <td>@client.Phone</td>
-                <td>@DateTime.UtcNow.ToString("yyyy-MM-dd")</td>
+                <td class="client-info">
+                  @if (!string.IsNullOrEmpty(client.ImageUrl))
+                  {
+                    <img class="client-image" src="@client.ImageUrl" alt="@client.ClientName" />
+                  }
+                  else
+                  {
+                    <img class="client-image" src="~/images/alpha-logotype-symbol.svg" alt="@client.ClientName" />
+                  }
+                </td>
+                <td class="client-name">@client.ClientName</td>
+                <td class="client-contact">@client.ContactPerson</td>
+                <td class="client-email">@client.Email</td>
+                <td class="client-phone">@client.Phone</td>
+                <td class="client-date">@DateTime.UtcNow.ToString("yyyy-MM-dd")</td>
                 <td class="actions-cell">
-                  <div class="dropdown-wrapper window" id="client-dropdown-@client.Id">
-                    @{
-                      var clientDropdownModel = new ClientDropdownViewModel
-                      {
-                        Id = client.Id
-                      };
-                    }
-                    <partial name="Partials/Components/Dropdowns/_ClientDropdown" model="@clientDropdownModel" />
-                  </div>
+                  <button class="dropdown-toggle" data-window="dropdown" data-target="client-dropdown-@client.Id"
+                    aria-label="Client menu" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa-duotone fa-solid fa-ellipsis-v"></i>
+                  </button>
                 </td>
               </tr>
             }
@@ -58,7 +64,21 @@
         </table>
       </div>
 
-      <div class="selected-clients-info" style="display: none;">
+      @* Dropdown content outside of table-wrapper *@
+      @foreach (var client in clients)
+      {
+        <div class="dropdown-wrapper" id="client-dropdown-@client.Id">
+          @{
+            var clientDropdownModel = new ClientDropdownViewModel
+            {
+              Id = client.Id
+            };
+          }
+          <partial name="Partials/Components/Dropdowns/_ClientDropdown" model="@clientDropdownModel" />
+        </div>
+      }
+
+      <div class="selected-clients-info hide">
         <span id="selectedClientsCount">(0 selected)</span>
         <button class="unselect-all" onclick="unselectAllClient()">
           Unselect all
@@ -67,33 +87,3 @@
     }
   </div>
 </section>
-
-@* <div class="dropdown-container"> *@
-@*   @foreach (var client in clients) *@
-@*   { *@
-@*     var dropdownModel = new DropdownWindowViewModel *@
-@*     { *@
-@*       Items = *@
-@*     [ *@
-@*     new DropdownWindowItemViewModel *@
-@*     { *@
-@*     Icon = "fa-duotone fa-solid fa-pencil", *@
-@*     Text = "Edit Client", *@
-@*     OnClick = $"window.dispatchEvent(new CustomEvent('openModal', {{ detail: {{ modalId: 'editClientModal', id: '{client.Id}' }} }})); document.querySelector('#client-dropdown-{client.Id}').classList.remove('active');", *@
-@*     HasDivider = true *@
-@*     }, *@
-@*     new DropdownWindowItemViewModel *@
-@*     { *@
-@*     Icon = "fa-duotone fa-solid fa-trash-can", *@
-@*     Text = "Delete Client", *@
-@*     OnClick = $"deleteClient('{client.Id}'); document.querySelector('#client-dropdown-{client.Id}').classList.remove('active');", *@
-@*     IsDanger = true *@
-@*     } *@
-@*     ] *@
-@*     }; *@
-@* *@
-@*     <div class="dropdown-content-wrapper" data-for="client-dropdown-@client.Id"> *@
-@*       <partial name="Partials/Components/ui/_DropdownWindow" model="@dropdownModel" /> *@
-@*     </div> *@
-@*   } *@
-@* </div> *@

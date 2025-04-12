@@ -5,7 +5,7 @@ namespace Business.Dtos;
 
 public class AddProjectFormDto
 {
-    public IFormFile? ImageUrl { get; set; }
+    public IFormFile? ImageFile { get; set; }
 
     [Required]
     public string ProjectName { get; set; } = null!;

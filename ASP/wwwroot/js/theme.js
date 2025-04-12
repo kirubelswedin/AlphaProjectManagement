@@ -1,67 +1,91 @@
-import { THEME } from "./constants.js";
-
 /**
  * Handles theme switching and system theme detection.
  */
 
-class ThemeManager {
-	constructor() {
-		// Remove init call from constructor
+document.addEventListener("DOMContentLoaded", () => {
+	console.log("Theme script loaded");
+
+	// Set theme on html element
+	const savedTheme = localStorage.getItem("theme") || "light";
+	document.documentElement.setAttribute("data-theme", savedTheme);
+	document.documentElement.style.colorScheme = savedTheme;
+
+	// System theme detection
+	const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+	if (!localStorage.getItem("theme") && prefersDark) {
+		applyDarkTheme();
 	}
 
-	init() {
-		this.initializeTheme();
-		this.initSystemThemeListener();
-	}
+	// Theme toggle event listeners
+	const themeToggles = document.querySelectorAll(
+		".theme-toggle, #darkModeToggle"
+	);
+	themeToggles.forEach((toggle) => {
+		toggle.addEventListener(
+			toggle.id === "darkModeToggle" ? "change" : "click",
+			() => {
+				console.log("Theme toggle clicked");
+				toggleTheme();
+			}
+		);
+	});
 
-	initializeTheme() {
-		const savedTheme = localStorage.getItem(THEME.KEY);
-		const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+	// Theme changed event listener
+	window.addEventListener("themeChanged", (e) => {
+		console.log("Theme changed event received", e.detail.theme);
+		document.querySelectorAll("[data-theme]").forEach((el) => {
+			el.setAttribute("data-theme", e.detail.theme);
+		});
 
-		if (savedTheme === THEME.DARK || (!savedTheme && prefersDark)) {
-			this.applyDarkTheme();
-		} else {
-			this.applyLightTheme();
+		// Update the checkbox in dropdown menu
+		const darkModeToggle = document.getElementById("darkModeToggle");
+		if (darkModeToggle) {
+			darkModeToggle.checked = e.detail.theme === "dark";
 		}
-	}
+	});
 
-	initSystemThemeListener() {
-		window
-			.matchMedia("(prefers-color-scheme: dark)")
-			.addEventListener("change", (e) => {
-				if (!localStorage.getItem(THEME.KEY)) {
-					e.matches ? this.applyDarkTheme() : this.applyLightTheme();
-				}
-			});
-	}
+	// System theme change listener
+	window
+		.matchMedia("(prefers-color-scheme: dark)")
+		.addEventListener("change", (e) => {
+			if (!localStorage.getItem("theme")) {
+				e.matches ? applyDarkTheme() : applyLightTheme();
+			}
+		});
+});
 
-	applyDarkTheme() {
-		document.documentElement.setAttribute("data-theme", THEME.DARK);
-		document.documentElement.style.colorScheme = "dark";
-		localStorage.setItem(THEME.KEY, THEME.DARK);
+function toggleTheme() {
+	console.log("Toggle theme called");
+	const currentTheme = document.documentElement.getAttribute("data-theme");
+	const newTheme = currentTheme === "dark" ? "light" : "dark";
+	console.log("Current theme:", currentTheme, "New theme:", newTheme);
 
-		// Dispatch event for other components that might need to react to theme changes
-		window.dispatchEvent(
-			new CustomEvent("themeChanged", { detail: { theme: THEME.DARK } })
-		);
-	}
+	document.documentElement.setAttribute("data-theme", newTheme);
+	document.documentElement.style.colorScheme = newTheme;
+	localStorage.setItem("theme", newTheme);
 
-	applyLightTheme() {
-		document.documentElement.setAttribute("data-theme", THEME.LIGHT);
-		document.documentElement.style.colorScheme = "light";
-		localStorage.setItem(THEME.KEY, THEME.LIGHT);
-
-		// Dispatch event for other components that might need to react to theme changes
-		window.dispatchEvent(
-			new CustomEvent("themeChanged", { detail: { theme: THEME.LIGHT } })
-		);
-	}
+	// Dispatch theme changed event
+	window.dispatchEvent(
+		new CustomEvent("themeChanged", { detail: { theme: newTheme } })
+	);
 }
 
-const themeManager = new ThemeManager();
+function applyDarkTheme() {
+	console.log("Applying dark theme");
+	document.documentElement.setAttribute("data-theme", "dark");
+	document.documentElement.style.colorScheme = "dark";
+	localStorage.setItem("theme", "dark");
+	window.dispatchEvent(
+		new CustomEvent("themeChanged", { detail: { theme: "dark" } })
+	);
+}
 
-export default {
-	init: themeManager.init.bind(themeManager),
-	applyDarkTheme: themeManager.applyDarkTheme.bind(themeManager),
-	applyLightTheme: themeManager.applyLightTheme.bind(themeManager),
-};
+function applyLightTheme() {
+	console.log("Applying light theme");
+	document.documentElement.setAttribute("data-theme", "light");
+	document.documentElement.style.colorScheme = "light";
+	localStorage.setItem("theme", "light");
+	window.dispatchEvent(
+		new CustomEvent("themeChanged", { detail: { theme: "light" } })
+	);
+}

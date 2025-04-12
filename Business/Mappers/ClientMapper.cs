@@ -8,11 +8,22 @@ public static class ClientMapper
 {
     public static ClientEntity ToEntity(AddClientFormDto? dto, string? newImageUrl = null)
     {
-        if (dto == null) return null!;
+        if (dto == null)
+            throw new ArgumentNullException(nameof(dto));
+
         return new ClientEntity
         {
             ImageUrl = newImageUrl,
-            ClientName = dto.ClientName
+            ClientName = dto.ClientName,
+            FirstName = dto.FirstName,
+            LastName = dto.LastName,
+            Email = dto.Email,
+            Phone = dto.PhoneNumber,
+            StreetAddress = dto.StreetAddress,
+            PostalCode = dto.PostalCode,
+            City = dto.City,
+            CreatedAt = dto.CreatedAt,
+            UpdatedAt = dto.UpdatedAt
         };
     }
 
@@ -29,13 +40,21 @@ public static class ClientMapper
 
     public static Client ToModel(ClientEntity? entity)
     {
-        if (entity == null) return null!;
+        if (entity == null)
+            throw new ArgumentNullException(nameof(entity));
+
         return new Client
         {
             Id = entity.Id,
             ImageUrl = entity.ImageUrl,
-            ClientName = entity.ClientName
-            
+            ClientName = entity.ClientName,
+            FirstName = entity.FirstName,
+            LastName = entity.LastName,
+            Email = entity.Email,
+            Phone = entity.Phone,
+            StreetAddress = entity.StreetAddress,
+            PostalCode = entity.PostalCode,
+            City = entity.City
         };
     }
 }

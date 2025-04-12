@@ -1,31 +1,32 @@
-export function initWysiwygEditor(editorId, toolbarId, textareaId, content) {
-	const textarea = document.querySelector(textareaId);
-	const editorElement = document.querySelector(editorId);
-	const toolbarElement = document.querySelector(toolbarId);
+function initWysiwygEditor(
+	editorSelector,
+	toolbarSelector,
+	textareaSelector,
+	initialContent = ""
+) {
+	const editor = document.querySelector(editorSelector);
+	const toolbar = document.querySelector(toolbarSelector);
+	const textarea = document.querySelector(textareaSelector);
 
-	if (!editorElement || !textarea) {
-		console.error("Required elements not found:", { editorId, textareaId });
-		return;
-	}
+	if (!editor || !toolbar || !textarea) return;
 
-	editorElement.innerHTML = "";
-
-	const quill = new Quill(editorElement, {
-		modules: {
-			syntax: true,
-			toolbar: toolbarElement,
-		},
-		placeholder: "Type something...",
+	const quill = new Quill(editor, {
 		theme: "snow",
+		modules: {
+			toolbar: toolbar,
+		},
 	});
 
-	quill.setText("");
-
-	if (content && content.trim()) {
-		quill.root.innerHTML = content;
+	// Set initial content if provided
+	if (initialContent) {
+		quill.root.innerHTML = initialContent;
 	}
 
+	// Update textarea when content changes
 	quill.on("text-change", () => {
 		textarea.value = quill.root.innerHTML;
 	});
 }
+
+// Make function globally available
+window.initWysiwygEditor = initWysiwygEditor;

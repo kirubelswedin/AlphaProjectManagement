@@ -1,11 +1,10 @@
 @model NotificationItemViewModel
 
-<div class="notification-item" data-id="@Model.Id" data-read="@Model.IsRead.ToString().ToLower()">
+<div class="content-item" data-id="@Model.Id" data-read="@Model.IsRead.ToString().ToLower()">
   <img src="/images/avatars/Avatar-1.svg" alt="Notification image" class="notification-image" />
   <div class="notification-content">
     <div class="notification-message">@Model.Message</div>
     <div class="notification-time time" data-created="@Model.CreatedAt.ToString("o")">
-      @* Time will be updated by JavaScript *@
       @Model.CreatedAt.ToString("yyyy-MM-ddTHH:mm:ss")
     </div>
   </div>
