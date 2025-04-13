@@ -1,47 +1,43 @@
 function initTagSelector(config) {
-	let activateIndex = -1;
+	let activeIndex = -1;
 	let selectedIds = [];
 
-	const tagContainer = document.getElementById(config.containerId);
-	const input = document.getElementById(config.inputId);
-	const results = document.getElementById(config.resultsId);
-	const selectedInputsIds = document.getElementById(config.selectedInputsIds);
+	const container = document.getElementById(config.containerId);
+	const searchInput = document.getElementById(config.inputId);
+	const searchResults = document.getElementById(config.resultsId);
+	const hiddenInput = document.getElementById(config.selectedInputsIds);
 
-	if (Array.isArray(config.preSelected)) {
-		config.preSelected.forEach((item) => {
-			addTag(item);
-		});
+	if (Array.isArray(config.preSelectedItems)) {
+		config.preSelectedItems.forEach((item) => addTag(item));
 	}
 
-	input.addEventListener("focus", () => {
-		tagContainer.classList.add("focused");
-		results.classList.add("focused");
+	searchInput.addEventListener("focus", () => {
+		searchResults.classList.add("show");
 	});
 
-	input.addEventListener("blur", () => {
+	searchInput.addEventListener("blur", () => {
 		setTimeout(() => {
-			tagContainer.classList.remove("focused");
-			results.classList.remove("focused");
-		}, 100);
+			searchResults.classList.remove("show");
+		}, 200);
 	});
 
-	input.addEventListener("input", () => {
-		const query = input.value.trim();
+	searchInput.addEventListener("input", () => {
+		const query = searchInput.value.trim();
 		activeIndex = -1;
 
 		if (query.length === 0) {
-			results.style.display = "none";
-			results.innerHTML = "";
+			searchResults.classList.remove("show");
+			searchResults.innerHTML = "";
 			return;
 		}
 
 		fetch(config.searchUrl(query))
-			.then((x) => x.json())
+			.then((r) => r.json())
 			.then((data) => renderSearchResults(data));
 	});
 
-	input.addEventListener("keydown", (e) => {
-		const items = results.querySelectorAll(".search-item");
+	searchInput.addEventListener("keydown", (e) => {
+		const items = searchResults.querySelectorAll(".search-item");
 
 		switch (e.key) {
 			case "ArrowDown":
@@ -68,7 +64,7 @@ function initTagSelector(config) {
 				break;
 
 			case "Backspace":
-				if (input.value.length === "") {
+				if (searchInput.value === "") {
 					removeLastTag();
 				}
 				break;
@@ -82,105 +78,81 @@ function initTagSelector(config) {
 			items[activeIndex].scrollIntoView({ block: "nearest" });
 		}
 	}
-	
 
 	function renderSearchResults(data) {
-		results.innerHTML = "";
+		searchResults.innerHTML = "";
 
 		if (!data || data.length === 0) {
-			const noResults = document.createElement("div");
-			noResults.classList.add("search-item");
-			noResults.textContent = config.emptyMessage || "No results.";
-			results.appendChild(noResults);
+			const noResult = document.createElement("div");
+			noResult.classList.add("search-item");
+			noResult.textContent = config.emptyMessage || "No results found";
+			searchResults.appendChild(noResult);
 		} else {
 			data.forEach((item) => {
 				if (!selectedIds.includes(item.id)) {
 					const resultItem = document.createElement("div");
 					resultItem.classList.add("search-item");
-					resultItem.dataset = item.id;
-					
-					if (config.tagClass === "user-tag") {
-						resultItem.innerHTML = 
-						`
-							<img class="user-avatar" src="${config.avatarFolder || ""}${item[config.imageProperty]}" alt="">
-							<span>${item[config.displayProperty]}</span>
-						`; 
-					} else {
-						resultItem.innerHTML = 
-						`
-                            <span>${item[config.displayProperty]}</span>
-                        `;
-					}
-					
+					resultItem.dataset.id = item.id;
+					resultItem.innerHTML = `
+						<img src="${
+							item[config.imageProperty] || "/images/avatars/default-avatar.svg"
+						}" alt="">
+						<span>${item[config.displayProperty]}</span>
+					`;
 					resultItem.addEventListener("click", () => addTag(item));
-					results.appendChild(resultItem);
+					searchResults.appendChild(resultItem);
 				}
 			});
 		}
-		
-		results.style.display = "block";
+
+		searchResults.classList.add("show");
 	}
 
 	function addTag(item) {
-		const id = parseInt(item.id);
-		if (selectedIds.includes(id)) return;
-		
-		selectedIds.push(id);
+		if (selectedIds.includes(item.id)) return;
+
+		selectedIds.push(item.id);
 
 		const tag = document.createElement("div");
-		tag.classList.add(config.tagClass || "tag");
+		tag.classList.add("member-tag");
+		tag.innerHTML = `
+			<img src="${
+				item[config.imageProperty] || "/images/avatars/default-avatar.svg"
+			}" alt="">
+			<span>${item[config.displayProperty]}</span>
+			<button type="button" class="btn-remove">
+				<i class="fa-solid fa-xmark"></i>
+			</button>
+		`;
 
-		if (config.tagClass === "user-tag") {
-			tag.innerHTML = 
-			`
-				<img class="user-avatar" src="${config.avatarFolder || ""}${item[config.imageProperty]}" alt="">
-				<span>${item[config.displayProperty]}</span>
-			`;
-		} else {
-			tag.innerHTML = 
-			`
-                <span>${item[config.displayProperty]}</span>
-            `;
-		}
-
-		const removeBtn = document.createElement("span");
-		removeBtn.textContent = "x";
-		removeBtn.classList.add("btn-remove");
-		removeBtn.dataset.id = id;
-		removeBtn.addEventListener("click", (e) => {
-			selectedIds = selectedIds.filter(i => i !== id);
+		const removeBtn = tag.querySelector(".btn-remove");
+		removeBtn.addEventListener("click", () => {
+			selectedIds = selectedIds.filter((id) => id !== item.id);
 			tag.remove();
 			updateSelectedIdsInput();
-			e.stopPropagation();
 		});
 
-		tag.appendChild(removeBtn);
-		tagContainer.insertBefore(tag, input);
-
-		input.value = "";
-		results.innerHTML = "";
-		results.style.display = "none";
-		
+		container.appendChild(tag);
+		searchInput.value = "";
+		searchResults.innerHTML = "";
+		searchResults.classList.remove("show");
 		updateSelectedIdsInput();
 	}
 
 	function removeLastTag() {
-		const tags = tagContainer.querySelectorAll(".${config.tagClass}");
+		const tags = container.querySelectorAll(".member-tag");
 		if (tags.length === 0) return;
 
 		const lastTag = tags[tags.length - 1];
-		const lastId = parseInt(lastTag.querySelector(".btn-remove").dataset.id);
-
-		selectedIds = selectedIds.filter(id => id !== lastId);
+		const lastId = lastTag.querySelector(".btn-remove").dataset.id;
+		selectedIds = selectedIds.filter((id) => id !== lastId);
 		lastTag.remove();
 		updateSelectedIdsInput();
 	}
 
 	function updateSelectedIdsInput() {
-		const hiddenInput = selectedInputsIds;
 		if (hiddenInput) {
 			hiddenInput.value = JSON.stringify(selectedIds);
 		}
 	}
-	
 }

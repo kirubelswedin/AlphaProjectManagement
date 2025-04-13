@@ -7,12 +7,13 @@ public class AddProjectFormDto
 {
     public IFormFile? ImageFile { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "Project name is required")]
     public string ProjectName { get; set; } = null!;
 
-    [Required]
+    [Required(ErrorMessage = "Client is required")]
     public string ClientId { get; set; } = null!;
 
+    [DataType(DataType.Text)]
     public string? Description { get; set; } = null!;
 
     [Required]
@@ -22,13 +23,10 @@ public class AddProjectFormDto
     [Required]
     [DataType(DataType.Date)]
     public DateTime EndDate { get; set; }
-
-    [Required]
+    
+    [Required(ErrorMessage = "At least one Team member are required")]
     public string UserId { get; set; } = null!;
 
+    [DataType(DataType.Currency)]
     public decimal? Budget { get; set; }
-
-    [Required(ErrorMessage = "Status is required")]
-    public int StatusId { get; set; }
-
 }

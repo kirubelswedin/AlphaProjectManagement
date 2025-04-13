@@ -1,157 +1,185 @@
 using ASP.ViewModels.Components;
 using ASP.ViewModels.forms;
-using ASP.ViewModels.MockData;
+using ASP.ViewModels.Forms;
 using ASP.ViewModels.Views;
 using Business.Services;
-using Data.Contexts;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Data.Entities;
+using Business.Dtos;
+using Business.Mappers;
 
 namespace ASP.Controllers;
 
 [Authorize(Roles = "Admin")]
 public class UsersController(
     IUserService userService,
-    AppDbContext context,
-    UserManager<UserEntity> userManager,
-    RoleManager<IdentityRole> roleManager) : Controller
+    INotificationService notificationService) : Controller
 {
     private readonly IUserService _userService = userService;
-    private readonly AppDbContext _context = context;
-    private readonly UserManager<UserEntity> _userManager = userManager;
-    private readonly RoleManager<IdentityRole> _roleManager = roleManager;
+    private readonly INotificationService _notificationService = notificationService;
 
     [Route("admin/members")]
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
+        var result = await _userService.GetUsersAsync();
         var viewModel = new MembersViewModel
         {
-            PageHeader = new PageHeaderViewModel
+            PageHeader = CreatePageHeader(),
+            Members = result.Succeeded ? result.Result?.Select(user =>
             {
-                Title = "Members",
-                ButtonText = "Add Member",
-                ModalId = "addmembermodal"
-            },
+                var userDetails = UserMapper.ToUserDetailsDto(user);
+                return new MemberCardViewModel
+                {
+                    Id = userDetails.Id,
+                    Avatar = userDetails.Avatar,
+                    FirstName = userDetails.FirstName,
+                    LastName = userDetails.LastName,
+                    Email = userDetails.Email,
+                    PhoneNumber = userDetails.PhoneNumber,
+                    JobTitle = userDetails.JobTitle,
+                    StreetAddress = userDetails.StreetAddress,
+                    City = userDetails.City,
+                    PostalCode = userDetails.PostalCode,
+                    IsAdmin = userDetails.IsAdmin
+                };
+            }) ?? [] : [],
             AddMember = new AddMembersViewModel(),
-            Members = MembersMockData.GetMembers()
+            EditProject = new EditMembersViewModel()
         };
 
         return View(viewModel);
     }
 
-    [HttpGet("members/{id}")]
-    public async Task<IActionResult> GetMember(string id)
-    {
-        var user = await _userManager.FindByIdAsync(id);
-        if (user == null)
-        {
-            return NotFound();
-        }
-
-        var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
-
-        var member = new
-        {
-            Id = user.Id,
-            Avatar = user.ImageUrl,
-            FullName = $"{user.FirstName} {user.LastName}",
-            JobTitle = user.JobTitle,
-            Email = user.Email,
-            PhoneNumber = user.PhoneNumber,
-            IsAdmin = isAdmin
-        };
-
-        return Json(new { success = true, member });
-    }
-
     [HttpGet("members/list")]
-    public IActionResult GetMembersList()
+    public async Task<IActionResult> GetMembers()
     {
-        var members = MembersMockData.GetMembers();
+        var result = await _userService.GetUsersAsync();
+        if (!result.Succeeded)
+            return Json(new { success = false, error = result.Error });
+
+        var members = result.Result?.Select(user =>
+        {
+            var userDetails = UserMapper.ToUserDetailsDto(user);
+            return new MemberCardViewModel
+            {
+                Id = userDetails.Id,
+                Avatar = userDetails.Avatar,
+                FirstName = userDetails.FirstName,
+                LastName = userDetails.LastName,
+                Email = userDetails.Email,
+                PhoneNumber = userDetails.PhoneNumber,
+                JobTitle = userDetails.JobTitle,
+                StreetAddress = userDetails.StreetAddress,
+                City = userDetails.City,
+                PostalCode = userDetails.PostalCode,
+                IsAdmin = userDetails.IsAdmin
+            };
+        }) ?? [];
         return Json(new { success = true, members });
     }
 
     [HttpPost]
-    public IActionResult AddMember(AddMembersViewModel model)
+    public async Task<IActionResult> AddMember(AddUserFormDto dto)
     {
         if (!ModelState.IsValid)
-        {
-            var errors = ModelState
-                .Where(x => x.Value?.Errors.Count > 0)
-                .ToDictionary(
-                    kvp => kvp.Key,
-                    kvp => kvp.Value?.Errors.Select(x => x.ErrorMessage).ToArray()
-                );
+            return Json(new { success = false, errors = GetModelErrors() });
 
-            return Json(new { success = false, errors });
-        }
+        var result = await _userService.CreateMemberAsync(dto);
+        if (!result.Succeeded)
+            return Json(new { success = false, error = result.Error });
 
-        return Json(new { success = true, message = "Member added successfully" });
+        await CreateMemberNotification("New Member Added",
+            $"Member {dto.FirstName} {dto.LastName} has been added successfully.");
+        return Json(new { success = true });
+    }
+
+    [HttpGet("members/{id}")]
+    public async Task<IActionResult> GetMember(string id)
+    {
+        var result = await _userService.GetUserByIdAsync(id);
+        if (!result.Succeeded)
+            return Json(new { success = false, error = result.Error });
+
+        return Json(new { success = true, member = result.Result });
     }
 
     [HttpPut("members/{id}")]
-    public IActionResult UpdateMember(string id, AddMembersViewModel model)
+    public async Task<IActionResult> UpdateMember(string id, UpdateUserFormDto dto)
     {
         if (!ModelState.IsValid)
-        {
-            var errors = ModelState
-                .Where(x => x.Value?.Errors.Count > 0)
-                .ToDictionary(
-                    kvp => kvp.Key,
-                    kvp => kvp.Value?.Errors.Select(x => x.ErrorMessage).ToArray()
-                );
+            return Json(new { success = false, errors = GetModelErrors() });
 
-            return Json(new { success = false, errors });
-        }
+        var result = await _userService.UpdateMemberAsync(dto);
+        if (!result.Succeeded)
+            return Json(new { success = false, error = result.Error });
 
-        return Json(new { success = true, message = "Member updated successfully" });
+        await CreateMemberNotification("Member Updated",
+            $"Member {dto.FirstName} {dto.LastName} has been updated successfully.");
+        return Json(new { success = true });
     }
 
     [HttpDelete("members/{id}")]
-    public IActionResult DeleteMember(string id)
+    public async Task<IActionResult> DeleteMember(string id)
     {
+        var result = await _userService.DeleteMemberAsync(id);
+        if (!result.Succeeded)
+            return Json(new { success = false, error = result.Error });
 
-        return Json(new { success = true, message = "Member deleted successfully" });
+        await CreateMemberNotification("Member Deleted", "A member has been deleted");
+        return Json(new { success = true });
     }
 
-    // Search users in projects list
     [HttpGet("members/search")]
-    public async Task<JsonResult> SearchUsers(string term)
+    public async Task<IActionResult> SearchMembers(string term)
     {
-        if (string.IsNullOrWhiteSpace(term))
+        var result = await _userService.GetUsersAsync();
+        if (!result.Succeeded)
             return Json(new List<object>());
 
-        var users = await _context.Users
-            .Where(x => x.FirstName.Contains(term) || x.LastName.Contains(term) || x.Email!.Contains(term))
-            .Select(x => new { x.Id, x.ImageUrl, FullName = x.FirstName + " " + x.LastName })
-            .ToListAsync();
+        var filteredMembers = result.Result!
+            .Where(x =>
+                (x.FirstName?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (x.LastName?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (x.Email?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false))
+            .Select(x => new
+            {
+                id = x.Id,
+                fullName = $"{x.FirstName} {x.LastName}",
+                imageUrl = x.ImageUrl ?? "/images/avatars/default-avatar.svg"
+            })
+            .ToList();
 
-        return Json(users);
+        return Json(filteredMembers);
     }
 
-    [HttpPost("members/{id}/toggle-admin")]
-    public async Task<IActionResult> ToggleAdminRole(string id, [FromBody] bool isAdmin)
+    private static PageHeaderViewModel CreatePageHeader() => new()
     {
-        var user = await _userManager.FindByIdAsync(id);
-        if (user == null)
-        {
-            return NotFound(new { success = false, message = "User not found" });
-        }
+        Title = "Members",
+        ButtonText = "Add Member",
+        ModalId = "addmembermodal"
+    };
 
-        var currentUserIsAdmin = await _userManager.IsInRoleAsync(user, "Admin");
-
-        if (isAdmin && !currentUserIsAdmin)
+    private async Task CreateMemberNotification(string title, string message)
+    {
+        var notification = new NotificationDetailsDto
         {
-            await _userManager.AddToRoleAsync(user, "Admin");
-        }
-        else if (!isAdmin && currentUserIsAdmin)
-        {
-            await _userManager.RemoveFromRoleAsync(user, "Admin");
-        }
+            NotificationTypeId = 1, // Member type
+            NotificationTargetId = 2, // Admins
+            Title = title,
+            Message = message,
+            CreatedAt = DateTime.UtcNow
+        };
 
-        return Json(new { success = true, message = $"User admin status updated to {isAdmin}" });
+        await _notificationService.AddNotificationAsync(notification);
+    }
+
+    private Dictionary<string, string[]> GetModelErrors()
+    {
+        return ModelState
+            .Where(x => x.Value!.Errors.Any())
+            .ToDictionary(
+                kvp => kvp.Key,
+                kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
+            );
     }
 }

@@ -27,23 +27,19 @@ public class AddMembersViewModel
     public string Email { get; set; } = null!;
 
     [Phone(ErrorMessage = "Invalid phone number")]
-    [StringLength(20, ErrorMessage = "Phone number cannot exceed 20 characters")]
-    [Display(Name = "Phone Number")]
+    [StringLength(20, ErrorMessage = "PhoneNumber number cannot exceed 20 characters")]
+    [Display(Name = "PhoneNumber")]
     public string? PhoneNumber { get; set; }
-
-    [StringLength(100, ErrorMessage = "Job title cannot exceed 100 characters")]
+    
     [Display(Name = "Job Title")]
     public string? JobTitle { get; set; }
-
-    [StringLength(200, ErrorMessage = "Street address cannot exceed 200 characters")]
-    [Display(Name = "Street Address", Prompt = "Enter street address")]
+    
+    [Display(Name = "Street StreetAddress", Prompt = "Enter street address")]
     public string? StreetAddress { get; set; }
-
-    [StringLength(50, ErrorMessage = "Postal code cannot exceed 50 characters")]
+    
     [Display(Name = "Postal Code", Prompt = "Enter postal code")]
     public string? PostalCode { get; set; }
-
-    [StringLength(100, ErrorMessage = "City cannot exceed 100 characters")]
+    
     [Display(Name = "City", Prompt = "Enter city")]
     public string? City { get; set; }
 }

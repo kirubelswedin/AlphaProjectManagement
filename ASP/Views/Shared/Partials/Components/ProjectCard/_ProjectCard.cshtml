@@ -28,13 +28,21 @@
   <div class="project-footer">
     <partial name="Partials/Components/ProjectCard/_ProjectDeadline" model="@Model" />
     <div class="team-members">
-      @foreach (var member in Model.Members)
+      @{
+        var displayMembers = Model.Members.Take(4).ToList();
+        var remainingCount = Model.Members.Count - 4;
+      }
+      @foreach (var member in displayMembers)
       {
         <div class="avatar">
-          @if (!string.IsNullOrEmpty(member.Avatar))
-          {
-            <img src="@member.Avatar" alt="Team member" />
-          }
+          <img src="@(member.Avatar ?? "/images/avatars/default-avatar.svg")"
+            alt="@($"{member.FirstName} {member.LastName}")" />
+        </div>
+      }
+      @if (remainingCount > 0)
+      {
+        <div class="avatar more-members">
+          <span>+@remainingCount</span>
         </div>
       }
     </div>

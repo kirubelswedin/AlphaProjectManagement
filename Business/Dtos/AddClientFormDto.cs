@@ -6,6 +6,9 @@ namespace Business.Dtos;
 public class AddClientFormDto
 {
     public IFormFile? ImageFile { get; set; }
+    
+    [Required(ErrorMessage = "Company name is required")]
+    [Display(Name = "Company Name", Prompt = "Enter Company name")]
     public string ClientName { get; set; } = null!;
 
     [Required(ErrorMessage = "First name is required")]
@@ -22,7 +25,7 @@ public class AddClientFormDto
     )]
     public string Email { get; set; } = null!;
 
-    [Display(Name = "Phone", Prompt = "Enter Phone Number")]
+    [Display(Name = "PhoneNumber", Prompt = "Enter PhoneNumber Number")]
     [DataType(DataType.PhoneNumber)]
     public string? PhoneNumber { get; set; }
 
@@ -41,3 +44,4 @@ public class AddClientFormDto
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 }
+

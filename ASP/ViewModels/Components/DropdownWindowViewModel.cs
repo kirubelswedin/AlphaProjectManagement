@@ -17,7 +17,7 @@ public class DropdownItemViewModel
     public string? OnClick { get; set; }
     public string? Content { get; set; } = null!;
     public IHtmlContent? ContentHtml { get; set; }
-    public string? HtmlAttributes { get; set; }
+    public string HtmlAttributes { get; set; }
     public bool HasDivider { get; set; }
     public bool IsDanger { get; set; }
     public string? AdditionalContent { get; set; }

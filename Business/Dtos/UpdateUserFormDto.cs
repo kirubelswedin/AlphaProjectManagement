@@ -33,13 +33,18 @@ public class UpdateUserFormDto
     [DataType(DataType.Text)]
     public string? JobTitle { get; set; }
 
-    [Display(Name = "Phone", Prompt = "Enter Phone Number")]
+    [Display(Name = "PhoneNumber", Prompt = "Enter PhoneNumber Number")]
     [DataType(DataType.PhoneNumber)]
     public string? PhoneNumber { get; set; }
 
-    
-    public string? StreetName { get; set; }
+    [Display(Name = "Street Address", Prompt = "Enter street address")]
+    public string? StreetAddress { get; set; }
+
+    [Display(Name = "Postal Code", Prompt = "Enter postal code")]
+    [DataType(DataType.PostalCode)]
     public string? PostalCode { get; set; }
+
+    [Display(Name = "City", Prompt = "Enter city")]
     public string? City { get; set; }
-    public string? Country { get; set; } 
+
 }

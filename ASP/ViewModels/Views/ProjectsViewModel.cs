@@ -15,7 +15,7 @@ public class ProjectsViewModel
     };
 
     public TabFilterViewModel TabFilter { get; set; } = new();
-    public List<Project> Projects { get; set; } = [];
+    public List<ProjectCardViewModel> Projects { get; set; } = [];
 
     // Formulärdata
     public AddProjectViewModel AddProject { get; set; } = new();

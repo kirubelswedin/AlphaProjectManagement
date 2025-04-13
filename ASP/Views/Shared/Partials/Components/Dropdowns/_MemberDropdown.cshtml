@@ -1,6 +1,6 @@
 @model MemberDropdownViewModel
 @{
-    Layout = null;
+  Layout = null;
 }
 
 <button class="dropdown-toggle" data-window="dropdown" data-target="member-dropdown-@Model.Id" aria-label="Member menu"
@@ -9,11 +9,11 @@
 </button>
 
 @{
-    var dropdownModel = new DropdownWindowViewModel
-    {
-        Items =
-    [
-    new DropdownItemViewModel
+  var dropdownModel = new DropdownWindowViewModel
+  {
+    Items =
+  [
+  new DropdownItemViewModel
     {
         Icon = "fa-duotone fa-solid fa-pencil",
         Text = "Edit Member",
@@ -39,8 +39,8 @@
         HtmlAttributes = $"data-modal=\"deleteMemberModal\" data-id=\"{Model.Id}\"",
         IsDanger = true
     }
-    ]
-    };
+  ]
+  };
 }
 
 <partial name="Partials/Components/UI/_DropdownWindow" model="@dropdownModel" data-for="member-dropdown-@Model.Id" />

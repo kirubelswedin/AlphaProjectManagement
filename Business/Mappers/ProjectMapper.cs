@@ -20,7 +20,7 @@ public static class ProjectMapper
             EndDate = dto.EndDate,
             UserId = createdById ?? dto.UserId,
             Budget = dto.Budget,
-            StatusId = dto.StatusId,
+            StatusId = 1, // default status
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
@@ -61,6 +61,28 @@ public static class ProjectMapper
             Budget = entity.Budget,
             User = UserMapper.ToModel(entity.User),
             Status = StatusMapper.ToModel(entity.Status),
+            IsCompleted = entity.IsCompleted,
+            CompletedOnTime = entity.CompletedOnTime,
+            CompletedAt = entity.CompletedAt,
+            CreatedAt = entity.CreatedAt,
+            UpdatedAt = entity.UpdatedAt,
+            ProjectMembers = entity.ProjectMembers.Select(pm => new ProjectMember
+            {
+                Id = pm.Id,
+                ProjectId = pm.ProjectId,
+                UserId = pm.UserId,
+                User = UserMapper.ToModel(pm.User),
+                RoleId = pm.RoleId,
+                Role = new ProjectRole
+                {
+                    Id = pm.Role.Id,
+                    Name = pm.Role.Name,
+                    Description = pm.Role.Description,
+                    IsDefault = pm.Role.IsDefault
+                },
+                JoinedAt = pm.JoinedAt,
+                UpdatedAt = pm.UpdatedAt
+            }).ToList()
         };
     }
 
@@ -108,7 +130,7 @@ public static class ProjectMapper
                 JoinedAt = member.JoinedAt
             }).ToList(),
 
-            // Statistics
+            // Statistics for dashboard etc
             TotalMembers = entity.ProjectMembers.Count,
             CompletedTasks = 0,
             TotalTasks = 0,

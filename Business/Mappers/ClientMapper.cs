@@ -18,7 +18,7 @@ public static class ClientMapper
             FirstName = dto.FirstName,
             LastName = dto.LastName,
             Email = dto.Email,
-            Phone = dto.PhoneNumber,
+            PhoneNumber = dto.PhoneNumber,
             StreetAddress = dto.StreetAddress,
             PostalCode = dto.PostalCode,
             City = dto.City,
@@ -51,7 +51,7 @@ public static class ClientMapper
             FirstName = entity.FirstName,
             LastName = entity.LastName,
             Email = entity.Email,
-            Phone = entity.Phone,
+            PhoneNumber = entity.PhoneNumber,
             StreetAddress = entity.StreetAddress,
             PostalCode = entity.PostalCode,
             City = entity.City

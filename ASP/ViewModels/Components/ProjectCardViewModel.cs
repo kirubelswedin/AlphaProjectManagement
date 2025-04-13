@@ -21,7 +21,9 @@ public class ProjectCardViewModel
   public string ProjectImage { get; set; } = null!;
   public decimal? Budget { get; set; }
   public Status Status { get; set; } = null!;
+  
   public List<MemberViewModel> Members { get; set; } = [];
+  public ProjectDropdownViewModel Dropdown => new() { Id = Id };
 }
 
 public class MemberViewModel
@@ -30,4 +32,12 @@ public class MemberViewModel
   public string? Avatar { get; set; }
   public string? FirstName { get; set; }
   public string? LastName { get; set; }
+}
+
+public class ProjectDropdownViewModel
+{
+  public string? Id { get; set; }
+  public string? Controller { get; set; } = "Projects";
+  public string? EditAction { get; set; } = "Edit";
+  public string? DeleteAction { get; set; } = "Delete";
 }

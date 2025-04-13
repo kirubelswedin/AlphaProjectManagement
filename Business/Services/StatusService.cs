@@ -8,20 +8,20 @@ namespace Business.Services;
 
 public interface IStatusService
 {
-    Task<StatusResult<Status?>> CreateStatusAsync(AddStatusFormDto dto);
+    Task<StatusResult<Status?>> CreateStatusAsync(AddStatusFormDto formDto);
     Task<StatusResult<Status>> GetStatusByIdAsync(int id);
     Task<StatusResult<Status>> GetStatusByNameAsync(string statusName);
     Task<StatusResult<IEnumerable<Status>>> GetStatusesAsync();
-    Task<StatusResult<Status?>> UpdateStatusAsync(UpdateStatusFormDto dto);
+    Task<StatusResult<Status?>> UpdateStatusAsync(UpdateStatusFormDto formDto);
 }
 
 public class StatusService(IStatusRepository statusRepository) : IStatusService
 {
     private readonly IStatusRepository _statusRepository = statusRepository;
 
-    public async Task<StatusResult<Status?>> CreateStatusAsync(AddStatusFormDto dto)
+    public async Task<StatusResult<Status?>> CreateStatusAsync(AddStatusFormDto formDto)
     {
-        var entity = StatusMapper.ToEntity(dto);
+        var entity = StatusMapper.ToEntity(formDto);
         var result = await _statusRepository.AddAsync(entity);
         if (!result.Succeeded)
             return new StatusResult<Status?> { Succeeded = false, StatusCode = result.StatusCode, Error = result.Error };
@@ -60,13 +60,13 @@ public class StatusService(IStatusRepository statusRepository) : IStatusService
         return new StatusResult<Status> { Succeeded = true, StatusCode = 200, Result = status };
     }
 
-    public async Task<StatusResult<Status?>> UpdateStatusAsync(UpdateStatusFormDto dto)
+    public async Task<StatusResult<Status?>> UpdateStatusAsync(UpdateStatusFormDto formDto)
     {
-        var existingStatus = await _statusRepository.GetAsync(x => x.Id == dto.Id);
+        var existingStatus = await _statusRepository.GetAsync(x => x.Id == formDto.Id);
         if (!existingStatus.Succeeded)
             return new StatusResult<Status?> { Succeeded = false, StatusCode = existingStatus.StatusCode, Error = existingStatus.Error };
 
-        var entity = StatusMapper.ToEntity(dto);
+        var entity = StatusMapper.ToEntity(formDto);
         var result = await _statusRepository.UpdateAsync(entity);
         if (!result.Succeeded)
             return new StatusResult<Status?> { Succeeded = false, StatusCode = result.StatusCode, Error = result.Error };

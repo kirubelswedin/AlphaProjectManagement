@@ -6,14 +6,14 @@
 	border-radius: 1.5rem;
 	padding: 4.5rem 4.5rem 2.5rem 4.5rem;
 	box-shadow: var(--box-shadow-2);
-    
-    & .primary-button,
-    & .secondary-button {
-        width: 100%;
-        padding: 0.875rem 1rem;
-    }
 
-	& .secondary-button{
+	& .primary-button,
+	& .secondary-button {
+		width: 100%;
+		padding: 0.875rem 1rem;
+	}
+
+	& .secondary-button {
 		color: var(--dark-100);
 	}
 }
@@ -59,24 +59,23 @@
 .name-row {
 	display: flex;
 	gap: 1rem;
-	
+
 	& .form-group {
 		flex: 1;
 	}
 }
 
-
 .form-group {
 	margin-bottom: 2rem;
 	text-align: left;
-	
+
 	& label {
 		display: block;
 		font-weight: var(--font-medium);
 		color: var(--primary-text);
 		margin-bottom: 0.5rem;
 	}
-	
+
 	& input {
 		width: 100%;
 		padding: 0.75rem 1rem;
@@ -87,13 +86,12 @@
 		font-family: var(--font-standard);
 		transition: border-color 0.15s ease-in-out;
 	}
-	
+
 	& input:focus {
 		outline: none;
 		border-color: var(--border-focus-color);
 	}
 }
-
 
 .form-options {
 	display: flex;
@@ -148,4 +146,3 @@
 .terms-accept a:hover {
 	text-decoration: underline;
 }
-

@@ -8,16 +8,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace ASP.Controllers;
 
 [Authorize(Roles = "Admin")]
-public class ClientsController : Controller
+public class ClientsController(IClientService clientService, INotificationService notificationService)
+    : Controller
 {
-    private readonly IClientService _clientService;
-    private readonly INotificationService _notificationService;
-
-    public ClientsController(IClientService clientService, INotificationService notificationService)
-    {
-        _clientService = clientService;
-        _notificationService = notificationService;
-    }
+    private readonly IClientService _clientService = clientService;
+    private readonly INotificationService _notificationService = notificationService;
 
     [Route("admin/clients")]
     public async Task<IActionResult> Index()
@@ -84,7 +79,7 @@ public class ClientsController : Controller
     }
 
     [HttpPut("clients/{id}")]
-    public async Task<IActionResult> UpdateClient(string id, AddClientFormDto dto)
+    public async Task<IActionResult> UpdateClient(string id, UpdateClientFormDto dto)
     {
         if (!ModelState.IsValid)
         {

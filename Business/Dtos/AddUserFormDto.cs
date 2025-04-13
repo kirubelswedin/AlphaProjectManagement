@@ -28,36 +28,23 @@ public class AddUserFormDto
     )]
     public string Email { get; set; } = null!;
 
-    [Display(Name = "Password", Prompt = "Enter Password")]
-    [DataType(DataType.Password)]
-    [Required(ErrorMessage = "Password is required")]
-    [StringLength(100, MinimumLength = 6, ErrorMessage = "Password must be at least 6 characters")]
-    public string Password { get; set; } = null!;
-
-    [Display(Name = "Confirm Password", Prompt = "Confirm Password")]
-    [DataType(DataType.Password)]
-    [Required(ErrorMessage = "Confirm password is required")]
-    [Compare("Password", ErrorMessage = "Passwords do not match")]
-    public string ConfirmPassword { get; set; } = null!;
-
     [Display(Name = "Job Title", Prompt = "Enter Job Title")]
     [DataType(DataType.Text)]
     public string? JobTitle { get; set; }
 
-    [Display(Name = "Phone", Prompt = "Enter Phone Number")]
+    [Display(Name = "PhoneNumber", Prompt = "Enter PhoneNumber Number")]
     [DataType(DataType.PhoneNumber)]
     public string? PhoneNumber { get; set; }
-
+    
     [Display(Name = "Street Address", Prompt = "Enter street address")]
     public string? StreetAddress { get; set; }
 
     [Display(Name = "Postal Code", Prompt = "Enter postal code")]
+    [DataType(DataType.PostalCode)]
     public string? PostalCode { get; set; }
 
     [Display(Name = "City", Prompt = "Enter city")]
     public string? City { get; set; }
 
-    [Display(Name = "Country", Prompt = "Enter country")]
-    public string? Country { get; set; }
 }
 

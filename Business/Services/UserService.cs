@@ -10,11 +10,14 @@ namespace Business.Services;
 
 public interface IUserService
 {
+    Task<UserResult> CreateMemberAsync(AddUserFormDto formDto);
+    Task<UserResult<IEnumerable<User>>> GetUsersAsync();
+    Task<UserResult<User>> GetUserByIdAsync(string id);
+    Task<UserResult> UserExistsByEmailAsync(string email);
     Task<UserResult> AddUserToRoleAsync(UserEntity user, string roleName);
     Task<string> GetDisplayNameAsync(string userId);
-    Task<UserResult<User>> GetUserByIdAsync(string id);
-    Task<UserResult<IEnumerable<User>>> GetUsersAsync();
-    Task<UserResult> UserExistsByEmailAsync(string email);
+    Task<UserResult> UpdateMemberAsync(UpdateUserFormDto formDto);
+    Task<UserResult> DeleteMemberAsync(string id);
 }
 
 public class UserService(IUserRepository userRepository, UserManager<UserEntity> userManager, RoleManager<IdentityRole> roleManager) : IUserService
@@ -22,6 +25,26 @@ public class UserService(IUserRepository userRepository, UserManager<UserEntity>
     private readonly IUserRepository _userRepository = userRepository;
     private readonly UserManager<UserEntity> _userManager = userManager;
     private readonly RoleManager<IdentityRole> _roleManager = roleManager;
+
+    public async Task<UserResult> CreateMemberAsync(AddUserFormDto formDto)
+    {
+        if (formDto == null)
+            return new UserResult { Succeeded = false, StatusCode = 400, Error = "Form data is required" };
+
+        var userEntity = UserMapper.ToEntity(formDto);
+        var result = await _userRepository.AddAsync(userEntity);
+
+        if (!result.Succeeded)
+            return new UserResult { Succeeded = false, StatusCode = result.StatusCode, Error = result.Error };
+
+        return new UserResult
+        {
+            Succeeded = true,
+            StatusCode = 201,
+            Result = userEntity.Id
+        };
+    }
+
 
     public async Task<UserResult<IEnumerable<User>>> GetUsersAsync()
     {
@@ -65,5 +88,61 @@ public class UserService(IUserRepository userRepository, UserManager<UserEntity>
 
         var user = await _userManager.FindByIdAsync(userId);
         return user != null ? $"{user.FirstName} {user.LastName}" : "Unknown User";
+    }
+
+    public async Task<UserResult> UpdateMemberAsync(UpdateUserFormDto formDto)
+    {
+        try
+        {
+            // Get existing user
+            var user = await _userManager.FindByIdAsync(formDto.Id);
+            if (user == null)
+                return new UserResult { Succeeded = false, StatusCode = 404, Error = "User not found" };
+
+            // Check if email is being changed and if it already exists
+            if (user.Email != formDto.Email)
+            {
+                var emailExists = await UserExistsByEmailAsync(formDto.Email);
+                if (emailExists.Succeeded)
+                    return new UserResult { Succeeded = false, StatusCode = 409, Error = "A user with this email already exists." };
+            }
+
+            // Update user entity
+            var updatedUser = UserMapper.ToEntity(formDto);
+            updatedUser.UserName = updatedUser.Email;
+
+            // Update user
+            var result = await _userManager.UpdateAsync(updatedUser);
+            if (!result.Succeeded)
+                return new UserResult { Succeeded = false, StatusCode = 400, Error = result.Errors.FirstOrDefault()?.Description };
+
+            return new UserResult { Succeeded = true, StatusCode = 200 };
+        }
+        catch (Exception ex)
+        {
+            return new UserResult { Succeeded = false, StatusCode = 500, Error = ex.Message };
+        }
+    }
+
+    public async Task<UserResult> DeleteMemberAsync(string id)
+    {
+        try
+        {
+            // Get existing user
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+                return new UserResult { Succeeded = false, StatusCode = 404, Error = "User not found" };
+
+            // Delete user
+            var result = await _userManager.DeleteAsync(user);
+            if (!result.Succeeded)
+                return new UserResult { Succeeded = false, StatusCode = 400, Error = result.Errors.FirstOrDefault()?.Description };
+
+            return new UserResult { Succeeded = true, StatusCode = 200 };
+        }
+        catch (Exception ex)
+        {
+            return new UserResult { Succeeded = false, StatusCode = 500, Error = ex.Message };
+        }
     }
 }

@@ -4,29 +4,36 @@ namespace ASP.ViewModels.forms;
 
 public class AddClientsViewModel
 {
-    [DataType(DataType.Upload)]
-    [Display(Name = "Image")]
+    [Display(Name = "Client Image", Prompt = "Upload Client Image")]
     public IFormFile? ImageFile { get; set; }
-    public string? ImageUrl { get; set; }
 
-    [Required(ErrorMessage = "Client name is required")]
-    [StringLength(100, ErrorMessage = "Client name cannot exceed 100 characters")]
-    [Display(Name = "Client Name")]
+    [Required(ErrorMessage = "Company name is required")]
+    [Display(Name = "Company Name", Prompt = "Enter Company name")]
     public string ClientName { get; set; } = null!;
 
-    [Required(ErrorMessage = "Contact person is required")]
-    [StringLength(100, ErrorMessage = "Contact person name cannot exceed 100 characters")]
-    [Display(Name = "Contact Person")]
-    public string ContactPerson { get; set; } = null!;
+    [Required(ErrorMessage = "First name is required")]
+    [Display(Name = "First Name", Prompt = "Enter first name")]
+    public string FirstName { get; set; } = null!;
+
+    [Required(ErrorMessage = "Last name is required")]
+    [Display(Name = "Last Name", Prompt = "Enter last name")]
+    public string LastName { get; set; } = null!;
 
     [Required(ErrorMessage = "Email is required")]
     [EmailAddress(ErrorMessage = "Invalid email address")]
-    [StringLength(100, ErrorMessage = "Email cannot exceed 100 characters")]
-    [Display(Name = "Email")]
+    [Display(Name = "Email", Prompt = "Enter email address")]
     public string Email { get; set; } = null!;
 
     [Phone(ErrorMessage = "Invalid phone number")]
-    [StringLength(20, ErrorMessage = "Phone number cannot exceed 20 characters")]
-    [Display(Name = "Phone")]
-    public string? Phone { get; set; }
+    [Display(Name = "Phone Number", Prompt = "Enter phone number")]
+    public string? PhoneNumber { get; set; }
+
+    [Display(Name = "Street StreetAddress", Prompt = "Enter street address")]
+    public string? StreetAddress { get; set; }
+
+    [Display(Name = "Postal Code", Prompt = "Enter postal code")]
+    public string? PostalCode { get; set; }
+
+    [Display(Name = "City", Prompt = "Enter city")]
+    public string? City { get; set; }
 }

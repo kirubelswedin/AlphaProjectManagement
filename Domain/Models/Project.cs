@@ -24,7 +24,7 @@ public class Project
     public bool IsUrgent => !IsCompleted && !IsOverdue && EndDate.HasValue && (EndDate.Value - DateTime.UtcNow).TotalDays <= 7;
 
     public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
     
     public ICollection<ProjectMember> ProjectMembers { get; set; }
 }

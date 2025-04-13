@@ -19,6 +19,9 @@ public class AppDbContext : IdentityDbContext<UserEntity>
     public virtual DbSet<NotificationDismissedEntity> DismissedNotifications { get; set; }
     public virtual DbSet<ProjectMemberEntity> ProjectMembers { get; set; }
     public virtual DbSet<ProjectRoleEntity> ProjectRoles { get; set; }
+    // public virtual DbSet<UserEntity> UserAddresses { get; set; }
+    // public virtual DbSet<UserAddressEntity> UserAddresses { get; set; }
+    
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

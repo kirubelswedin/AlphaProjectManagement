@@ -23,7 +23,7 @@ public class ClientEntity
     public string Email { get; set; } = null!;
 
     [Phone]
-    public string? Phone { get; set; }
+    public string? PhoneNumber { get; set; }
 
     [StringLength(200)]
     public string? StreetAddress { get; set; }

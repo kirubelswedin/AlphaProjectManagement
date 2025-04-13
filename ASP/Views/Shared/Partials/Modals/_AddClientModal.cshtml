@@ -16,62 +16,44 @@
             <div class="form-modal-body">
                 <form asp-controller="Clients" asp-action="AddClient" method="post" enctype="multipart/form-data"
                     novalidate id="clientForm" data-id="add">
-                    <input type="hidden" id="clientId" name="Id" />
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    @* <input type="hidden" asp-for="Id" /> *@
 
                     <!-- Client Image -->
                     <div class="form-group">
-                        <label class="form-label hide" for="ImageFile">Client Image</label>
+                        <label class="form-label hide" asp-for="ImageFile"></label>
                         <div class="image-preview-container shape-round" data-file-upload>
                             <img class="hide" alt="Client preview" />
                             <div class="circle circle-gray upload-overlay">
                                 <i class="fa-duotone fa-solid fa-camera"></i>
                             </div>
-                            <input asp-for="ImageFile" accept="image/*" type="file" name="ImageFile" id="ImageFile"
-                                autocomplete="off" />
+                            <input asp-for="ImageFile" accept="image/*" autocomplete="off" />
                         </div>
                         <span class="field-error" data-valmsg-for="ImageFile"></span>
                     </div>
 
                     <!-- Client Name -->
                     <div class="form-group">
-                        <label class="form-label" for="clientName">Name</label>
-                        <input type="text" class="form-input" id="clientName" name="ClientName"
-                               placeholder="Enter Company name" required autocomplete="off" />
+                        <label class="form-label" asp-for="ClientName">Name</label>
+                        <input asp-for="ClientName" class="form-input" autocomplete="off" />
                         <span class="field-error" data-valmsg-for="ClientName"></span>
-                    </div>
-                    
-                    <div class="form-column">
-                        <!-- Start Date -->
-                        <div class="form-group half">
-                            <label class="form-label" for="StartDate">Date</label>
-                            <input type="date" class="form-input" id="StartDate" name="StartDate" required autocomplete="off" />
-                            <span class="field-error" data-valmsg-for="StartDate"></span>
-                        </div>
-
-                        <!-- End Date -->
-                        <div class="form-group half ">
-                            @* <label class="form-label" for="EndDate">End Date</label> *@
-                            @* <input type="date" class="form-input" id="EndDate" name="EndDate" required autocomplete="off" /> *@
-                            @* <span class="field-error" data-valmsg-for="EndDate"></span> *@
-                        </div>
                     </div>
 
                     <!-- Contact Person -->
                     <div class="form-column">
                         <!-- First Name -->
                         <div class="form-group half">
-                            <label class="form-label" for="firstName">Contact Person</label>
-                            <label class="form-label hide" for="firstName">First Name</label>
-                            <input type="text" class="form-input" id="firstName" name="FirstName" placeholder="Enter first name"
-                                   required autocomplete="off" />
+                            <label class="form-label" asp-for="FirstName"></label>
+                            <input asp-for="FirstName" class="form-input" autocomplete="off" />
                             <span class="field-error" data-valmsg-for="FirstName"></span>
                         </div>
 
                         <!-- Last Name -->
-                        <div class="form-group half right">
-                            <label class="form-label hide" for="lastName">Last Name</label>
-                            <input type="text" class="form-input" id="lastName" name="LastName" placeholder="Enter last name" required
-                                   autocomplete="off" />
+                        <div class="form-group half">
+                            <label class="form-label" asp-for="LastName"></label>
+                            <input asp-for="LastName" class="form-input" autocomplete="off" />
                             <span class="field-error" data-valmsg-for="LastName"></span>
                         </div>
                     </div>
@@ -79,42 +61,38 @@
                     <div class="form-column">
                         <!-- Email -->
                         <div class="form-group half">
-                            <label class="form-label" for="email">Email</label>
-                            <input type="email" class="form-input" id="email" name="Email" placeholder="ex: myname@example.com"
-                                   required autocomplete="off" />
+                            <label class="form-label" asp-for="Email"></label>
+                            <input asp-for="Email" class="form-input" autocomplete="off" />
                             <span class="field-error" data-valmsg-for="Email"></span>
                         </div>
 
-                        <!-- Phone -->
+                        <!-- PhoneNumber -->
                         <div class="form-group half">
-                            <label class="form-label" for="phone">Phone</label>
-                            <input type="tel" class="form-input" id="phone" name="PhoneNumber" placeholder="Enter phone number"
-                                   minlength="6" maxlength="15" autocomplete="off" />
+                            <label class="form-label" asp-for="PhoneNumber">Phone</label>
+                            <input asp-for="PhoneNumber" class="form-input" autocomplete="off" />
                             <span class="field-error" data-valmsg-for="PhoneNumber"></span>
                         </div>
                     </div>
-                    
-                    <!-- Street Address -->
+
+                    <!-- Street StreetAddress -->
                     <div class="form-group">
-                        <label class="form-label" for="streetAddress">Address</label>
-                        <input type="text" class="form-input" id="streetAddress" name="StreetAddress"
-                               placeholder="Enter street address" autocomplete="off" />
-                        <span class="field-error" data-valmsg-for="StreetAddress"></span>
+                        <label class="form-label" asp-for="StreetAddress"></label>
+                        <input asp-for="StreetAddress" class="form-input" autocomplete="off" />
+                        <span class="field-error" data-valmsg-for="StreetStreetAddress"></span>
                     </div>
 
                     <div class="form-column">
                         <!-- Postal Code -->
                         <div class="form-group half">
-                            <label class="form-label" for="postalCode">Postal / Code</label>
-                            <input type="text" class="form-input" id="postalCode" name="PostalCode" placeholder="Enter postal code"
-                                   autocomplete="off" />
+                            <label class="form-label" asp-for="PostalCode">ZIP / Postal Code</label>
+                            <input asp-for="PostalCode" class="form-input" autocomplete="off" />
                             <span class="field-error" data-valmsg-for="PostalCode"></span>
                         </div>
 
                         <!-- City -->
                         <div class="form-group half">
-                            <label class="form-label" for="city">City</label>
-                            <input type="text" class="form-input" id="city" name="City" placeholder="Enter city" autocomplete="off" />
+                            <label class="form-label" asp-for="City"></label>
+                            <input asp-for="City" class="form-input" autocomplete="off" />
                             <span class="field-error" data-valmsg-for="City"></span>
                         </div>
                     </div>
@@ -136,3 +114,4 @@
         </div>
     </div>
 </section>
+

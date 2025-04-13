@@ -25,7 +25,7 @@ public class UpdateClientFormDto
     )]
     public string Email { get; set; } = null!;
 
-    [Display(Name = "Phone", Prompt = "Enter Phone")]
+    [Display(Name = "PhoneNumber", Prompt = "Enter PhoneNumber")]
     [DataType(DataType.PhoneNumber)]
     public string? PhoneNumber { get; set; } = null!;
 }

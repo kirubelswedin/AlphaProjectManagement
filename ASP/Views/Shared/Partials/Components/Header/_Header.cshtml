@@ -25,7 +25,7 @@
 </div>
 
 <div class="header-actions">
-    
+
     @* Notification Dropdown *@
     <div class="dropdown-wrapper window" id="notification-dropdown">
         @{
@@ -42,7 +42,7 @@
                 }).ToList()
             };
         }
-        <partial name="Partials/Components/Dropdowns/_NotificationDropdown" model="@notificationsModel"/>
+        <partial name="Partials/Components/Dropdowns/_NotificationDropdown" model="@notificationsModel" />
     </div>
 
     @* Profile Dropdown *@
@@ -57,6 +57,6 @@
                 LogoutUrl = Url.Action("Logout", "Auth") ?? "#"
             };
         }
-        <partial name="Partials/Components/Dropdowns/_ProfileDropdown" model="@profileModel"/>
+        <partial name="Partials/Components/Dropdowns/_ProfileDropdown" model="@profileModel" />
     </div>
 </div>

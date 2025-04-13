@@ -8,63 +8,70 @@ public static class UserMapper
 {
     public static UserEntity ToEntity(SignUpFormDto? dto)
     {
-        if (dto == null) return null!;
+        if (dto == null)
+            return null!;
+
         return new UserEntity
         {
-            UserName = dto.Email,
             FirstName = dto.FirstName,
             LastName = dto.LastName,
-            Email = dto.Email
+            Email = dto.Email,
+            UserName = dto.Email,
+            CreatedAt = DateTime.UtcNow
         };
     }
 
     public static UserEntity ToEntity(AddUserFormDto? dto, string? newImageUrl = null)
     {
-        if (dto == null) return null!;
+        if (dto == null)
+            return null!;
+
         return new UserEntity
         {
-            UserName = dto.Email,
-            ImageUrl = newImageUrl,
             FirstName = dto.FirstName,
             LastName = dto.LastName,
-            Email = dto.Email
+            Email = dto.Email,
+            UserName = dto.Email,
+            PhoneNumber = dto.PhoneNumber,
+            JobTitle = dto.JobTitle,
+            ImageUrl = newImageUrl ?? dto.ImageUrl,
+            CreatedAt = DateTime.UtcNow
         };
     }
 
     public static UserEntity ToEntity(UpdateUserFormDto? dto, string? newImageUrl = null)
     {
-        if (dto == null) return null!;
+        if (dto == null)
+            return null!;
+
         return new UserEntity
         {
             Id = dto.Id,
-            UserName = dto.Email,
-            ImageUrl = newImageUrl ?? dto.ImageUrl,
             FirstName = dto.FirstName,
             LastName = dto.LastName,
             Email = dto.Email,
+            UserName = dto.Email,
             PhoneNumber = dto.PhoneNumber,
-            Address = new UserAddressEntity
-            {
-                UserId = dto.Id,
-                StreetAddress = dto.StreetName,
-                PostalCode = dto.PostalCode,
-                City = dto.City,
-                Country = dto.Country
-            }
+            JobTitle = dto.JobTitle,
+            ImageUrl = newImageUrl ?? dto.ImageUrl,
+            UpdatedAt = DateTime.UtcNow
         };
     }
 
     public static User ToModel(UserEntity? entity)
     {
-        if (entity == null) return null!;
+        if (entity == null)
+            return null!;
+
         return new User
         {
             Id = entity.Id,
-            ImageUrl = entity.ImageUrl,
             FirstName = entity.FirstName,
             LastName = entity.LastName,
-            Email = entity.Email!,
+            Email = entity.Email,
             PhoneNumber = entity.PhoneNumber,
+            JobTitle = entity.JobTitle,
+            ImageUrl = entity.ImageUrl,
             Address = entity.Address != null ? new UserAddress
             {
                 Id = entity.Address.UserId,
@@ -73,6 +80,27 @@ public static class UserMapper
                 City = entity.Address.City,
                 Country = entity.Address.Country
             } : null
+        };
+    }
+
+    public static UserDetailsDto ToUserDetailsDto(User? user)
+    {
+        if (user == null)
+            return null!;
+
+        return new UserDetailsDto
+        {
+            Id = user.Id,
+            Avatar = user.ImageUrl,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Email = user.Email,
+            PhoneNumber = user.PhoneNumber,
+            JobTitle = user.JobTitle,
+            StreetAddress = user.Address?.StreetAddress ?? string.Empty,
+            City = user.Address?.City ?? string.Empty,
+            PostalCode = user.Address?.PostalCode ?? string.Empty,
+            IsAdmin = false
         };
     }
 }

@@ -2,8 +2,10 @@
 @model AddProjectViewModel
 
 @{
-  const string modalId = "addprojectmodal";
+  var modalId = "addprojectmodal";
+  var selectedUsersJson = "[]";
 }
+
 
 <section id="@modalId" class="modal">
   <div class="form-modal-wrapper">
@@ -15,66 +17,49 @@
         </button>
       </div>
       <div class="form-modal-body">
-
         <form asp-controller="Projects" asp-action="AddProject" method="post" enctype="multipart/form-data" novalidate
           id="projectForm" data-id="add">
-          <input type="hidden" name="UserId" id="UserId" value="@User.FindFirstValue(ClaimTypes.NameIdentifier)" />
+          @Html.AntiForgeryToken()
+          <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+          <input type="hidden" name="UserId" value="@User.FindFirstValue(ClaimTypes.NameIdentifier)" />
 
           <!-- Project Image -->
           <div class="form-group">
-            <label class="form-label hide" for="ImageFile">Project Image</label>
+            <label class="form-label hide" asp-for="ImageFile"></label>
             <div class="image-preview-container shape-square" data-file-upload>
               <img class="hide" alt="Project preview" />
               <div class="circle circle-gray upload-overlay">
                 <i class="fa-duotone fa-solid fa-camera"></i>
               </div>
-              <input asp-for="ImageFile" accept="image/*" type="file" name="ImageFile" id="ImageFile"
-                autocomplete="off" />
+              <input asp-for="ImageFile" accept="image/*" autocomplete="off" />
             </div>
             <span class="field-error" data-valmsg-for="ImageFile"></span>
           </div>
 
           <!-- Project Name -->
           <div class="form-group">
-            <label class="form-label" for="Name">Project Name</label>
-            <input type="text" class="form-input" id="Name" name="Name" required placeholder="Type project name"
-              autocomplete="off" />
-            <span class="field-error" data-valmsg-for="Name"></span>
+            <label class="form-label" asp-for="ProjectName"></label>
+            <input asp-for="ProjectName" class="form-input" autocomplete="off" />
+            <span class="field-error" data-valmsg-for="ProjectName"></span>
           </div>
 
-          <!-- Client Selector v1 -->
+          <!-- Client Selector -->
           <div class="form-group">
-            <label asp-for="ClientId" class="form-label">Client</label>
+            <label asp-for="ClientId" class="form-label"></label>
             <div class="field-group">
               <select asp-for="ClientId" asp-items="@Model.Clients" class="form-input">
                 <option value="">-- Select Client --</option>
               </select>
-              <span asp-validation-for="ClientId"></span>
-            </div>
-          </div>
-
-          <!-- Client Selector v2 -->
-          <div class="form-group">
-            <label asp-for="ClientId" class="form-label">Client Name</label>
-            <div class="form-select" data-placeholder="Choose a client">
-              <button type="button" class="form-select-trigger">
-                <span class="form-select-text"></span>
-              </button>
-              <ul class="form-select-options">
-                @foreach (var option in Model.Clients)
-                {
-                  <li class="form-select-option" data-value="@option.Value">@option.Text</li>
-                }
-              </ul>
-              <input type="hidden" asp-for="ClientId" />
+              <span class="field-error" data-valmsg-for="ClientId"></span>
             </div>
           </div>
 
           <!-- Description -->
           <div class="form-group">
-            <label class="form-label" for="add-project-description">Description</label>
+            <label class="form-label" asp-for="Description"></label>
             <div class="wysiwyg-container">
-              <textarea id="add-project-description" name="Description" asp-for="Description"></textarea>
+              <textarea asp-for="Description" id="add-project-description"></textarea>
               <div id="add-project-description-editor" class="wysiwyg-editor"></div>
               <div id="add-project-description-toolbar" class="wysiwyg-toolbar">
                 <span class="ql-formats">
@@ -96,60 +81,49 @@
                 </span>
               </div>
             </div>
+            <span class="field-error" data-valmsg-for="Description"></span>
           </div>
 
           <div class="form-column">
             <!-- Start Date -->
             <div class="form-group half">
-              <label class="form-label" for="StartDate">Start Date</label>
-              <input type="date" class="form-input" id="StartDate" name="StartDate" required autocomplete="off" />
+              <label class="form-label" asp-for="StartDate"></label>
+              <input asp-for="StartDate" class="form-input" autocomplete="off" />
               <span class="field-error" data-valmsg-for="StartDate"></span>
             </div>
 
             <!-- End Date -->
             <div class="form-group half">
-              <label class="form-label" for="EndDate">End Date</label>
-              <input type="date" class="form-input" id="EndDate" name="EndDate" required autocomplete="off" />
+              <label class="form-label" asp-for="EndDate"></label>
+              <input asp-for="EndDate" class="form-input" autocomplete="off" />
               <span class="field-error" data-valmsg-for="EndDate"></span>
             </div>
           </div>
 
-          <!-- Member Selector Dropdown -->
+          <!-- Member Selector -->
           <div class="form-group">
-            @{
-              var memberItems = ViewBag.Members != null
-              ? ((IEnumerable<dynamic>)ViewBag.Members).Select(m => new SelectorItemViewModel
-              {
-                Id = m.Id,
-                Text = $"{m.FirstName} {m.LastName}",
-                ImageUrl = m.Avatar
-              }).ToList()
-              : [];
-
-              var memberSelectorModel = new SelectorViewModel
-              {
-                Id = "projectMemberSelect",
-                Label = "Members",
-                Placeholder = "Search members...",
-                Icon = "fa-duotone fa-solid fa-search",
-                IsMultiple = true,
-                HiddenInputName = "MemberIds",
-                ValidationFor = "MemberIds",
-                Items = memberItems
-              };
-            }
-            <partial name="Partials/Components/Selectors/_MemberSelector" model="@memberSelectorModel" />
+            <label asp-for="UserIds">Team Members</label>
+            <div class="member-selector">
+              <div class="selected-members" id="selected-members">
+                @*  *@
+              </div>
+              <div class="search-container">
+                <input type="text" id="member-search" placeholder="Search members..." />
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <div id="search-results" class="search-results"></div>
+              </div>
+            </div>
+            <input type="hidden" asp-for="UserIds" id="UserIds" />
           </div>
 
           <!-- Budget -->
           <div class="form-group">
-            <label class="form-label" for="Budget">Budget</label>
+            <label class="form-label" asp-for="Budget"></label>
             <div class="currency-input">
               <span class="currency-symbol">$</span>
-              <input asp-for="Budget" type="number" name="Budget" step="0.01" class="form-input" id="Budget"
-                placeholder="0" autocomplete="off" />
+              <input asp-for="Budget" type="number" step="0.01" class="form-input" autocomplete="off" />
             </div>
-            <span asp-validation-for="Budget" data-valmsg-for="Budget" class="field-error"></span>
+            <span class="field-error" data-valmsg-for="Budget"></span>
           </div>
 
           <!-- Submit Button -->
@@ -165,19 +139,33 @@
             <partial name="Partials/Components/ui/_Button" model="@buttonModel" />
           </div>
         </form>
-
       </div>
     </div>
   </div>
 </section>
 
 <script>
+  const preSelectedUsers = @Html.Raw(selectedUsersJson);
+
+  initWysiwygEditor(
+    '#add-project-description-editor',
+    '#add-project-description-toolbar',
+    '#add-project-description',
+    '@Html.Raw(Model.Description ?? "")'
+  );
+
   document.addEventListener('DOMContentLoaded', function () {
-    initWysiwygEditor(
-      '#add-project-description-editor',
-      '#add-project-description-toolbar',
-      '#add-project-description',
-      '@Html.Raw(Model.Description ?? "")'
-    );
+    initTagSelector({
+      containerId: 'selected-members',
+      inputId: 'member-search',
+      resultsId: 'search-results',
+      searchUrl: (query) => '@Url.Action("SearchMembers", "Projects")?term=' + encodeURIComponent(query),
+      displayProperty: 'fullName',
+      imageProperty: 'imageUrl',
+      tagClass: 'member-tag',
+      emptyMessage: 'No members found.',
+      preSelectedItems: [],
+      selectedInputsIds: 'UserIds'
+    });
   });
 </script>

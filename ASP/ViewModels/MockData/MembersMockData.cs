@@ -15,10 +15,9 @@ public static class MembersMockData
             Email = "anna.johansson@example.com",
             PhoneNumber = "070-123 45 67",
             JobTitle = "Senior Developer",
-            Address = "Storgatan 1",
+            StreetAddress = "Storgatan 1",
             City = "Stockholm",
             PostalCode = "11457",
-            StreetName = "Storgatan 1"
         },
         new MemberCardViewModel
         {
@@ -29,10 +28,9 @@ public static class MembersMockData
             Email = "erik.lindberg@example.com",
             PhoneNumber = "070-234 56 78",
             JobTitle = "UX Designer",
-            Address = "Kungsgatan 5",
+            StreetAddress = "Kungsgatan 5",
             City = "Göteborg",
             PostalCode = "41119",
-            StreetName = "Kungsgatan 5"
         },
         new MemberCardViewModel
         {
@@ -43,10 +41,9 @@ public static class MembersMockData
             Email = "maria.svensson@example.com",
             PhoneNumber = "070-345 67 89",
             JobTitle = "Product Manager",
-            Address = "Drottninggatan 12",
+            StreetAddress = "Drottninggatan 12",
             City = "Malmö",
             PostalCode = "21421",
-            StreetName = "Drottninggatan 12"
         },
         new MemberCardViewModel
         {
@@ -57,10 +54,9 @@ public static class MembersMockData
             Email = "johan.andersson@example.com",
             PhoneNumber = "070-456 78 90",
             JobTitle = "Backend Developer",
-            Address = "Vasagatan 8",
+            StreetAddress = "Vasagatan 8",
             City = "Uppsala",
             PostalCode = "75320",
-            StreetName = "Vasagatan 8"
         },
         new MemberCardViewModel
         {
@@ -71,10 +67,9 @@ public static class MembersMockData
             Email = "lena.bjork@example.com",
             PhoneNumber = "070-567 89 01",
             JobTitle = "Frontend Developer",
-            Address = "Sveavägen 22",
+            StreetAddress = "Sveavägen 22",
             City = "Stockholm",
             PostalCode = "11459",
-            StreetName = "Sveavägen 22"
         },
         new MemberCardViewModel
         {
@@ -85,10 +80,9 @@ public static class MembersMockData
             Email = "martin.ekstrom@example.com",
             PhoneNumber = "070-678 90 12",
             JobTitle = "ProjectEntity Lead",
-            Address = "Järntorgsgatan 3",
+            StreetAddress = "Järntorgsgatan 3",
             City = "Göteborg",
             PostalCode = "41304",
-            StreetName = "Järntorgsgatan 3"
         },
         new MemberCardViewModel
         {
@@ -99,10 +93,9 @@ public static class MembersMockData
             Email = "karin.nilsson@example.com",
             PhoneNumber = "070-789 01 23",
             JobTitle = "CTO",
-            Address = "Triangeln 2",
+            StreetAddress = "Triangeln 2",
             City = "Malmö",
             PostalCode = "21143",
-            StreetName = "Triangeln 2"
         },
         new MemberCardViewModel
         {
@@ -113,10 +106,9 @@ public static class MembersMockData
             Email = "anders.larsson@example.com",
             PhoneNumber = "070-890 12 34",
             JobTitle = "DevOps Engineer",
-            Address = "Kyrkogatan 4",
+            StreetAddress = "Kyrkogatan 4",
             City = "Uppsala",
             PostalCode = "75231",
-            StreetName = "Kyrkogatan 4"
         }
     };
 

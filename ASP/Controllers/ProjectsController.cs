@@ -103,83 +103,17 @@ public class ProjectsController(
         return Json(new { success = true, projects });
     }
 
-    // Private helper methods
-    private static PageHeaderViewModel CreatePageHeader() => new()
+    [HttpDelete("projects/{id}")]
+    public async Task<IActionResult> DeleteProject(string id)
     {
-        Title = "Projects",
-        ButtonText = "Add Project",
-        ModalId = "addprojectmodal"
-    };
-
-    private async Task<List<SelectListItem>> GetClientSelectListAsync()
-    {
-        var result = await _clientService.GetClientsAsync();
-        return result.Succeeded
-            ? result.Result!.Select(c => new SelectListItem
-            {
-                Value = c.Id,
-                Text = c.ClientName
-            }).ToList()
-            : [];
-    }
-
-    private async Task<List<SelectListItem>?> GetStatusSelectListAsync()
-    {
-        var statuses = await _statusService.GetStatusesAsync();
-        return statuses.Result?.Select(s => new SelectListItem
+        var result = await _projectService.DeleteProjectAsync(id);
+        if (!result.Succeeded)
         {
-            Text = s.StatusName,
-            Value = s.StatusName
-        }).ToList();
-    }
+            return Json(new { success = false, error = result.Error });
+        }
 
-    private async Task<List<SelectorItemViewModel>> GetMemberSelectListAsync()
-    {
-        var result = await _userService.GetUsersAsync();
-        return result.Succeeded
-            ? result.Result!.Select(u => new SelectorItemViewModel
-            {
-                Id = u.Id,
-                Text = $"{u.FirstName} {u.LastName}",
-                ImageUrl = u.ImageUrl
-            }).ToList()
-            : [];
-    }
-
-    private async Task<List<Project>> GetProjectsAsync(string tab)
-    {
-        var result = await _projectService.GetProjectsAsync();
-        if (!result.Succeeded) return [];
-
-        var projects = result.Result!.ToList();
-        return tab.Equals("ALL"
-, StringComparison.CurrentCultureIgnoreCase)
-            ? projects
-            : projects.Where(p => p.Status.StatusName.Replace(" ", "") == tab).ToList();
-    }
-
-    private async Task CreateProjectNotification(string title, string message)
-    {
-        var notification = new NotificationDetailsDto
-        {
-            NotificationTypeId = 2, // Project type
-            NotificationTargetId = 2, // Admins
-            Title = title,
-            Message = message,
-            CreatedAt = DateTime.UtcNow
-        };
-
-        await _notificationService.AddNotificationAsync(notification);
-    }
-
-    private Dictionary<string, string[]> GetModelErrors()
-    {
-        return ModelState
-            .Where(x => x.Value!.Errors.Any())
-            .ToDictionary(
-                kvp => kvp.Key,
-                kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
-            );
+        await CreateProjectNotification("Project Deleted", "A project has been deleted");
+        return Json(new { success = true });
     }
 
     private async Task<TabFilterViewModel> CreateTabFilterAsync(string activeTab)
@@ -217,5 +151,143 @@ public class ProjectsController(
         }
 
         return new TabFilterViewModel { Tabs = tabs };
+    }
+
+    private async Task<List<ProjectCardViewModel>> GetProjectsAsync(string tab)
+    {
+        var result = await _projectService.GetProjectsAsync();
+        if (!result.Succeeded) return [];
+
+        var projects = result.Result!.ToList();
+        var filteredProjects = tab.Equals("ALL", StringComparison.CurrentCultureIgnoreCase)
+            ? projects
+            : projects.Where(p => p.Status.StatusName.Replace(" ", "") == tab).ToList();
+
+        return filteredProjects.Select(p => new ProjectCardViewModel
+        {
+            Id = p.Id,
+            ProjectName = p.ProjectName,
+            ClientName = p.Client.ClientName,
+            Description = p.Description,
+            StartDate = p.StartDate?.ToString("yyyy-MM-dd"),
+            EndDate = p.EndDate?.ToString("yyyy-MM-dd"),
+            TimeLeft = p.EndDate.HasValue ? GetTimeLeft(p.EndDate.Value) : null,
+            IsUrgent = p.IsUrgent,
+            IsOverdue = p.IsOverdue,
+            CompletedOnTime = p.CompletedOnTime,
+            ProjectImage = p.ImageUrl ?? "/images/project/default-project.svg",
+            Budget = p.Budget,
+            Status = p.Status,
+            Members = p.ProjectMembers?.Select(pm => new MemberViewModel
+            {
+                Id = pm.User.Id,
+                Avatar = pm.User.ImageUrl ?? "/images/avatars/default-avatar.svg",
+                FirstName = pm.User.FirstName,
+                LastName = pm.User.LastName
+            }).ToList() ?? []
+        }).ToList();
+    }
+
+    private static string? GetTimeLeft(DateTime endDate)
+    {
+        var timeLeft = endDate - DateTime.UtcNow;
+        if (timeLeft.TotalDays < 0)
+            return "Overdue";
+        if (timeLeft.TotalDays < 1)
+            return "Due today";
+        if (timeLeft.TotalDays < 7)
+            return $"{timeLeft.Days} days left";
+        return $"{timeLeft.Days} days left";
+    }
+
+    private static PageHeaderViewModel CreatePageHeader() => new()
+    {
+        Title = "Projects",
+        ButtonText = "Add Project",
+        ModalId = "addprojectmodal"
+    };
+
+    private async Task<List<SelectListItem>> GetClientSelectListAsync()
+    {
+        var result = await _clientService.GetClientsAsync();
+        return result.Succeeded
+            ? result.Result!.Select(c => new SelectListItem
+            {
+                Value = c.Id,
+                Text = c.ClientName
+            }).ToList()
+            : [];
+    }
+
+    private async Task<List<SelectListItem>> GetMemberSelectListAsync()
+    {
+        var result = await _userService.GetUsersAsync();
+        return result.Succeeded && result.Result != null
+            ? result.Result.Select(u => new SelectListItem
+            {
+                Value = u.Id,
+                Text = $"{u.FirstName} {u.LastName}"
+            }).ToList()
+            : [];
+    }
+
+    private async Task<List<SelectListItem>?> GetStatusSelectListAsync()
+    {
+        var statuses = await _statusService.GetStatusesAsync();
+        return statuses.Result?.Select(s => new SelectListItem
+        {
+            Text = s.StatusName,
+            Value = s.StatusName
+        }).ToList();
+    }
+
+
+    private async Task CreateProjectNotification(string title, string message)
+    {
+        var notification = new NotificationDetailsDto
+        {
+            NotificationTypeId = 2, // Project type
+            NotificationTargetId = 2, // Admins
+            Title = title,
+            Message = message,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        await _notificationService.AddNotificationAsync(notification);
+    }
+
+    private Dictionary<string, string[]> GetModelErrors()
+    {
+        return ModelState
+            .Where(x => x.Value!.Errors.Any())
+            .ToDictionary(
+                kvp => kvp.Key,
+                kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
+            );
+    }
+
+    [HttpGet("projects/members/search")]
+    public async Task<IActionResult> SearchMembers(string term)
+    {
+        var result = await _userService.GetUsersAsync();
+        if (!result.Succeeded || result.Result == null)
+        {
+            return Json(new List<object>());
+        }
+
+        var filteredMembers = result.Result
+            .Where(u =>
+                (u.FirstName?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (u.LastName?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (u.Email?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false))
+            .Select(u => new
+            {
+                id = u.Id,
+                fullName = $"{u.FirstName} {u.LastName}",
+                imageUrl = u.ImageUrl ?? "/images/avatars/default-avatar.svg"
+            })
+            .ToList();
+
+        return Json(filteredMembers);
     }
 }

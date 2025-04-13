@@ -8,10 +8,10 @@ namespace Business.Services;
 
 public interface IClientService
 {
+    Task<ClientResult> CreateClientAsync(AddClientFormDto formDto);
     Task<ClientResult<IEnumerable<Client>>> GetClientsAsync();
     Task<ClientResult<Client>> GetClientByIdAsync(string id);
-    Task<ClientResult> CreateClientAsync(AddClientFormDto formDto);
-    Task<ClientResult> UpdateClientAsync(string id, AddClientFormDto formDto);
+    Task<ClientResult> UpdateClientAsync(string id, UpdateClientFormDto formDto);
     Task<ClientResult> DeleteClientAsync(string id);
 }
 
@@ -19,6 +19,13 @@ public interface IClientService
 public class ClientService(IClientRepository clientRepository) : IClientService
 {
     private readonly IClientRepository _clientRepository = clientRepository;
+
+    public async Task<ClientResult> CreateClientAsync(AddClientFormDto formDto)
+    {
+        var entity = ClientMapper.ToEntity(formDto);
+        var result = await _clientRepository.AddAsync(entity);
+        return new ClientResult { Succeeded = result.Succeeded, StatusCode = result.StatusCode, Error = result.Error };
+    }
 
     public async Task<ClientResult<IEnumerable<Client>>> GetClientsAsync()
     {
@@ -40,14 +47,7 @@ public class ClientService(IClientRepository clientRepository) : IClientService
         return new ClientResult<Client> { Succeeded = true, StatusCode = 200, Result = client };
     }
 
-    public async Task<ClientResult> CreateClientAsync(AddClientFormDto formDto)
-    {
-        var entity = ClientMapper.ToEntity(formDto);
-        var result = await _clientRepository.AddAsync(entity);
-        return new ClientResult { Succeeded = result.Succeeded, StatusCode = result.StatusCode, Error = result.Error };
-    }
-
-    public async Task<ClientResult> UpdateClientAsync(string id, AddClientFormDto formDto)
+    public async Task<ClientResult> UpdateClientAsync(string id, UpdateClientFormDto formDto)
     {
         var existingClient = await _clientRepository.GetAsync(x => x.Id == id);
         if (!existingClient.Succeeded)

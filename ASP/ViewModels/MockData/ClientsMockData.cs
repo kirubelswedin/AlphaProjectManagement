@@ -14,7 +14,7 @@ public static class ClientsMockData
       FirstName = "John",
       LastName = "Anderson",
       Email = "john.anderson@techcorp.com",
-      Phone = "+46 70 123 45 67",
+      PhoneNumber = "+46 70 123 45 67",
       CreatedAt = DateTime.Now.AddMonths(-6)
     },
     new()
@@ -24,7 +24,7 @@ public static class ClientsMockData
       FirstName = "Sarah",
       LastName = "Johnson",
       Email = "sarah.j@healthcareplus.com",
-      Phone = "+46 73 456 78 90",
+      PhoneNumber = "+46 73 456 78 90",
       CreatedAt = DateTime.Now.AddMonths(-4)
     },
     new()
@@ -34,7 +34,7 @@ public static class ClientsMockData
       FirstName = "Michael",
       LastName = "Brown",
       Email = "m.brown@globalsales.com",
-      Phone = "+46 76 789 01 23",
+      PhoneNumber = "+46 76 789 01 23",
       CreatedAt = DateTime.Now.AddMonths(-3)
     },
     new()
@@ -44,7 +44,7 @@ public static class ClientsMockData
       FirstName = "Emma",
       LastName = "Wilson",
       Email = "emma.w@marketingpro.com",
-      Phone = "+46 72 345 67 89",
+      PhoneNumber = "+46 72 345 67 89",
       CreatedAt = DateTime.Now.AddMonths(-2)
     },
     new()
@@ -54,7 +54,7 @@ public static class ClientsMockData
       FirstName = "David",
       LastName = "Lee",
       Email = "david.lee@datavizcorp.com",
-      Phone = "+46 70 987 65 43",
+      PhoneNumber = "+46 70 987 65 43",
       CreatedAt = DateTime.Now.AddMonths(-1)
     }
   };
@@ -85,7 +85,7 @@ public static class ClientsMockData
       FirstName = c.FirstName,
       LastName = c.LastName,
       Email = c.Email,
-      Phone = c.Phone
+      PhoneNumber = c.PhoneNumber
     }).ToList();
   }
 
@@ -101,7 +101,7 @@ public static class ClientsMockData
       FirstName = client.FirstName,
       LastName = client.LastName,
       Email = client.Email,
-      Phone = client.Phone
+      PhoneNumber = client.PhoneNumber
     };
   }
 
@@ -114,7 +114,7 @@ public static class ClientsMockData
       existingClient.FirstName = clientEntity.FirstName;
       existingClient.LastName = clientEntity.LastName;
       existingClient.Email = clientEntity.Email;
-      existingClient.Phone = clientEntity.Phone;
+      existingClient.PhoneNumber = clientEntity.PhoneNumber;
     }
   }
 
