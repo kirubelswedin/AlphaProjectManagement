@@ -1,0 +1,27 @@
+@model ProjectDropdownViewModel
+
+<div class="dropdown-window" data-for="project-dropdown-@Model.Id">
+    <div class="dropdown-content">
+
+        <div class="dropdown-items">
+            <div class="dropdown-item" 
+                 onclick="window.dispatchEvent(new CustomEvent('openModal', { detail: { modalId: 'editprojectmodal', projectId: '@Model.Id' } }))">
+                <i class="fa-duotone fa-solid fa-pencil"></i>
+                <span>Edit Project</span>
+            </div>
+
+            <div class="dropdown-item"
+                onclick="window.dispatchEvent(new CustomEvent('openModal', { detail: { modalId: 'addmembermodal' } }))">
+                <i class="fa-duotone fa-solid fa-user-plus"></i>
+                <span>Add Member</span>
+            </div>
+
+            <div class="dropdown-divider"></div>
+
+            <div class="dropdown-item danger" data-action="delete-project" data-id="@Model.Id">
+                <i class="fa-duotone fa-solid fa-trash-can"></i>
+                <span>Delete Project</span>
+            </div>
+        </div>
+    </div>
+</div>

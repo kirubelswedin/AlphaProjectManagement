@@ -7,7 +7,7 @@ namespace ASP.Controllers;
 [Authorize]
 public class DashboardController : Controller
 {
-    [Route("/admin/dashboard")]
+    [Route("admin/dashboard")]
     public IActionResult Index()
     {
         Console.WriteLine("DashboardController.Index called");
@@ -26,8 +26,7 @@ public class DashboardController : Controller
                 Title = "Dashboard"
             }
         };
-
-        // Add role information to ViewBag
+        
         ViewBag.IsAdmin = User.IsInRole("Admin");
         ViewBag.UserEmail = User.Identity?.Name;
 

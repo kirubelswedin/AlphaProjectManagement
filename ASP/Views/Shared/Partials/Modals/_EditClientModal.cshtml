@@ -1,16 +1,119 @@
-@model AddClientsViewModel
+@model EditClientViewModel
+@{
+    const string modalId = "editclientmodal";
+}
 
-<div id="editClientModal" class="modal">
+<section id="@modalId" class="modal">
     <div class="form-modal-wrapper">
         <div class="form-modal-content">
             <div class="form-modal-header">
                 <h3>Edit Client</h3>
-                <button type="button" class="form-modal-close" data-close="true" data-target="#editClientModal">
+                <button type="button" class="form-modal-close" data-close="true" data-target="#@modalId">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
-                
-                
+            </div>
+            <div class="form-modal-body">
+                <form asp-controller="Clients" asp-action="EditClient" method="post" enctype="multipart/form-data"
+                      id="editClientForm" data-id="edit" novalidate>
+                    
+                    <div asp-validation-summary="ModelOnly" class="field-error"></div>
+                    
+                    <input type="hidden" asp-for="Id"/>
+
+                    <!-- Client Image -->
+                    <div class="form-group">
+                        <label class="form-label hide" asp-for="ImageFile"></label>
+                        <div class="image-preview-container shape-round" data-file-upload>
+                            <img class="hide" alt="Client preview"/>
+                            <div class="circle circle-gray">
+                                <i class="fa-duotone fa-solid fa-camera"></i>
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </div>
+                            <input asp-for="ImageFile" accept="image/*" autocomplete="off"/>
+                        </div>
+                        <span asp-validation-for="ImageFile" class="field-error"></span>
+                    </div>
+
+                    <!-- Client Name -->
+                    <div class="form-group">
+                        <label class="form-label" asp-for="ClientName"></label>
+                        <input asp-for="ClientName" class="form-input" autocomplete="off"/>
+                        <span asp-validation-for="ClientName" class="field-error"></span>
+                    </div>
+
+                    <!-- Contact Person -->
+                    <div class="form-column">
+                        <!-- First Name -->
+                        <div class="form-group half">
+                            <label class="form-label" asp-for="ContactPerson"></label>
+                            <label class="form-label hide" asp-for="FirstName"></label>
+                            <input asp-for="FirstName" class="form-input" autocomplete="off"/>
+                            <span asp-validation-for="FirstName" class="field-error"></span>
+                        </div>
+
+                        <!-- Last Name -->
+                        <div class="form-group half right">
+                            <label class="form-label hide" asp-for="LastName"></label>
+                            <input asp-for="LastName" class="form-input" autocomplete="off"/>
+                            <span asp-validation-for="LastName" class="field-error"></span>
+                        </div>
+                        <input asp-for="ContactPerson" type="hidden" />
+                    </div>
+                    
+
+                    <div class="form-column">
+                        <!-- Email -->
+                        <div class="form-group half">
+                            <label class="form-label" asp-for="Email"></label>
+                            <input asp-for="Email" class="form-input" autocomplete="off"/>
+                            <span asp-validation-for="Email" class="field-error"></span>
+                        </div>
+
+                        <!-- PhoneNumber -->
+                        <div class="form-group half">
+                            <label class="form-label" asp-for="PhoneNumber"></label>
+                            <input asp-for="PhoneNumber" class="form-input" autocomplete="off"/>
+                            <span asp-validation-for="PhoneNumber" class="field-error"></span>
+                        </div>
+                    </div>
+
+                    <!-- Street Address -->
+                    <div class="form-group">
+                        <label class="form-label" asp-for="StreetAddress"></label>
+                        <input asp-for="StreetAddress" class="form-input" autocomplete="off"/>
+                        <span asp-validation-for="StreetAddress" class="field-error"></span>
+                    </div>
+
+                    <div class="form-column">
+                        <!-- Postal Code -->
+                        <div class="form-group half">
+                            <label class="form-label" asp-for="PostalCode"></label>
+                            <input asp-for="PostalCode" class="form-input" autocomplete="off"/>
+                            <span asp-validation-for="PostalCode" class="field-error"></span>
+                        </div>
+
+                        <!-- City -->
+                        <div class="form-group half">
+                            <label class="form-label" asp-for="City"></label>
+                            <input asp-for="City" class="form-input" autocomplete="off"/>
+                            <span asp-validation-for="City" class="field-error"></span>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="form-actions">
+                        @{
+                            var buttonModel = new ButtonViewModel
+                            {
+                                Text = "Save",
+                                IsSubmit = true,
+                                Variant = "primary"
+                            };
+                        }
+                        <partial name="Partials/Components/ui/_Button" model="@buttonModel"/>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-</div>
+</section>

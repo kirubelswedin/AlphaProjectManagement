@@ -1,4 +1,5 @@
 @using System.Security.Claims
+@using ASP.Mappers
 
 @{
     var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
@@ -6,8 +7,12 @@
 
     var displayName = await userService.GetDisplayNameAsync(userId);
     var user = await userManager.FindByIdAsync(userId);
-    var userAvatar = user?.ImageUrl ?? "/images/avatars/Avatar-1.svg";
-
+    var userAvatar = user?.ImageUrl ?? "/images/avatars/default-user.svg";
+    
+    // Get total count of notifications (inkl. dismissed)
+    var totalCount = await notificationService.GetTotalNotificationCountAsync(userId, roleName);
+    
+    // Get notifications that are going to be shown (not dismissed)
     var notificationResult = await notificationService.GetNotificationsAsync(userId, roleName);
     var notifications = (notificationResult.Result ?? []).OrderByDescending(x => x.CreatedAt).ToList();
     var unreadCount = notifications.Count(n => !n.IsRead);
@@ -25,28 +30,36 @@
 </div>
 
 <div class="header-actions">
-
     @* Notification Dropdown *@
     <div class="dropdown-wrapper window" id="notification-dropdown">
+        <button id="notification-dropdown-button" class="dropdown-toggle notification-btn" data-window="dropdown"
+            data-target="notification-dropdown" aria-label="Notification" aria-haspopup="true" aria-expanded="false">
+            <i class="fa-duotone fa-solid fa-bell"></i>
+            @if (unreadCount > 0)
+            {
+                <div class="notification-counter">@unreadCount</div>
+                <span class="notification-indicator"></span>
+            }
+        </button>
+
         @{
             var notificationsModel = new NotificationDropdownViewModel
             {
+                TotalCount = totalCount,
                 UnreadCount = unreadCount,
-                Notifications = notifications.Select(n => new NotificationItemViewModel
-                {
-                    Id = n.Id,
-                    Message = n.Message,
-                    Image = n.ImageUrl,
-                    CreatedAt = n.CreatedAt,
-                    IsRead = n.IsRead
-                }).ToList()
+                Notifications = notifications.Select(NotificationViewModelMapper.ToViewModel).ToList()
             };
         }
-        <partial name="Partials/Components/Dropdowns/_NotificationDropdown" model="@notificationsModel" />
+        <partial name="Partials/Components/Header/_NotificationDropdown" model="@notificationsModel" />
     </div>
 
     @* Profile Dropdown *@
-    <div class="dropdown-wrapper window" id="profile-dropdown">
+    <div class="dropdown-wrapper" id="profile-dropdown">
+        <button id="profile-dropdown-button" class="dropdown-toggle user-profile-btn" data-window="dropdown"
+            data-target="profile-dropdown" aria-label="User Profile" aria-haspopup="true" aria-expanded="false">
+            <img src="@userAvatar" alt="User avatar" />
+        </button>
+
         @{
             var profileModel = new ProfileDropdownViewModel
             {
@@ -57,6 +70,6 @@
                 LogoutUrl = Url.Action("Logout", "Auth") ?? "#"
             };
         }
-        <partial name="Partials/Components/Dropdowns/_ProfileDropdown" model="@profileModel" />
+        <partial name="Partials/Components/Header/_ProfileDropdown" model="@profileModel" />
     </div>
 </div>

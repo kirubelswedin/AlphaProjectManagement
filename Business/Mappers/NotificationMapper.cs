@@ -15,6 +15,7 @@ public static class NotificationMapper
       NotificationTargetId = dto.NotificationTargetId,
       Title = dto.Title,
       ImageUrl = dto.ImageUrl,
+      ImageType = dto.ImageType,
       Message = dto.Message,
       CreatedAt = dto.CreatedAt,
       IsRead = false
@@ -26,11 +27,11 @@ public static class NotificationMapper
     return new Notification
     {
       Id = entity.Id,
-      ImageUrl = entity.ImageUrl ?? "/images/avatars/Avatar-1.svg",
+      ImageUrl = entity.ImageUrl,
+      ImageType = entity.ImageType,
       Message = entity.Message,
       IsRead = entity.IsRead,
       CreatedAt = entity.CreatedAt
     };
   }
 }
-

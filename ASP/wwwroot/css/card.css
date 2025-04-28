@@ -47,5 +47,5 @@
 
 .avatar span {
 	font-weight: 500;
-	color: white;
+	color: var(--primary-text)
 }

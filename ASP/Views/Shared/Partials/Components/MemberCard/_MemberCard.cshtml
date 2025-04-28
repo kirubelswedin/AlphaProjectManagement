@@ -1,19 +1,27 @@
 @model MemberCardViewModel
 
 <div class="member-card">
+
     <div class="member-header">
         <div class="member-avatar">
-            @if (!string.IsNullOrEmpty(Model.Avatar))
+            @if (!string.IsNullOrEmpty(Model.ImageUrl))
             {
-                <img src="@Model.Avatar" alt="Member avatar" />
+                <img src="@Model.ImageUrl" alt="Member avatar" />
             }
         </div>
         <div class="member-info">
             <h3>@Model.FirstName @Model.LastName</h3>
             <span>@Model.JobTitle</span>
         </div>
+
     </div>
-    <div class="dropdown-wrapper window" id="member-dropdown-@Model.Id">
+
+    @* dropdown *@
+    <div class="dropdown-wrapper" id="member-dropdown-@Model.Id">
+        <button class="dropdown-toggle" data-window="dropdown" data-target="member-dropdown-@Model.Id"
+            aria-label="Member menu" aria-haspopup="true" aria-expanded="false">
+            <span class="dots"></span>
+        </button>
         @{
             var memberDropdownModel = new MemberDropdownViewModel
             {
@@ -21,8 +29,9 @@
                 IsAdmin = Model.IsAdmin
             };
         }
-        <partial name="Partials/Components/Dropdowns/_MemberDropdown" model="@memberDropdownModel" />
+        <partial name="Partials/Components/MemberCard/_MemberDropdown" model="@memberDropdownModel" />
     </div>
+
     <div class="member-contact">
         <div class="contact-item">
             <i class="fa-duotone fa-solid fa-envelope"></i>
@@ -37,6 +46,7 @@
             <span>@Model.FullAddress</span>
         </div>
     </div>
+
     @{
         var messageButton = new ButtonViewModel
         {

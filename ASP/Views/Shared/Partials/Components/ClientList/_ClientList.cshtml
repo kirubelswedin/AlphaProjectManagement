@@ -1,10 +1,10 @@
-@model IEnumerable<Domain.Models.Client>
+@model IEnumerable<ClientListViewModel>
 
 @{
   var clients = Model.ToList();
 }
 
-<section class="client-list-container">
+<div class="client-list-container">
   <div class="client-list-scroll">
     @if (clients.Count == 0)
     {
@@ -21,7 +21,7 @@
               <th class="checkbox-column">
                 <input type="checkbox" id="selectAllClients" onchange="toggleSelectAllClient(this)" />
               </th>
-              <th class="client-image">Logo / Image</th>
+              <th class="client-image">Image</th>
               <th class="client-name">Company Name</th>
               <th class="client-contact">Contact Person</th>
               <th class="client-email">Email</th>
@@ -38,14 +38,7 @@
                   <input type="checkbox" class="client-checkbox" data-id="@client.Id" onchange="toggleSelectClient(this)" />
                 </td>
                 <td class="client-info">
-                  @if (!string.IsNullOrEmpty(client.ImageUrl))
-                  {
-                    <img class="client-image" src="@client.ImageUrl" alt="@client.ClientName" />
-                  }
-                  else
-                  {
-                    <img class="client-image" src="~/images/alpha-logotype-symbol.svg" alt="@client.ClientName" />
-                  }
+                  <img src="@client.ImageUrl" alt="@client.ClientName" />
                 </td>
                 <td class="client-name">@client.ClientName</td>
                 <td class="client-contact">@client.ContactPerson</td>
@@ -74,16 +67,16 @@
               Id = client.Id
             };
           }
-          <partial name="Partials/Components/Dropdowns/_ClientDropdown" model="@clientDropdownModel" />
+          <partial name="Partials/Components/ClientList/_ClientDropdown" model="@clientDropdownModel" />
         </div>
       }
 
-      <div class="selected-clients-info hide">
+      <div class="selected-clients-info ">
         <span id="selectedClientsCount">(0 selected)</span>
-        <button class="unselect-all" onclick="unselectAllClient()">
+        <button class="unselect-all hide" onclick="unselectAllClient()">
           Unselect all
         </button>
       </div>
     }
   </div>
-</section>
+</div>

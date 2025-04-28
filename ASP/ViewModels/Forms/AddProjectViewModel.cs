@@ -1,25 +1,25 @@
 using System.ComponentModel.DataAnnotations;
+using ASP.ViewModels.Components;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 
-namespace ASP.ViewModels.forms;
+namespace ASP.ViewModels.Forms;
 
 public class AddProjectViewModel
 {
-    public IEnumerable<SelectListItem> Clients { get; set; } = [];
-    public IEnumerable<SelectListItem> Members { get; set; } = [];
 
     [DataType(DataType.Upload)]
     [Display(Name = "Image")]
     public IFormFile? ImageFile { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "Project name is required")]
     [Display(Name = "Project Name", Prompt = "Enter project name")]
     public string ProjectName { get; set; } = null!;
 
-    [Required]
+    [Required(ErrorMessage = "Client is required")]
     [Display(Name = "Client", Prompt = "Select client")]
     public string ClientId { get; set; } = null!;
+    public IEnumerable<SelectListItem> Clients { get; set; } = [];
 
     [DataType(DataType.Text)]
     [Display(Name = "Description", Prompt = "Type something")]
@@ -32,11 +32,13 @@ public class AddProjectViewModel
     [DataType(DataType.Date)]
     [Display(Name = "End Date", Prompt = "Select end date")]
     public DateTime? EndDate { get; set; }
-
-    [Required]
+    
     [Display(Name = "Members", Prompt = "Select members")]
-    public List<string> UserIds { get; set; } = [];
-
+    public IEnumerable<SelectListItem> AllMembers { get; set; } = [];
+    public List<ProjectMemberViewModel> ProjectMembers { get; set; } = [];
+    
+    public string[] SelectedMemberIds { get; set; } = [];
+    
     [DataType(DataType.Currency)]
     [Display(Name = "Budget", Prompt = "Enter budget")]
     public decimal? Budget { get; set; }

@@ -3,48 +3,49 @@
 <div class="project-card">
   <div class="project-header">
     <div class="project-image">
-      <img src="@Model.ProjectImage" alt="Project image" />
+      <img src="@Model.ImageUrl" alt="Project image" />
     </div>
     <div class="project-info">
       <h3>@Model.ProjectName</h3>
       <p>@Model.ClientName</p>
-      <div class="project-status @Model.Status.ToString()?.ToLower()">
-        @Model.Status.ToString()?.Replace("Not", "Not ")
+      <div class="project-status @Model.Status.StatusName.ToLower().Replace(" ", "")">
+        @Model.Status.StatusName
       </div>
     </div>
-    <div class="dropdown-wrapper window" id="project-dropdown-@Model.Id">
+
+    @* dropdown *@
+    <div class="dropdown-wrapper" id="project-dropdown-@Model.Id">
+      <button class="dropdown-toggle" data-window="dropdown" data-target="project-dropdown-@Model.Id"
+              aria-label="Project menu" aria-haspopup="true" aria-expanded="false">
+        <span class="dots"></span>
+      </button>
       @{
         var projectDropdownModel = new ProjectDropdownViewModel
         {
           Id = Model.Id
         };
       }
-      <partial name="Partials/Components/Dropdowns/_ProjectDropdown" model="@projectDropdownModel" />
+      <partial name="Partials/Components/ProjectCard/_ProjectDropdown" model="@projectDropdownModel" />
     </div>
   </div>
-  <div class="project-description">
-    <p>@Model.Description</p>
+
+  <div class="project-description ">
+    @Html.Raw(Model.Description)
   </div>
+
   <div class="project-footer">
     <partial name="Partials/Components/ProjectCard/_ProjectDeadline" model="@Model" />
-    <div class="team-members">
-      @{
-        var displayMembers = Model.Members.Take(4).ToList();
-        var remainingCount = Model.Members.Count - 4;
-      }
-      @foreach (var member in displayMembers)
+    
+    <div class="team-members" id="team-members-@Model.Id">
+      @foreach (var member in Model.AllMembers)
       {
-        <div class="avatar">
-          <img src="@(member.Avatar ?? "/images/avatars/default-avatar.svg")"
-            alt="@($"{member.FirstName} {member.LastName}")" />
+        <div class="avatar" title="@($"{member.FirstName} {member.LastName}")">
+          <img src="@member.ImageUrl" alt="@($"{member.FirstName} {member.LastName}")" />
         </div>
       }
-      @if (remainingCount > 0)
-      {
-        <div class="avatar more-members">
-          <span>+@remainingCount</span>
-        </div>
-      }
+      <div class="avatar more-members hide"><span></span></div>
     </div>
+    
   </div>
+  
 </div>

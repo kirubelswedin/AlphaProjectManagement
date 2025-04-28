@@ -11,40 +11,36 @@ namespace Business.Services;
 
 public interface INotificationService
 {
-    Task<NotificationResult> AddNotificationAsync(NotificationDetailsDto detailsDto, string userId = "");
+    Task<NotificationResult<Notification>> AddNotificationAsync(NotificationDetailsDto detailsDto, string userId = "");
     Task<NotificationResult<IEnumerable<Notification>>> GetNotificationsAsync(string userId, string? roleName = null, int take = 10);
+    Task<int> GetTotalNotificationCountAsync(string userId, string? roleName = null);
     Task DismissNotificationAsync(string notificationId, string userId);
 }
 
-public class NotificationService(INotificationRepository notificationRepository, INotificationTypeRepository notificationTypeRepository, INotificationTargetRepository notificationTargetRepository, INotificationDismissedRepository notificationDismissedRepository, IHubContext<NotificationHub> notificationHub) : INotificationService
+public class NotificationService(INotificationRepository notificationRepository, INotificationDismissedRepository notificationDismissedRepository, IHubContext<NotificationHub> notificationHub) : INotificationService
 {
     private readonly INotificationRepository _notificationRepository = notificationRepository;
-    private readonly INotificationTypeRepository _notificationTypeRepository = notificationTypeRepository;
-    private readonly INotificationTargetRepository _notificationTargetRepository = notificationTargetRepository;
     private readonly INotificationDismissedRepository _notificationDismissedRepository = notificationDismissedRepository;
     private readonly IHubContext<NotificationHub> _notificationHub = notificationHub;
 
-    public async Task<NotificationResult> AddNotificationAsync(NotificationDetailsDto? detailsDto, string userId = "")
+    public async Task<NotificationResult<Notification>> AddNotificationAsync(NotificationDetailsDto? detailsDto, string userId = "")
     {
-        if (detailsDto == null)
-            return new NotificationResult { Succeeded = false, StatusCode = 400 };
+        Console.WriteLine($"[AddNotificationAsync] NotificationTypeId={detailsDto?.NotificationTypeId}, ImageUrl='{detailsDto?.ImageUrl}'");
 
-        if (string.IsNullOrEmpty(detailsDto.ImageUrl))
+        if (detailsDto == null)
+            return new NotificationResult<Notification> { Succeeded = false, StatusCode = 400 };
+        
+        if (string.IsNullOrEmpty(detailsDto.ImageType))
         {
-            detailsDto.ImageUrl = detailsDto.NotificationTypeId switch
+            detailsDto.ImageType = detailsDto.NotificationTypeId switch
             {
-                1 => "avatar-1.svg",
-                2 => "ImageFile-1.svg",
-                _ => detailsDto.ImageUrl
+                1 => "avatars",  // user
+                2 => "members",
+                3 => "projects",
+                4 => "clients",
+                _ => "avatars"
             };
         }
-
-        detailsDto.ImageUrl = detailsDto.NotificationTypeId switch
-        {
-            1 => $"/images/profiles/{detailsDto.ImageUrl}",
-            2 => $"/images/projects/{detailsDto.ImageUrl}",
-            _ => detailsDto.ImageUrl
-        };
 
         var notificationEntity = NotificationMapper.ToEntity(detailsDto);
         var result = await _notificationRepository.AddAsync(notificationEntity);
@@ -59,11 +55,11 @@ public class NotificationService(INotificationRepository notificationRepository,
         }
 
         return result.Succeeded
-            ? new NotificationResult { Succeeded = true, StatusCode = 200 }
-            : new NotificationResult { Succeeded = false, StatusCode = result.StatusCode, Error = result.Error };
+            ? new NotificationResult<Notification> { Succeeded = true, StatusCode = 200 }
+            : new NotificationResult<Notification> { Succeeded = false, StatusCode = result.StatusCode, Error = result.Error };
     }
 
-    public async Task<NotificationResult<IEnumerable<Notification>>> GetNotificationsAsync(string userId, string? roleName = null, int take = 10)
+    public async Task<NotificationResult<IEnumerable<Notification>>> GetNotificationsAsync(string userId, string? roleName = null, int take = 0)
     {
         const string adminTargetName = "Admin";
         var dismissedNotificationResult = await _notificationDismissedRepository.GetNotificationsIdsAsync(userId);
@@ -72,7 +68,7 @@ public class NotificationService(INotificationRepository notificationRepository,
         var notificationResult = (!string.IsNullOrEmpty(roleName) && roleName == adminTargetName)
             ? await _notificationRepository.GetAllAsync(orderByDescending: true, sortByColumn: x => x.CreatedAt,
                 filterBy: x => !dismissedNotificationIds!.Contains(x.Id), take: take)
-
+            
             : await _notificationRepository.GetAllAsync(orderByDescending: true, sortByColumn: x => x.CreatedAt,
                 filterBy: x => !dismissedNotificationIds!.Contains(x.Id) && x.NotificationTarget.TargetName != adminTargetName, take: take,
                 includes: x => x.NotificationTarget);
@@ -82,6 +78,22 @@ public class NotificationService(INotificationRepository notificationRepository,
 
         var notifications = notificationResult.Result!.Select(NotificationMapper.ToModel);
         return new NotificationResult<IEnumerable<Notification>> { Succeeded = true, StatusCode = 200, Result = notifications };
+    }
+    
+    public async Task<int> GetTotalNotificationCountAsync(string userId, string? roleName = null)
+    {
+        const string adminTargetName = "Admin";
+        // Hämta notifications för rätt target (t.ex. Admin)
+        var notificationResult = (!string.IsNullOrEmpty(roleName) && roleName == adminTargetName)
+            ? await _notificationRepository.GetAllAsync(
+                filterBy: x => true // Alla notifications för admin
+            )
+            : await _notificationRepository.GetAllAsync(
+                filterBy: x => x.NotificationTarget.TargetName != adminTargetName,
+                includes: x => x.NotificationTarget
+            );
+
+        return notificationResult.Result?.Count() ?? 0;
     }
 
     public async Task DismissNotificationAsync(string notificationId, string userId)
@@ -96,7 +108,7 @@ public class NotificationService(INotificationRepository notificationRepository,
             };
 
             await _notificationDismissedRepository.AddAsync(entity);
-            await _notificationHub.Clients.User(userId).SendAsync("NotificationDismissed", notificationId);
+            await _notificationHub.Clients.All.SendAsync("NotificationDismissed", notificationId);
         }
     }
 }

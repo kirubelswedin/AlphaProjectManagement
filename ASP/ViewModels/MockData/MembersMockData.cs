@@ -9,7 +9,7 @@ public static class MembersMockData
         new MemberCardViewModel
         {
             Id = "tm1",
-            Avatar = "/images/avatars/Avatar-1.svg",
+            ImageUrl = "/images/avatars/Avatar-1.svg",
             FirstName = "Anna",
             LastName = "Johansson",
             Email = "anna.johansson@example.com",
@@ -22,7 +22,7 @@ public static class MembersMockData
         new MemberCardViewModel
         {
             Id = "tm2",
-            Avatar = "/images/avatars/Avatar-2.svg",
+            ImageUrl = "/images/avatars/Avatar-2.svg",
             FirstName = "Erik",
             LastName = "Lindberg",
             Email = "erik.lindberg@example.com",
@@ -35,7 +35,7 @@ public static class MembersMockData
         new MemberCardViewModel
         {
             Id = "tm3",
-            Avatar = "/images/avatars/Avatar-3.svg",
+            ImageUrl = "/images/avatars/Avatar-3.svg",
             FirstName = "Maria",
             LastName = "Svensson",
             Email = "maria.svensson@example.com",
@@ -48,7 +48,7 @@ public static class MembersMockData
         new MemberCardViewModel
         {
             Id = "tm4",
-            Avatar = "/images/avatars/Avatar-4.svg",
+            ImageUrl = "/images/avatars/Avatar-4.svg",
             FirstName = "Johan",
             LastName = "Andersson",
             Email = "johan.andersson@example.com",
@@ -61,7 +61,7 @@ public static class MembersMockData
         new MemberCardViewModel
         {
             Id = "tm5",
-            Avatar = "/images/avatars/Avatar-5.svg",
+            ImageUrl = "/images/avatars/Avatar-5.svg",
             FirstName = "Lena",
             LastName = "Björk",
             Email = "lena.bjork@example.com",
@@ -74,7 +74,7 @@ public static class MembersMockData
         new MemberCardViewModel
         {
             Id = "tm6",
-            Avatar = "/images/avatars/Avatar-6.svg",
+            ImageUrl = "/images/avatars/Avatar-6.svg",
             FirstName = "Martin",
             LastName = "Ekström",
             Email = "martin.ekstrom@example.com",
@@ -87,7 +87,7 @@ public static class MembersMockData
         new MemberCardViewModel
         {
             Id = "tm7",
-            Avatar = "/images/avatars/Avatar-7.svg",
+            ImageUrl = "/images/avatars/Avatar-7.svg",
             FirstName = "Karin",
             LastName = "Nilsson",
             Email = "karin.nilsson@example.com",
@@ -100,7 +100,7 @@ public static class MembersMockData
         new MemberCardViewModel
         {
             Id = "tm8",
-            Avatar = "/images/avatars/Avatar-8.svg",
+            ImageUrl = "/images/avatars/Avatar-8.svg",
             FirstName = "Anders",
             LastName = "Larsson",
             Email = "anders.larsson@example.com",
@@ -117,15 +117,15 @@ public static class MembersMockData
         return _members;
     }
 
-    public static List<MemberViewModel> GetRandomMembers(int count)
+    public static List<ProjectMemberViewModel> GetRandomMembers(int count)
     {
         return _members
             .OrderBy(x => Guid.NewGuid())
             .Take(count)
-            .Select(m => new MemberViewModel
+            .Select(m => new ProjectMemberViewModel
             {
                 Id = m.Id,
-                Avatar = m.Avatar,
+                ImageUrl = m.ImageUrl,
             })
             .ToList();
     }

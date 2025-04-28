@@ -1,7 +1,7 @@
 .project-card {
 	background-color: var(--surface-background);
 	border-radius: 1.25rem;
-	padding: 1.75rem;
+	padding: 1.55rem;
 	box-shadow: var(--box-shadow-1);
 	display: flex;
 	flex-direction: column;
@@ -35,14 +35,14 @@
 	flex-grow: 1;
 
 	&.project-info h3 {
-		font-size: 1.2rem;
+		font-size: 1.1rem;
 		font-weight: 400;
 		margin: 0;
 	}
 
 	&.project-info p {
 		margin: 0;
-		font-size: 1rem;
+		font-size: 0.84rem;
 		font-weight: 300;
 		color: var(--secondary-text);
 	}
@@ -50,7 +50,7 @@
 
 .project-status {
 	display: inline-block;
-	font-size: 0.75rem;
+	font-size: 0.65rem;
 	font-weight: 500;
 	padding: 0.25rem 0.5rem;
 	border-radius: 0.5rem;
@@ -99,6 +99,8 @@
 	justify-content: space-between;
 	align-items: center;
 	margin-top: auto;
+	width: 100%;
+	gap: 1rem;
 }
 
 .deadline {
@@ -111,6 +113,7 @@
 	font-size: 1rem;
 	color: var(--deadline-text);
 	font-weight: 500;
+	white-space: nowrap;
 
 	& i {
 		color: var(--deadline-icon);
@@ -119,71 +122,78 @@
 	& span {
 		font-size: 0.9rem;
 	}
-}
-
-.deadline.urgent {
-	background-color: var(--red-deadline-background);
-	color: var(--red-deadline-text);
-
-	&.deadline.urgent i {
-		color: var(--red-deadline-icon);
+	
+	&.urgent {
+		background-color: var(--red-deadline-background);
+		color: var(--red-deadline-text);
+	
+		&&.urgent i {
+			color: var(--red-deadline-icon);
+		}
 	}
-}
-
-.deadline.completed-success {
-	background: linear-gradient(
-		to top,
-		rgba(48, 212, 130, 0.3) 0%,
-		rgba(48, 212, 130, 0.05) 100%
-	);
-	color: var(--deadline-success);
-
-	& i {
+	
+	&.completed-success {
+		background: linear-gradient(
+			to top,
+			rgba(48, 212, 130, 0.3) 0%,
+			rgba(48, 212, 130, 0.05) 100%
+		);
 		color: var(--deadline-success);
+	
+		& i {
+			color: var(--deadline-success);
+		}
 	}
-}
-
-.deadline.completed-overdue {
-	background: linear-gradient(
-		to top,
-		rgba(233, 78, 63, 0.3) 0%,
-		rgba(233, 78, 63, 0.05) 100%
-	);
-	color: var(--deadline-overdue);
-
-	& i {
+	
+	&.completed-overdue {
+		background: linear-gradient(
+			to top,
+			rgba(233, 78, 63, 0.3) 0%,
+			rgba(233, 78, 63, 0.05) 100%
+		);
 		color: var(--deadline-overdue);
+	
+		& i {
+			color: var(--deadline-overdue);
+		}
 	}
 }
 
-/*.team-members {*/
-/*	display: flex;*/
-/*	align-items: center;*/
-/*	gap: 0.5rem;*/
 
-/*	&.team-members .avatar {*/
-/*		width: 2.25rem;*/
-/*		height: 2.25rem;*/
-/*		border-radius: 50%;*/
-/*		overflow: hidden;*/
+.team-members {
+	display: flex;
+	align-items: center;
+	min-width: 0;
+	max-width: 100%;
+	position: relative;
+	
+	& .avatar {
+		width: 2.25rem;
+		height: 2.25rem;
+		border-radius: 50%;
+		overflow: hidden;
+		border: var(--avatars-border);
+		position: relative;
+		margin-left: -0.5rem;
+		transition: transform 0.2s;
+		flex-shrink: 0;
+	}
+	
+	& .avatar:first-child {
+		margin-left: 0; 
+	}
+	
+	& .avatar:hover,
+	& .avatar:focus {
+		z-index: 2; 
+		transform: scale(1.4) translateY(-0.2rem);
+	}
+	
+	& .avatar.more-members {
+		background: var(--main-background);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+}
 
-/*		& img {*/
-/*			width: 100%;*/
-/*			height: 100%;*/
-/*			object-fit: cover;*/
-/*		}*/
-
-/*		&.more-members {*/
-/*			background: var(--primary-gradient);*/
-/*			display: flex;*/
-/*			align-items: center;*/
-/*			justify-content: center;*/
-
-/*			& span {*/
-/*				color: var(--text-white);*/
-/*				font-size: 0.75rem;*/
-/*				font-weight: 600;*/
-/*			}*/
-/*		}*/
-/*	}*/
-/*}*/

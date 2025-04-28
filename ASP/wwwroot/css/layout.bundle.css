@@ -1,18 +1,15 @@
 /* Layout */
 @import url("./header.css");
 @import url("./sidebar.css");
-@import url("./pageHeader.css");
 @import url("./mobileMenu.css");
 
 
 /* Components */
 @import url("./form.css");
 @import url("./button.css");
-@import url("./card.css");
 @import url("./dropdownWindow.css");
-@import url("./selector.css");
-@import url("./tabFilter.css");
-@import url("./projectCard.css");
+@import url("./card.css");
 @import url("./projects.css");
+@import url("./projectCard.css");
 @import url("./memberCard.css");
 @import url("./clientList.css");

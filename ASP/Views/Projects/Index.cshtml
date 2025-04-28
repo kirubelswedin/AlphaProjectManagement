@@ -13,7 +13,6 @@
         @foreach (var project in Model.Projects)
         {
             <partial name="Partials/Components/ProjectCard/_ProjectCard" model="@project" />
-            <partial name="Partials/Modals/_DeleteProjectModal" model="@project.Id" />
         }
     </section>
 

@@ -1,9 +1,7 @@
-@using System.Security.Claims
 @model AddProjectViewModel
 
 @{
-  var modalId = "addprojectmodal";
-  var selectedUsersJson = "[]";
+  const string modalId = "addprojectmodal";
 }
 
 
@@ -17,31 +15,30 @@
         </button>
       </div>
       <div class="form-modal-body">
-        <form asp-controller="Projects" asp-action="AddProject" method="post" enctype="multipart/form-data" novalidate
-          id="projectForm" data-id="add">
-          @Html.AntiForgeryToken()
-          <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-          <input type="hidden" name="UserId" value="@User.FindFirstValue(ClaimTypes.NameIdentifier)" />
+        <form asp-controller="Projects" asp-action="AddProject" method="post" enctype="multipart/form-data"
+              id="addProjectForm" data-id="add" novalidate>
+          
+          <div asp-validation-summary="ModelOnly" class="field-error"></div>
 
           <!-- Project Image -->
           <div class="form-group">
             <label class="form-label hide" asp-for="ImageFile"></label>
             <div class="image-preview-container shape-square" data-file-upload>
-              <img class="hide" alt="Project preview" />
-              <div class="circle circle-gray upload-overlay">
+              <img class="hide" alt="Project preview"/>
+              <div class="circle circle-gray">
                 <i class="fa-duotone fa-solid fa-camera"></i>
+                <i class="fa-solid fa-pen-to-square"></i>
               </div>
-              <input asp-for="ImageFile" accept="image/*" autocomplete="off" />
+              <input asp-for="ImageFile" accept="image/*" autocomplete="off"/>
             </div>
-            <span class="field-error" data-valmsg-for="ImageFile"></span>
+            <span asp-validation-for="ImageFile" class="field-error"></span>
           </div>
 
           <!-- Project Name -->
           <div class="form-group">
             <label class="form-label" asp-for="ProjectName"></label>
-            <input asp-for="ProjectName" class="form-input" autocomplete="off" />
-            <span class="field-error" data-valmsg-for="ProjectName"></span>
+            <input asp-for="ProjectName" class="form-input" autocomplete="off"/>
+            <span asp-validation-for="ProjectName" class="field-error"></span>
           </div>
 
           <!-- Client Selector -->
@@ -51,7 +48,7 @@
               <select asp-for="ClientId" asp-items="@Model.Clients" class="form-input">
                 <option value="">-- Select Client --</option>
               </select>
-              <span class="field-error" data-valmsg-for="ClientId"></span>
+              <span asp-validation-for="ClientId" class="field-error"></span>
             </div>
           </div>
 
@@ -81,39 +78,40 @@
                 </span>
               </div>
             </div>
-            <span class="field-error" data-valmsg-for="Description"></span>
+            <span asp-validation-for="Description" class="field-error"></span>
           </div>
 
           <div class="form-column">
             <!-- Start Date -->
             <div class="form-group half">
               <label class="form-label" asp-for="StartDate"></label>
-              <input asp-for="StartDate" class="form-input" autocomplete="off" />
-              <span class="field-error" data-valmsg-for="StartDate"></span>
+              <input asp-for="StartDate" class="form-input" autocomplete="off"/>
+              <span asp-validation-for="StartDate" class="field-error"></span>
             </div>
 
             <!-- End Date -->
             <div class="form-group half">
               <label class="form-label" asp-for="EndDate"></label>
-              <input asp-for="EndDate" class="form-input" autocomplete="off" />
-              <span class="field-error" data-valmsg-for="EndDate"></span>
+              <input asp-for="EndDate" class="form-input" autocomplete="off"/>
+              <span asp-validation-for="EndDate" class="field-error"></span>
             </div>
           </div>
 
           <!-- Member Selector -->
-          <div class="form-group">
-            <label asp-for="UserIds">Team Members</label>
+          <div class="form-group ">
+            <label asp-for="ProjectMembers" class="form-label">Team Members</label>
             <div class="member-selector">
-              <div class="selected-members" id="selected-members">
+              <div class="selected-members" id="selected-members-add">
                 @*  *@
               </div>
               <div class="search-container">
-                <input type="text" id="member-search" placeholder="Search members..." />
+                <input type="text" id="member-search-add" placeholder="Search members..."/>
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <div id="search-results" class="search-results"></div>
+                <div id="search-results-add" class="search-results"></div>
               </div>
             </div>
-            <input type="hidden" asp-for="UserIds" id="UserIds" />
+            <select id="SelectedMemberIdsAdd" name="SelectedMemberIds" multiple="multiple" class="hide"></select>
+            <span asp-validation-for="SelectedMemberIds" class="field-error"></span>
           </div>
 
           <!-- Budget -->
@@ -121,9 +119,9 @@
             <label class="form-label" asp-for="Budget"></label>
             <div class="currency-input">
               <span class="currency-symbol">$</span>
-              <input asp-for="Budget" type="number" step="0.01" class="form-input" autocomplete="off" />
+              <input asp-for="Budget" type="number" step="0.01" class="form-input" autocomplete="off"/>
             </div>
-            <span class="field-error" data-valmsg-for="Budget"></span>
+            <span asp-validation-for="Budget" class="field-error"></span>
           </div>
 
           <!-- Submit Button -->
@@ -136,36 +134,10 @@
                 Variant = "primary"
               };
             }
-            <partial name="Partials/Components/ui/_Button" model="@buttonModel" />
+            <partial name="Partials/Components/ui/_Button" model="@buttonModel"/>
           </div>
         </form>
       </div>
     </div>
   </div>
 </section>
-
-<script>
-  const preSelectedUsers = @Html.Raw(selectedUsersJson);
-
-  initWysiwygEditor(
-    '#add-project-description-editor',
-    '#add-project-description-toolbar',
-    '#add-project-description',
-    '@Html.Raw(Model.Description ?? "")'
-  );
-
-  document.addEventListener('DOMContentLoaded', function () {
-    initTagSelector({
-      containerId: 'selected-members',
-      inputId: 'member-search',
-      resultsId: 'search-results',
-      searchUrl: (query) => '@Url.Action("SearchMembers", "Projects")?term=' + encodeURIComponent(query),
-      displayProperty: 'fullName',
-      imageProperty: 'imageUrl',
-      tagClass: 'member-tag',
-      emptyMessage: 'No members found.',
-      preSelectedItems: [],
-      selectedInputsIds: 'UserIds'
-    });
-  });
-</script>

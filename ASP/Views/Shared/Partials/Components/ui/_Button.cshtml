@@ -1,9 +1,10 @@
 @model ButtonViewModel
 
-<button type="@(Model.IsSubmit ? "submit" : "button")"
-        class="base-button @(Model.Variant)-button @Model.AdditionalClasses" @if (Model.OnClick != null) {
-                                                                               @Html.Raw($"onclick=\"{Model.OnClick}\"")
-                                                                             }
+<button type="@(Model.IsSubmit ? "submit" : "button")" class="base-button @(Model.Variant)-button @Model.AdditionalClasses" 
+        @if (Model.OnClick != null) 
+        {
+          @Html.Raw($"onclick=\"{Model.OnClick}\"")
+        }
         @if (Model.DataAttributes != null)
         {
           foreach (var attr in
@@ -12,7 +13,7 @@
             @Html.Raw($"data-{attr.Key}=\"{attr.Value}\"")
           }
         }
->
+        >
   @if (!string.IsNullOrEmpty(Model.Icon))
   {
     <span class="button-icon">@Html.Raw(Model.Icon)</span>

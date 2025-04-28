@@ -18,9 +18,8 @@ public class ProjectEntity
     [MaxLength(100)]
     public string ProjectName { get; set; } = null!;
 
-    [Required]
     [MaxLength(500)]
-    public string? Description { get; set; } = null!;
+    public string? Description { get; set; }
 
     [DataType(DataType.Date)]
     [Column(TypeName = "date")]

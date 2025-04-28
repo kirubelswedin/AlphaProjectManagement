@@ -16,17 +16,17 @@ public class AddProjectFormDto
     [DataType(DataType.Text)]
     public string? Description { get; set; } = null!;
 
-    [Required]
+    [Required(ErrorMessage = "Start date is required")]
     [DataType(DataType.Date)]
     public DateTime StartDate { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "End date is required")]
     [DataType(DataType.Date)]
     public DateTime EndDate { get; set; }
-    
-    [Required(ErrorMessage = "At least one Team member are required")]
-    public string UserId { get; set; } = null!;
 
+    [Required(ErrorMessage = "At least one project member is required")]
+    public List<string> SelectedMemberIds { get; set; } = [];
+    
     [DataType(DataType.Currency)]
     public decimal? Budget { get; set; }
 }

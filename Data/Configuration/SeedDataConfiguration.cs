@@ -4,7 +4,6 @@ namespace Data.Configuration;
 
 public static class SeedDataConfiguration
 {
-  #region Notification Configuration
   public static IEnumerable<NotificationTypeEntity> GetNotificationTypes()
   {
     return new[]
@@ -24,9 +23,7 @@ public static class SeedDataConfiguration
             new NotificationTargetEntity { TargetName = "Admins" }
         };
   }
-  #endregion
-
-  #region Status Configuration
+  
   private static StatusEntity CreateProjectStatus(string name, int sortOrder, string color, bool isDefault = false)
   {
     return new StatusEntity
@@ -51,9 +48,7 @@ public static class SeedDataConfiguration
             CreateProjectStatus("Cancelled", 5, "#e94e3fff")
         };
   }
-  #endregion
-
-  #region Project Role Configuration
+  
   private static ProjectRoleEntity CreateProjectRole(string id, string name, string description, bool isDefault = false)
   {
     return new ProjectRoleEntity
@@ -76,5 +71,4 @@ public static class SeedDataConfiguration
             CreateProjectRole("3", "Admin", "Administrate Project, Members and Clients")
         };
   }
-  #endregion
 }

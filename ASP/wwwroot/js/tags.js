@@ -5,7 +5,14 @@ function initTagSelector(config) {
 	const container = document.getElementById(config.containerId);
 	const searchInput = document.getElementById(config.inputId);
 	const searchResults = document.getElementById(config.resultsId);
-	const hiddenInput = document.getElementById(config.selectedInputsIds);
+	const selectElement = document.getElementById(config.selectedInputIds);
+
+	if (!selectElement) return;
+
+	// --- Rensa DOM och state ---
+	container.innerHTML = '';
+	selectElement.innerHTML = '';
+	selectedIds = [];
 
 	if (Array.isArray(config.preSelectedItems)) {
 		config.preSelectedItems.forEach((item) => addTag(item));
@@ -21,19 +28,21 @@ function initTagSelector(config) {
 		}, 200);
 	});
 
-	searchInput.addEventListener("input", () => {
+	searchInput.addEventListener('input', () => {
 		const query = searchInput.value.trim();
 		activeIndex = -1;
 
 		if (query.length === 0) {
-			searchResults.classList.remove("show");
-			searchResults.innerHTML = "";
+			searchResults.style.display = 'none';
+			searchResults.innerHTML = '';
 			return;
 		}
 
 		fetch(config.searchUrl(query))
-			.then((r) => r.json())
-			.then((data) => renderSearchResults(data));
+			.then(r => r.json())
+			.then(data => {
+				renderSearchResults(data);
+			});
 	});
 
 	searchInput.addEventListener("keydown", (e) => {
@@ -47,7 +56,6 @@ function initTagSelector(config) {
 					updateActiveItem(items);
 				}
 				break;
-
 			case "ArrowUp":
 				e.preventDefault();
 				if (items.length > 0) {
@@ -55,14 +63,12 @@ function initTagSelector(config) {
 					updateActiveItem(items);
 				}
 				break;
-
 			case "Enter":
 				e.preventDefault();
 				if (activeIndex >= 0 && items[activeIndex]) {
 					items[activeIndex].click();
 				}
 				break;
-
 			case "Backspace":
 				if (searchInput.value === "") {
 					removeLastTag();
@@ -94,9 +100,7 @@ function initTagSelector(config) {
 					resultItem.classList.add("search-item");
 					resultItem.dataset.id = item.id;
 					resultItem.innerHTML = `
-						<img src="${
-							item[config.imageProperty] || "/images/avatars/default-avatar.svg"
-						}" alt="">
+						<img src="${item[config.imageProperty] || "/images/avatars/default-avatar.svg"}" alt="">
 						<span>${item[config.displayProperty]}</span>
 					`;
 					resultItem.addEventListener("click", () => addTag(item));
@@ -110,17 +114,14 @@ function initTagSelector(config) {
 
 	function addTag(item) {
 		if (selectedIds.includes(item.id)) return;
-
 		selectedIds.push(item.id);
 
 		const tag = document.createElement("div");
 		tag.classList.add("member-tag");
 		tag.innerHTML = `
-			<img src="${
-				item[config.imageProperty] || "/images/avatars/default-avatar.svg"
-			}" alt="">
+			<img src="${item[config.imageProperty] || "/images/avatars/default-avatar.svg"}" alt="">
 			<span>${item[config.displayProperty]}</span>
-			<button type="button" class="btn-remove">
+			<button type="button" class="btn-remove" data-id="${item.id}">
 				<i class="fa-solid fa-xmark"></i>
 			</button>
 		`;
@@ -136,6 +137,7 @@ function initTagSelector(config) {
 		searchInput.value = "";
 		searchResults.innerHTML = "";
 		searchResults.classList.remove("show");
+
 		updateSelectedIdsInput();
 	}
 
@@ -151,8 +153,20 @@ function initTagSelector(config) {
 	}
 
 	function updateSelectedIdsInput() {
-		if (hiddenInput) {
-			hiddenInput.value = JSON.stringify(selectedIds);
-		}
+		const select = document.getElementById(config.selectedInputIds);
+		if (!select) return;
+		select.innerHTML = '';
+		selectedIds.forEach(id => {
+			const option = document.createElement('option');
+			option.value = id;
+			option.selected = true;
+			option.textContent = id;
+			select.appendChild(option);
+		});
 	}
+
+
+	window.getTagSelectorSelectedIds = function() {
+		return selectedIds.slice();
+	};
 }

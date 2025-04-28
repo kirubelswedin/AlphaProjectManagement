@@ -1,16 +1,21 @@
+using Domain.Models;
+
 namespace Business.Dtos;
 
 public class ProjectDetailsDto
 {
     // Basic Information
     public string Id { get; set; } = null!;
-    public string? ImageUrl { get; set; }
+    public string? ImageUrl { get; set; } 
     public string ProjectName { get; set; } = null!;
-    public string? Description { get; set; } = null!;
+    public Client Client { get; set; } = null!;
+    public string? Description { get; set; } 
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
     public decimal? Budget { get; set; }
 
+    public Status Status { get; set; } = null!;
+    
     // Status Information
     public int StatusId { get; set; }
     public string StatusName { get; set; } = null!;
@@ -23,7 +28,7 @@ public class ProjectDetailsDto
     public string ClientContactPerson { get; set; } = null!;
 
     // Creator Information
-    public string CreatedById { get; set; } = null!;
+    public string? CreatedById { get; set; } 
     public string CreatedByName { get; set; } = null!;
     public string? CreatedByImageUrl { get; set; }
 
@@ -46,10 +51,8 @@ public class ProjectDetailsDto
 
 public class ProjectMemberDto
 {
-    public string UserId { get; set; } = null!;
-    public string FullName { get; set; } = null!;
-    public string? ImageUrl { get; set; }
     public string RoleId { get; set; } = null!;
     public string RoleName { get; set; } = null!;
     public DateTime JoinedAt { get; set; }
+    public UserDetailsDto User { get; set; } = null!;
 }

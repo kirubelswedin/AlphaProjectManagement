@@ -9,8 +9,9 @@ namespace Data.Repositories;
 public interface IProjectRepository : IBaseRepository<ProjectEntity>
 {
     Task<RepositoryResult> AddProjectMemberAsync(string projectId, string userId, string roleId = "default");
-    Task<RepositoryResult> RemoveProjectMemberAsync(string projectId, string userId);
     Task<RepositoryResult<IEnumerable<ProjectMemberEntity>>> GetProjectMembersAsync(string projectId);
+    Task<RepositoryResult> RemoveProjectMemberAsync(string projectId, string userId);
+    Task<RepositoryResult> RemoveAllProjectMembershipsForUserAsync(string userId);
 }
 
 public class ProjectRepository(AppDbContext context) : BaseRepository<ProjectEntity>(context), IProjectRepository
@@ -74,6 +75,7 @@ public class ProjectRepository(AppDbContext context) : BaseRepository<ProjectEnt
     {
         try
         {
+            Console.WriteLine($"AddProjectMemberAsync: projectId={projectId}, userId={userId}, roleId={roleId}");
             // Kontrollera om projektet finns
             var projectExists = await _context.Projects.AnyAsync(p => p.Id == projectId);
             if (!projectExists)
@@ -142,6 +144,7 @@ public class ProjectRepository(AppDbContext context) : BaseRepository<ProjectEnt
         }
         catch (Exception ex)
         {
+            Console.WriteLine($"Exception in AddProjectMemberAsync: {ex.Message}");
             return new RepositoryResult
             {
                 Succeeded = false,
@@ -151,6 +154,34 @@ public class ProjectRepository(AppDbContext context) : BaseRepository<ProjectEnt
         }
     }
 
+    public async Task<RepositoryResult<IEnumerable<ProjectMemberEntity>>> GetProjectMembersAsync(string projectId)
+    {
+        try
+        {
+            var members = await _context.ProjectMembers
+                .Where(pm => pm.ProjectId == projectId)
+                .Include(pm => pm.User)
+                .Include(pm => pm.Role)
+                .ToListAsync();
+
+            return new RepositoryResult<IEnumerable<ProjectMemberEntity>>
+            {
+                Succeeded = true,
+                StatusCode = 200,
+                Result = members
+            };
+        }
+        catch (Exception ex)
+        {
+            return new RepositoryResult<IEnumerable<ProjectMemberEntity>>
+            {
+                Succeeded = false,
+                StatusCode = 500,
+                Error = $"Failed to get project members: {ex.Message}"
+            };
+        }
+    }
+    
     public async Task<RepositoryResult> RemoveProjectMemberAsync(string projectId, string userId)
     {
         try
@@ -181,31 +212,30 @@ public class ProjectRepository(AppDbContext context) : BaseRepository<ProjectEnt
             };
         }
     }
-
-    public async Task<RepositoryResult<IEnumerable<ProjectMemberEntity>>> GetProjectMembersAsync(string projectId)
+    
+    public async Task<RepositoryResult> RemoveAllProjectMembershipsForUserAsync(string userId)
     {
         try
         {
-            var members = await _context.ProjectMembers
-                .Where(pm => pm.ProjectId == projectId)
-                .Include(pm => pm.User)
-                .Include(pm => pm.Role)
+            var memberships = await _context.ProjectMembers
+                .Where(pm => pm.UserId == userId)
                 .ToListAsync();
 
-            return new RepositoryResult<IEnumerable<ProjectMemberEntity>>
+            if (memberships.Any())
             {
-                Succeeded = true,
-                StatusCode = 200,
-                Result = members
-            };
+                _context.ProjectMembers.RemoveRange(memberships);
+                await _context.SaveChangesAsync();
+            }
+
+            return new RepositoryResult { Succeeded = true, StatusCode = 200 };
         }
         catch (Exception ex)
         {
-            return new RepositoryResult<IEnumerable<ProjectMemberEntity>>
+            return new RepositoryResult
             {
                 Succeeded = false,
                 StatusCode = 500,
-                Error = $"Failed to get project members: {ex.Message}"
+                Error = $"Failed to remove project memberships for user: {ex.Message}"
             };
         }
     }

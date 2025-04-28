@@ -1,18 +1,15 @@
 document.addEventListener("DOMContentLoaded", () => {
-	// Initialisera alla fönsterhanterare
 	initDropdownHandling();
 	initModalHandling();
 });
 
 /*
  * ---------------------------------------------------------------------
- * Modal-hantering
+ * Modal-handling
  * ---------------------------------------------------------------------
  */
 const WindowManager = {
-	// Modal-hantering
 	openModal(modalId, data = null) {
-		// Stäng alla dropdowns först
 		closeAllDropdowns();
 
 		const modal = document.getElementById(modalId);
@@ -63,16 +60,13 @@ const WindowManager = {
 	},
 };
 
-// Gör WindowManager tillgänglig globalt
 window.WindowManager = WindowManager;
 
 /*
  *-----------------------------------------------------------------------
- * Dropdown-hantering
+ * Dropdown-handling
  * ----------------------------------------------------------------------
  */
-
-// Huvudfunktioner för dropdowns
 function toggleDropdown(targetId, trigger) {
 	// Stäng alla modaler först
 	const activeModals = document.querySelectorAll(".modal.show");
@@ -242,6 +236,16 @@ function initModalHandling() {
 		WindowManager.handleModalTrigger(modalTrigger);
 	});
 
+	// Lyssna på openModal-event (för att öppna modaler från dropdown)
+	window.addEventListener("openModal", (e) => {
+		const { modalId, projectId } = e.detail;
+		if (!modalId) return;
+		
+		// Öppna modalen med data (om det finns)
+		const data = projectId ? { projectId } : null;
+		WindowManager.openModal(modalId, data);
+	});
+
 	// Stäng modal när man klickar utanför
 	document.addEventListener("click", (e) => {
 		if (e.target.classList.contains("modal")) {
@@ -265,7 +269,6 @@ function initModalHandling() {
  * Modal windows
  * ----------------------------------------------------------------------
  */
-
 document.addEventListener("closeModal", (e) => {
 	WindowManager.closeWindow(e.detail);
 });

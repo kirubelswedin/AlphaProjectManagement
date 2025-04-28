@@ -1,67 +1,107 @@
 using Business.Dtos;
+using Business.Handlers;
 using Business.Mappers;
 using Data.Repositories;
-using Domain.Models;
 using Domain.Responses;
 
 namespace Business.Services;
 
 public interface IClientService
 {
-    Task<ClientResult> CreateClientAsync(AddClientFormDto formDto);
-    Task<ClientResult<IEnumerable<Client>>> GetClientsAsync();
-    Task<ClientResult<Client>> GetClientByIdAsync(string id);
-    Task<ClientResult> UpdateClientAsync(string id, UpdateClientFormDto formDto);
-    Task<ClientResult> DeleteClientAsync(string id);
+    Task<ClientResult<ClientDetailsDto>>  CreateClientAsync(AddClientFormDto formDto);
+    Task<ClientResult<IEnumerable<ClientDetailsDto>>> GetClientsAsync();
+    Task<ClientResult<ClientDetailsDto>> GetClientByIdAsync(string id);
+    Task<ClientResult<ClientDetailsDto>>  UpdateClientAsync(UpdateClientFormDto formDto);
+    Task<ClientResult<ClientDetailsDto>> DeleteClientAsync(string id);
 }
 
 
-public class ClientService(IClientRepository clientRepository) : IClientService
+public class ClientService(IClientRepository clientRepository, IImageHandler imageHandler) : IClientService
 {
     private readonly IClientRepository _clientRepository = clientRepository;
+    private readonly IImageHandler _imageHandler = imageHandler;
 
-    public async Task<ClientResult> CreateClientAsync(AddClientFormDto formDto)
+    public async Task<ClientResult<ClientDetailsDto>> CreateClientAsync(AddClientFormDto? formDto)
     {
-        var entity = ClientMapper.ToEntity(formDto);
-        var result = await _clientRepository.AddAsync(entity);
-        return new ClientResult { Succeeded = result.Succeeded, StatusCode = result.StatusCode, Error = result.Error };
+        try
+        {
+            if (formDto == null)
+                return new ClientResult<ClientDetailsDto> { Succeeded = false, StatusCode = 400, Error = "All required fields are not provided" };
+
+            string? imageUrl = null;
+            if (formDto.ImageFile != null)
+                imageUrl = await _imageHandler.SaveImageAsync(formDto.ImageFile, "clients");
+
+            var entity = ClientMapper.ToEntity(formDto, imageUrl);
+            var result = await _clientRepository.AddAsync(entity);
+            
+            if (!result.Succeeded)
+                return new ClientResult<ClientDetailsDto> { Succeeded = false, StatusCode = 500, Error = result.Error };
+            
+            var dto = ClientMapper.ToDetailsDto(entity);
+            return new ClientResult<ClientDetailsDto> { Succeeded = result.Succeeded, StatusCode = result.StatusCode, Error = result.Error, Result = dto };
+        }
+        catch (Exception ex)
+        { return new ClientResult<ClientDetailsDto> { Succeeded = false, StatusCode = 500, Error = $"Failed to create project: {ex.Message}" }; }
     }
 
-    public async Task<ClientResult<IEnumerable<Client>>> GetClientsAsync()
+    public async Task<ClientResult<IEnumerable<ClientDetailsDto>>> GetClientsAsync()
     {
         var result = await _clientRepository.GetAllAsync();
         if (!result.Succeeded)
-            return new ClientResult<IEnumerable<Client>> { Succeeded = false, StatusCode = result.StatusCode, Error = result.Error };
+            return new ClientResult<IEnumerable<ClientDetailsDto>> { Succeeded = false, StatusCode = result.StatusCode, Error = result.Error };
 
-        var clients = result.Result!.Select(ClientMapper.ToModel);
-        return new ClientResult<IEnumerable<Client>> { Succeeded = true, StatusCode = 200, Result = clients };
+        var clients = result.Result!.Select(ClientMapper.ToDetailsDto);
+        return new ClientResult<IEnumerable<ClientDetailsDto>> { Succeeded = true, StatusCode = 200, Result = clients };
     }
 
-    public async Task<ClientResult<Client>> GetClientByIdAsync(string id)
+    public async Task<ClientResult<ClientDetailsDto>> GetClientByIdAsync(string id)
     {
         var result = await _clientRepository.GetAsync(x => x.Id == id);
         if (!result.Succeeded)
-            return new ClientResult<Client> { Succeeded = false, StatusCode = result.StatusCode, Error = result.Error };
+            return new ClientResult<ClientDetailsDto> { Succeeded = false, StatusCode = result.StatusCode, Error = result.Error };
 
-        var client = ClientMapper.ToModel(result.Result);
-        return new ClientResult<Client> { Succeeded = true, StatusCode = 200, Result = client };
+        var client = ClientMapper.ToDetailsDto(result.Result);
+        return new ClientResult<ClientDetailsDto> { Succeeded = true, StatusCode = 200, Result = client };
     }
 
-    public async Task<ClientResult> UpdateClientAsync(string id, UpdateClientFormDto formDto)
+    public async Task<ClientResult<ClientDetailsDto>>  UpdateClientAsync(UpdateClientFormDto formDto)
     {
-        var existingClient = await _clientRepository.GetAsync(x => x.Id == id);
-        if (!existingClient.Succeeded)
-            return new ClientResult { Succeeded = false, StatusCode = existingClient.StatusCode, Error = existingClient.Error };
+        try
+        {
+            var existingClientResult = await _clientRepository.GetAsync(x => x.Id == formDto.Id);
+            if (!existingClientResult.Succeeded)
+                return new ClientResult<ClientDetailsDto> { Succeeded = false, StatusCode = 404, Error = $"Client with id '{formDto.Id}' was not found." };
 
-        var entity = ClientMapper.ToEntity(formDto);
-        entity.Id = id;
-        var result = await _clientRepository.UpdateAsync(entity);
-        return new ClientResult { Succeeded = result.Succeeded, StatusCode = result.StatusCode, Error = result.Error };
+            var existingClient = existingClientResult.Result;
+            
+            var imageUrl = existingClient!.ImageUrl;
+            if (formDto.ImageFile != null)
+                imageUrl = await _imageHandler.SaveImageAsync(formDto.ImageFile, "clients");
+
+            ClientMapper.ApplyUpdatesToEntity(formDto, existingClient, imageUrl);
+            
+            var result = await _clientRepository.UpdateAsync(existingClient);
+            
+            var dto = ClientMapper.ToDetailsDto(existingClient);
+            return new ClientResult<ClientDetailsDto> { Succeeded = result.Succeeded, StatusCode = result.StatusCode, Error = result.Error, Result = dto };
+        }
+        catch (Exception ex)
+        { return new ClientResult<ClientDetailsDto> { Succeeded = false, StatusCode = 500, Error = $"Failed to update client: {ex.Message}" }; }
     }
 
-    public async Task<ClientResult> DeleteClientAsync(string id)
+    public async Task<ClientResult<ClientDetailsDto>> DeleteClientAsync(string id)
     {
+        var client = await _clientRepository.GetAsync(x => x.Id == id);
+        if (!client.Succeeded)
+            return new ClientResult<ClientDetailsDto> { Succeeded = false, StatusCode = client.StatusCode, Error = client.Error };
+
         var result = await _clientRepository.DeleteAsync(x => x.Id == id);
-        return new ClientResult { Succeeded = result.Succeeded, StatusCode = result.StatusCode, Error = result.Error };
+        var dto = ClientMapper.ToDetailsDto(client.Result);
+
+        return new ClientResult<ClientDetailsDto>
+        {
+            Succeeded = result.Succeeded, StatusCode = result.StatusCode, Error = result.Error, Result = dto
+        };
     }
 }

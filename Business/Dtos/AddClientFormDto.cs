@@ -30,18 +30,13 @@ public class AddClientFormDto
     public string? PhoneNumber { get; set; }
 
     [Display(Name = "Street Address", Prompt = "Enter street address")]
-    [StringLength(200)]
     public string? StreetAddress { get; set; }
 
     [Display(Name = "Postal Code", Prompt = "Enter postal code")]
-    [StringLength(50)]
+    [DataType(DataType.PostalCode)]
     public string? PostalCode { get; set; }
 
     [Display(Name = "City", Prompt = "Enter city")]
-    [StringLength(100)]
     public string? City { get; set; }
-
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
 }
 

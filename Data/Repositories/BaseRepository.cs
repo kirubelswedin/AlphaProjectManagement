@@ -109,8 +109,7 @@ public abstract class BaseRepository<TEntity> : IBaseRepository<TEntity> where T
 
             if (!await _table.ContainsAsync(entity))
                 return new RepositoryResult { Succeeded = false, StatusCode = 404, Error = "Entity not found." };
-
-            _table.Update(entity);
+            
             await _context.SaveChangesAsync();
             return new RepositoryResult { Succeeded = true, StatusCode = 200 };
         }

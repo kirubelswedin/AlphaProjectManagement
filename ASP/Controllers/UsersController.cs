@@ -1,132 +1,130 @@
+using System.Diagnostics;
+using System.Security.Claims;
+using ASP.Mappers;
 using ASP.ViewModels.Components;
-using ASP.ViewModels.forms;
 using ASP.ViewModels.Forms;
 using ASP.ViewModels.Views;
 using Business.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Business.Dtos;
-using Business.Mappers;
 
 namespace ASP.Controllers;
 
 [Authorize(Roles = "Admin")]
-public class UsersController(
-    IUserService userService,
-    INotificationService notificationService) : Controller
+public class UsersController(IUserService userService, INotificationService notificationService) : Controller
 {
     private readonly IUserService _userService = userService;
     private readonly INotificationService _notificationService = notificationService;
-
+    
     [Route("admin/members")]
     public async Task<IActionResult> Index()
     {
-        var result = await _userService.GetUsersAsync();
         var viewModel = new MembersViewModel
         {
             PageHeader = CreatePageHeader(),
-            Members = result.Succeeded ? result.Result?.Select(user =>
-            {
-                var userDetails = UserMapper.ToUserDetailsDto(user);
-                return new MemberCardViewModel
-                {
-                    Id = userDetails.Id,
-                    Avatar = userDetails.Avatar,
-                    FirstName = userDetails.FirstName,
-                    LastName = userDetails.LastName,
-                    Email = userDetails.Email,
-                    PhoneNumber = userDetails.PhoneNumber,
-                    JobTitle = userDetails.JobTitle,
-                    StreetAddress = userDetails.StreetAddress,
-                    City = userDetails.City,
-                    PostalCode = userDetails.PostalCode,
-                    IsAdmin = userDetails.IsAdmin
-                };
-            }) ?? [] : [],
-            AddMember = new AddMembersViewModel(),
-            EditProject = new EditMembersViewModel()
+            Members = await GetMembersAsync(),
+            AddMember = new AddMemberViewModel(),
+            EditMember = new EditMemberViewModel()
         };
 
         return View(viewModel);
     }
-
-    [HttpGet("members/list")]
-    public async Task<IActionResult> GetMembers()
+    
+    private static PageHeaderViewModel CreatePageHeader() => new()
     {
-        var result = await _userService.GetUsersAsync();
-        if (!result.Succeeded)
-            return Json(new { success = false, error = result.Error });
-
-        var members = result.Result?.Select(user =>
-        {
-            var userDetails = UserMapper.ToUserDetailsDto(user);
-            return new MemberCardViewModel
-            {
-                Id = userDetails.Id,
-                Avatar = userDetails.Avatar,
-                FirstName = userDetails.FirstName,
-                LastName = userDetails.LastName,
-                Email = userDetails.Email,
-                PhoneNumber = userDetails.PhoneNumber,
-                JobTitle = userDetails.JobTitle,
-                StreetAddress = userDetails.StreetAddress,
-                City = userDetails.City,
-                PostalCode = userDetails.PostalCode,
-                IsAdmin = userDetails.IsAdmin
-            };
-        }) ?? [];
-        return Json(new { success = true, members });
-    }
+        Title = "Members",
+        ButtonText = "Add Member",
+        ModalId = "addmembermodal"
+    };
 
     [HttpPost]
-    public async Task<IActionResult> AddMember(AddUserFormDto dto)
+    public async Task<IActionResult> AddMember([FromForm] AddMemberViewModel model)
     {
         if (!ModelState.IsValid)
             return Json(new { success = false, errors = GetModelErrors() });
 
-        var result = await _userService.CreateMemberAsync(dto);
-        if (!result.Succeeded)
-            return Json(new { success = false, error = result.Error });
+        var dto = MemberViewModelMapper.ToAddMemberFormDto(model);
+        
+        try
+        {
+            var result = await _userService.CreateMemberAsync(dto, User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "");
+            if (!result.Succeeded)
+                return Json(new { success = false, error = result.Error ?? "Failed to add Member" });
 
-        await CreateMemberNotification("New Member Added",
-            $"Member {dto.FirstName} {dto.LastName} has been added successfully.");
-        return Json(new { success = true });
+            // string imageUrl = result.Result?.ImageUrl ?? "default-member.svg";
+            var userViewModel = MemberViewModelMapper.ToMemberCardViewModel(result.Result!);
+            await CreateMemberNotification(userViewModel.ImageUrl,"Member Added",$"Member {dto.FirstName} {dto.LastName} has been added");
+            return Json(new { success = true, member = userViewModel }); 
+        }
+        catch (Exception ex)
+        { return Json(new { success = false, error = ex.Message }); }
     }
 
     [HttpGet("members/{id}")]
     public async Task<IActionResult> GetMember(string id)
     {
         var result = await _userService.GetUserByIdAsync(id);
-        if (!result.Succeeded)
+        if (!result.Succeeded || result.Result == null)
             return Json(new { success = false, error = result.Error });
+        
+        var userViewModel = MemberViewModelMapper.ToMemberCardViewModel(result.Result!);
+        return Json(new { success = true, member = userViewModel });
+    }
+    
+    private async Task<IEnumerable<MemberCardViewModel>> GetMembersAsync()
+    {
+        var result = await _userService.GetUsersAsync();
+        if (!result.Succeeded) return [];
 
-        return Json(new { success = true, member = result.Result });
+        var members = result.Result!.ToList();
+        var memberCards = new List<MemberCardViewModel>();
+
+        foreach (var member in members)
+        {
+            Console.WriteLine($"Member: {member.FirstName} {member.LastName}, ImageUrl: {member.ImageUrl}");
+            var memberCard = MemberViewModelMapper.ToMemberCardViewModel(member);
+            memberCards.Add(memberCard);
+        }
+        return memberCards;
     }
 
-    [HttpPut("members/{id}")]
-    public async Task<IActionResult> UpdateMember(string id, UpdateUserFormDto dto)
+    [HttpPost]
+    public async Task<IActionResult> EditMember([FromForm] EditMemberViewModel model)
     {
         if (!ModelState.IsValid)
             return Json(new { success = false, errors = GetModelErrors() });
 
-        var result = await _userService.UpdateMemberAsync(dto);
-        if (!result.Succeeded)
-            return Json(new { success = false, error = result.Error });
+        var dto = MemberViewModelMapper.ToUpdateMemberFormDto(model);
+        try
+        {
+            var result = await _userService.UpdateMemberAsync(dto);
+            if (!result.Succeeded)
+                return Json(new { success = false, error = result.Error ?? "Failed to update member" });
 
-        await CreateMemberNotification("Member Updated",
-            $"Member {dto.FirstName} {dto.LastName} has been updated successfully.");
-        return Json(new { success = true });
+            // Console.WriteLine($"[DEBUG] EditMember: ImageUrl='{result.Result?.ImageUrl}', ImageType='{result.Result?.ImageType}'");
+            
+            var userViewModel = MemberViewModelMapper.ToMemberCardViewModel(result.Result!);
+            await CreateMemberNotification(userViewModel.ImageUrl,"Member Updated",$"Member {dto.FirstName} {dto.LastName} has been updated");
+            return Json(new { success = true, member = userViewModel }); 
+        }
+        catch (Exception ex)
+        { return Json(new { success = false, error = ex.Message }); }
     }
-
     [HttpDelete("members/{id}")]
     public async Task<IActionResult> DeleteMember(string id)
     {
+        var user = await _userService.GetUserByIdAsync(id);
+        if (!user.Succeeded)
+            return Json(new { success = false, error = user.Error });
+
         var result = await _userService.DeleteMemberAsync(id);
         if (!result.Succeeded)
             return Json(new { success = false, error = result.Error });
-
-        await CreateMemberNotification("Member Deleted", "A member has been deleted");
-        return Json(new { success = true });
+        
+        var userViewModel = MemberViewModelMapper.ToMemberCardViewModel(user.Result!);
+        await CreateMemberNotification(userViewModel.ImageUrl, "Member Deleted", $"Member {user.Result!.FirstName} {user.Result!.LastName} has been deleted");
+        return Json(new { success = true, member = userViewModel });
     }
 
     [HttpGet("members/search")]
@@ -145,32 +143,31 @@ public class UsersController(
             {
                 id = x.Id,
                 fullName = $"{x.FirstName} {x.LastName}",
-                imageUrl = x.ImageUrl ?? "/images/avatars/default-avatar.svg"
+                imageUrl = x.ImageUrl
             })
             .ToList();
 
         return Json(filteredMembers);
     }
 
-    private static PageHeaderViewModel CreatePageHeader() => new()
+    private async Task CreateMemberNotification(string? imageUrl, string title, string message)
     {
-        Title = "Members",
-        ButtonText = "Add Member",
-        ModalId = "addmembermodal"
-    };
-
-    private async Task CreateMemberNotification(string title, string message)
-    {
-        var notification = new NotificationDetailsDto
+        var notificationDetails = new NotificationDetailsDto
         {
             NotificationTypeId = 1, // Member type
             NotificationTargetId = 2, // Admins
             Title = title,
             Message = message,
+            ImageUrl = imageUrl,
             CreatedAt = DateTime.UtcNow
         };
 
-        await _notificationService.AddNotificationAsync(notification);
+        var result = await _notificationService.AddNotificationAsync(notificationDetails);
+        if (!result.Succeeded)
+        {
+            var errorMessage = result.Error;
+            Debug.WriteLine($"Failed to create notification: {errorMessage}");
+        }
     }
 
     private Dictionary<string, string[]> GetModelErrors()

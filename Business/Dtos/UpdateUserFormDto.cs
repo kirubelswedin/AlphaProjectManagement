@@ -9,7 +9,7 @@ public class UpdateUserFormDto
     
     [Display(Name = "Profile Image", Prompt = "Upload Profile Image")]
     [DataType(DataType.Upload)]
-    public IFormFile? NewImageFile { get; set; }
+    public IFormFile? ImageFile { get; set; }
     public string? ImageUrl { get; set; }
 
     [Display(Name = "First Name", Prompt = "Enter First Name")]

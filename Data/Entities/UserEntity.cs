@@ -23,9 +23,9 @@ public class UserEntity : IdentityUser
     [DataType(DataType.Date)]
     public DateTime? DateOfBirth { get; set; }
 
+    public virtual UserAddressEntity? Address { get; set; }
 
     public virtual ICollection<ProjectEntity> Projects { get; set; } = [];
-    public virtual UserAddressEntity? Address { get; set; }
     public virtual ICollection<NotificationDismissedEntity> DismissedNotifications { get; set; } = [];
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

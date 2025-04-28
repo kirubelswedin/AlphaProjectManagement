@@ -21,11 +21,8 @@ public static class UserMapper
         };
     }
 
-    public static UserEntity ToEntity(AddUserFormDto? dto, string? newImageUrl = null)
+    public static UserEntity ToEntity(AddUserFormDto dto, string? imageUrl = null)
     {
-        if (dto == null)
-            return null!;
-
         return new UserEntity
         {
             FirstName = dto.FirstName,
@@ -34,8 +31,14 @@ public static class UserMapper
             UserName = dto.Email,
             PhoneNumber = dto.PhoneNumber,
             JobTitle = dto.JobTitle,
-            ImageUrl = newImageUrl ?? dto.ImageUrl,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            ImageUrl = imageUrl,
+            Address = new UserAddressEntity
+            {
+                StreetAddress = dto.StreetAddress,
+                PostalCode = dto.PostalCode,
+                City = dto.City
+            }
         };
     }
 
@@ -47,14 +50,20 @@ public static class UserMapper
         return new UserEntity
         {
             Id = dto.Id,
+            ImageUrl = newImageUrl ?? dto.ImageUrl,
             FirstName = dto.FirstName,
             LastName = dto.LastName,
             Email = dto.Email,
             UserName = dto.Email,
             PhoneNumber = dto.PhoneNumber,
             JobTitle = dto.JobTitle,
-            ImageUrl = newImageUrl ?? dto.ImageUrl,
-            UpdatedAt = DateTime.UtcNow
+            UpdatedAt = DateTime.UtcNow,
+            Address = new UserAddressEntity
+            {
+                StreetAddress = dto.StreetAddress,
+                PostalCode = dto.PostalCode,
+                City = dto.City
+            }
         };
     }
 
@@ -83,24 +92,24 @@ public static class UserMapper
         };
     }
 
-    public static UserDetailsDto ToUserDetailsDto(User? user)
+    public static UserDetailsDto ToDetailsDto(UserEntity? entity)
     {
-        if (user == null)
-            return null!;
+        if (entity == null) return null!;
 
         return new UserDetailsDto
         {
-            Id = user.Id,
-            Avatar = user.ImageUrl,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            Email = user.Email,
-            PhoneNumber = user.PhoneNumber,
-            JobTitle = user.JobTitle,
-            StreetAddress = user.Address?.StreetAddress ?? string.Empty,
-            City = user.Address?.City ?? string.Empty,
-            PostalCode = user.Address?.PostalCode ?? string.Empty,
+            Id = entity.Id,
+            ImageUrl = entity.ImageUrl,
+            FirstName = entity.FirstName,
+            LastName = entity.LastName,
+            Email = entity.Email,
+            PhoneNumber = entity.PhoneNumber,
+            JobTitle = entity.JobTitle,
+            StreetAddress = entity.Address?.StreetAddress ?? string.Empty,
+            City = entity.Address?.City ?? string.Empty,
+            PostalCode = entity.Address?.PostalCode ?? string.Empty,
             IsAdmin = false
         };
     }
+    
 }

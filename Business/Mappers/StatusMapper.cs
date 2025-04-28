@@ -27,7 +27,7 @@ public static class StatusMapper
 
     public static Status ToModel(StatusEntity? entity)
     {
-        if (entity == null) return null!;
+        if (entity == null) return null!; 
         return new Status
         {
             Id = entity.Id,

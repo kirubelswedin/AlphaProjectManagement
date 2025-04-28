@@ -1,5 +1,4 @@
 using Business.Extensions;
-using Business.Handlers;
 using Data.Extensions;
 using Microsoft.AspNetCore.Rewrite;
 using Hubs;
@@ -8,7 +7,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR();
 
-builder.Services.AddScoped<IImageHandler, AzureImageHandler>();
 
 builder.Services.AddContexts(builder.Configuration.GetConnectionString("SqlServer")!);
 builder.Services.AddLocalIdentity(builder.Configuration);
@@ -29,7 +27,7 @@ app.UseAuthorization();
 
 app.MapStaticAssets();
 
-app.UseDefaultRoles(new[] { "Admin", "User" });
+app.UseDefaultRoles(["Admin", "User"]);
 app.UseDefaultAdminAccount(
     email: "admin@domain.com",
     password: "BytMig123!",

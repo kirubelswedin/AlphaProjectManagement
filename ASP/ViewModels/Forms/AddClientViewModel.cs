@@ -1,12 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace ASP.ViewModels.forms;
+namespace ASP.ViewModels.Forms;
 
-public class AddClientsViewModel
+public class AddClientViewModel
 {
     [Display(Name = "Client Image", Prompt = "Upload Client Image")]
     public IFormFile? ImageFile { get; set; }
-
+    public string? ImageUrl { get; set; }
+    
     [Required(ErrorMessage = "Company name is required")]
     [Display(Name = "Company Name", Prompt = "Enter Company name")]
     public string ClientName { get; set; } = null!;
@@ -18,6 +19,8 @@ public class AddClientsViewModel
     [Required(ErrorMessage = "Last name is required")]
     [Display(Name = "Last Name", Prompt = "Enter last name")]
     public string LastName { get; set; } = null!;
+    
+    public string ContactPerson => $"{FirstName} {LastName}".Trim();
 
     [Required(ErrorMessage = "Email is required")]
     [EmailAddress(ErrorMessage = "Invalid email address")]
@@ -28,10 +31,10 @@ public class AddClientsViewModel
     [Display(Name = "Phone Number", Prompt = "Enter phone number")]
     public string? PhoneNumber { get; set; }
 
-    [Display(Name = "Street StreetAddress", Prompt = "Enter street address")]
+    [Display(Name = "Address", Prompt = "Enter street address")]
     public string? StreetAddress { get; set; }
 
-    [Display(Name = "Postal Code", Prompt = "Enter postal code")]
+    [Display(Name = "Postal Code", Prompt = "Enter ZIP / Postal Code")]
     public string? PostalCode { get; set; }
 
     [Display(Name = "City", Prompt = "Enter city")]

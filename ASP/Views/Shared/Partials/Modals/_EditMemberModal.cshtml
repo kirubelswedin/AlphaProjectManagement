@@ -1,15 +1,115 @@
-@model AddMembersViewModel
+@model EditMemberViewModel
+@{
+  const string modalId = "editmembermodal";
+}
 
-<div id="editMemberModal" class="modal">
-    <div class="form-modal-wrapper">
-        <div class="form-modal-content">
-            <div class="form-modal-header">>
-                <h3>Edit Member</h3>
-                <button type="button" class="form-modal-close" data-close="true" data-target="#editMemberModal">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+<section id="@modalId" class="modal">
+  <div class="form-modal-wrapper">
+    <div class="form-modal-content">
+      <div class="form-modal-header">
+        <h3>Edit Member</h3>
+        <button type="button" class="form-modal-close" data-close="true" data-target="#@modalId">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="form-modal-body">
+        <form asp-controller="Users" asp-action="EditMember" method="post" enctype="multipart/form-data"
+              id="editMemberForm" data-id="edit" novalidate>
+          <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+          <input type="hidden" asp-for="Id"/>
+
+          <!-- Member Image -->
+          <div class="form-group">
+            <label class="form-label hide" asp-for="ImageFile"></label>
+            <div class="image-preview-container shape-round" data-file-upload>
+              <img class="hide" alt="Member preview"/>
+              <div class="circle circle-gray">
+                <i class="fa-duotone fa-solid fa-camera"></i>
+                <i class="fa-solid fa-pen-to-square"></i>
+              </div>
+              <input asp-for="ImageFile" accept="image/*" autocomplete="off"/>
             </div>
-            
-        </div>
+            <span asp-validation-for="ImageFile" class="field-error"></span>
+          </div>
+
+          <div class="form-column">
+            <!-- First Name -->
+            <div class="form-group half">
+              <label class="form-label" asp-for="FirstName"></label>
+              <input asp-for="FirstName" class="form-input" autocomplete="off"/>
+              <span asp-validation-for="FirstName" class="field-error"></span>
+            </div>
+
+            <!-- Last Name -->
+            <div class="form-group half">
+              <label class="form-label" asp-for="LastName"></label>
+              <input asp-for="LastName" class="form-input" autocomplete="off"/>
+              <span asp-validation-for="LastName" class="field-error"></span>
+            </div>
+          </div>
+
+          <div class="form-column">
+            <!-- Email -->
+            <div class="form-group half">
+              <label class="form-label" asp-for="Email"></label>
+              <input asp-for="Email" class="form-input" autocomplete="off"/>
+              <span asp-validation-for="Email" class="field-error"></span>
+            </div>
+
+            <!-- PhoneNumber -->
+            <div class="form-group half">
+              <label class="form-label" asp-for="PhoneNumber">Phone</label>
+              <input asp-for="PhoneNumber" class="form-input" autocomplete="off"/>
+              <span asp-validation-for="PhoneNumber" class="field-error"></span>
+            </div>
+          </div>
+
+          <!-- Job Title -->
+          <div class="form-group">
+            <label class="form-label" asp-for="JobTitle"></label>
+            <input asp-for="JobTitle" class="form-input" autocomplete="off"/>
+            <span asp-validation-for="JobTitle" class="field-error"></span>
+          </div>
+
+          <!-- Street Address -->
+          <div class="form-group">
+            <label class="form-label" asp-for="StreetAddress"></label>
+            <input asp-for="StreetAddress" class="form-input" autocomplete="off"/>
+            <span asp-validation-for="StreetAddress" class="field-error"></span>
+          </div>
+
+          <div class="form-column">
+            <!-- Postal Code -->
+            <div class="form-group half">
+              <label class="form-label" asp-for="PostalCode"></label>
+              <input asp-for="PostalCode" class="form-input" autocomplete="off"/>
+              <span asp-validation-for="PostalCode" class="field-error"></span>
+            </div>
+
+            <!-- City -->
+            <div class="form-group half">
+              <label class="form-label" asp-for="City"></label>
+              <input asp-for="City" class="form-input" autocomplete="off"/>
+              <span asp-validation-for="City" class="field-error"></span>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="form-actions">
+            @{
+              var buttonModel = new ButtonViewModel
+              {
+                Text = "Edit Member",
+                IsSubmit = true,
+                Variant = "primary"
+              };
+            }
+            <partial name="Partials/Components/ui/_Button" model="@buttonModel"/>
+          </div>
+        </form>
+      </div>
     </div>
-</div>
+  </div>
+</section>

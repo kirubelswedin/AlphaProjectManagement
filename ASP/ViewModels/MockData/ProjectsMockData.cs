@@ -37,9 +37,9 @@ public static class ProjectsMockData
             TimeLeft = "3 months left",
             Budget = 150000,
             Status = new Status { StatusName = "In Progress" },
-            ProjectImage = GetRandomProjectImage(),
+            ImageUrl = GetRandomProjectImage(),
             IsUrgent = false,
-            Members = MembersMockData.GetRandomMembers(3)
+            AllMembers = MembersMockData.GetRandomMembers(3)
         },
         new()
         {
@@ -52,9 +52,9 @@ public static class ProjectsMockData
             TimeLeft = "2 weeks left",
             Budget = 85000,
             Status = new Status { StatusName = "Cancelled" },
-            ProjectImage = GetRandomProjectImage(),
+            ImageUrl = GetRandomProjectImage(),
             IsUrgent = true,
-            Members = MembersMockData.GetRandomMembers(4)
+            AllMembers = MembersMockData.GetRandomMembers(4)
         },
         new()
         {
@@ -67,9 +67,9 @@ public static class ProjectsMockData
             TimeLeft = "5 months left",
             Budget = 200000,
             Status = new Status { StatusName = "Not Started" },
-            ProjectImage = GetRandomProjectImage(),
+            ImageUrl = GetRandomProjectImage(),
             IsUrgent = false,
-            Members = MembersMockData.GetRandomMembers(2)
+            AllMembers = MembersMockData.GetRandomMembers(2)
         },
         new()
         {
@@ -82,10 +82,10 @@ public static class ProjectsMockData
             TimeLeft = "2 days overdue",
             Budget = 45000,
             Status = new Status { StatusName = "Completed" },
-            ProjectImage = GetRandomProjectImage(),
+            ImageUrl = GetRandomProjectImage(),
             IsUrgent = false,
             CompletedOnTime = false,
-            Members = MembersMockData.GetRandomMembers(2)
+            AllMembers = MembersMockData.GetRandomMembers(2)
         },
         new()
         {
@@ -98,9 +98,9 @@ public static class ProjectsMockData
             TimeLeft = "4 months left",
             Budget = 175000,
             Status = new Status { StatusName = "In Progress" },
-            ProjectImage = GetRandomProjectImage(),
+            ImageUrl = GetRandomProjectImage(),
             IsUrgent = false,
-            Members = MembersMockData.GetRandomMembers(3)
+            AllMembers = MembersMockData.GetRandomMembers(3)
         },
         new()
         {
@@ -113,9 +113,9 @@ public static class ProjectsMockData
             TimeLeft = "5 days overdue",
             Budget = 95000,
             Status = new Status { StatusName = "Paused" },
-            ProjectImage = GetRandomProjectImage(),
+            ImageUrl = GetRandomProjectImage(),
             IsUrgent = true,
-            Members = MembersMockData.GetRandomMembers(3)
+            AllMembers = MembersMockData.GetRandomMembers(3)
         },
         new()
         {
@@ -128,9 +128,9 @@ public static class ProjectsMockData
             TimeLeft = "6 months left",
             Budget = 250000,
             Status = new Status { StatusName = "Not Started" },
-            ProjectImage = GetRandomProjectImage(),
+            ImageUrl = GetRandomProjectImage(),
             IsUrgent = false,
-            Members = MembersMockData.GetRandomMembers(4)
+            AllMembers = MembersMockData.GetRandomMembers(4)
         },
         new()
         {
@@ -143,9 +143,9 @@ public static class ProjectsMockData
             TimeLeft = "Completed on time",
             Budget = 120000,
             Status = new Status { StatusName = "Completed" },
-            ProjectImage = GetRandomProjectImage(),
+            ImageUrl = GetRandomProjectImage(),
             CompletedOnTime = true,
-            Members = MembersMockData.GetRandomMembers(4)
+            AllMembers = MembersMockData.GetRandomMembers(4)
         }
     };
 }

@@ -24,6 +24,7 @@ public class NotificationEntity
     [Required]
     [MaxLength(200)]
     public string? ImageUrl { get; set; } = null!;
+    public string ImageType { get; set; } = null!;
 
     [Required]
     [MaxLength(500)]
@@ -37,4 +38,3 @@ public class NotificationEntity
     public virtual ICollection<NotificationDismissedEntity> DismissedNotifications { get; set; } = [];
 
 }
-

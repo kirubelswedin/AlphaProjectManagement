@@ -39,7 +39,7 @@ public class AuthService(SignInManager<UserEntity> signInManager, UserManager<Us
             {
                 if (formDto.RoleName != null)
                 {
-                    var result = await _userService.AddUserToRoleAsync(userEntity, formDto.RoleName);
+                    await _userService.AddUserToRoleAsync(userEntity, formDto.RoleName);
                 }
 
                 return new AuthResult { Succeeded = true, StatusCode = 201, SuccessMessage = $"User was created successfully." };

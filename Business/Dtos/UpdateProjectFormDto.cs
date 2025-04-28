@@ -9,7 +9,7 @@ public class UpdateProjectFormDto
     public string Id { get; set; } = null!;
 
     [DataType(DataType.Upload)]
-    public IFormFile? NewImageFile { get; set; }
+    public IFormFile? ImageFile { get; set; }
     public string? ImageUrl { get; set; }
 
     [Required(ErrorMessage = "Project name is required")]
@@ -29,12 +29,12 @@ public class UpdateProjectFormDto
     [DataType(DataType.Date)]
     public DateTime EndDate { get; set; }
 
-    [Required(ErrorMessage = "At least one Team member are required")]
-    public string UserId { get; set; } = null!;
+    [Required(ErrorMessage = "At least one project member is required")]
+    public List<string> SelectedMemberIds { get; set; } = [];
 
     [DataType(DataType.Currency)]
     public decimal? Budget { get; set; }
-    
+
     [Required(ErrorMessage = "Status is required")]
     public int StatusId { get; set; }
 }

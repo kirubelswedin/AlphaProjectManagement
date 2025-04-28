@@ -1,13 +1,13 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using ASP.ViewModels.Components;
-using ASP.ViewModels.forms;
+using ASP.ViewModels.Forms;
 using Microsoft.AspNetCore.Authorization;
 using Business.Services;
 using ASP.ViewModels.Views;
 using Business.Dtos;
+using ASP.Mappers;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Domain.Models;
 
 namespace ASP.Controllers;
 
@@ -17,14 +17,15 @@ public class ProjectsController(
     IClientService clientService,
     IUserService userService,
     IStatusService statusService,
-    INotificationService notificationService) : Controller
+    INotificationService notificationService
+    ) : Controller
 {
     private readonly IProjectService _projectService = projectService;
     private readonly IClientService _clientService = clientService;
     private readonly IUserService _userService = userService;
     private readonly IStatusService _statusService = statusService;
     private readonly INotificationService _notificationService = notificationService;
-
+    
     [Route("admin/projects")]
     public async Task<IActionResult> Index(string tab = "ALL")
     {
@@ -36,84 +37,130 @@ public class ProjectsController(
             AddProject = new AddProjectViewModel
             {
                 Clients = await GetClientSelectListAsync(),
-                Members = await GetMemberSelectListAsync()
+                ProjectMembers = await GetMemberSelectListAsync()
             },
             EditProject = new EditProjectViewModel
             {
                 Clients = await GetClientSelectListAsync(),
-                Members = await GetMemberSelectListAsync(),
+                ProjectMembers = await GetMemberSelectListAsync(),
                 Statuses = await GetStatusSelectListAsync()
             }
         };
 
         return View(viewModel);
     }
+    
+    private static PageHeaderViewModel CreatePageHeader() => new()
+    {
+        Title = "Projects",
+        ButtonText = "Add Project",
+        ModalId = "addprojectmodal"
+    };
 
     [HttpPost]
-    public async Task<IActionResult> AddProject([FromForm] AddProjectFormDto dto)
+    public async Task<IActionResult> AddProject([FromForm] AddProjectViewModel model)
     {
         if (!ModelState.IsValid)
-        {
             return Json(new { success = false, errors = GetModelErrors() });
-        }
 
-        var result = await _projectService.CreateProjectAsync(dto, User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "");
-        if (!result.Succeeded)
+        var dto = ProjectViewModelMapper.ToAddProjectFormDto(model);
+
+        try
         {
-            return Json(new { success = false, error = result.Error });
+            var result = await _projectService.CreateProjectAsync(dto, User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "");
+            if (!result.Succeeded)
+                return Json(new { success = false, error = result.Error ?? "Failed to create project" });
+
+            var projectViewModel = ProjectViewModelMapper.ToProjectCardViewModel(result.Result!);
+            await CreateProjectNotification(projectViewModel.ImageUrl, "Project Created", $"Project '{dto.ProjectName}' has been created");
+            return Json(new { success = true, project = projectViewModel });
         }
-
-        await CreateProjectNotification("New Project Created", $"Project '{dto.ProjectName}' has been created");
-        return Json(new { success = true });
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> UpdateProject([FromForm] UpdateProjectFormDto dto)
-    {
-        if (!ModelState.IsValid)
-        {
-            return Json(new { success = false, errors = GetModelErrors() });
-        }
-
-        var result = await _projectService.UpdateProjectAsync(dto);
-        if (!result.Succeeded)
-        {
-            return Json(new { success = false, error = result.Error });
-        }
-
-        await CreateProjectNotification("Project Updated", $"Project '{dto.ProjectName}' has been updated");
-        return Json(new { success = true });
+        catch (Exception ex)
+        { return Json(new { success = false, error = ex.Message }); }
     }
 
     [HttpGet("projects/{id}")]
     public async Task<IActionResult> GetProject(string id)
     {
         var result = await _projectService.GetProjectDetailsAsync(id);
-        if (!result.Succeeded)
-        {
+        if (!result.Succeeded || result.Result == null)
             return Json(new { success = false, error = result.Error });
+        
+        var projectViewModel = ProjectViewModelMapper.ToProjectCardViewModel(result.Result);
+        return Json(new { success = true, project = projectViewModel });
+    }
+
+    private async Task<List<ProjectCardViewModel>> GetProjectsAsync(string tab)
+    {
+        var result = await _projectService.GetProjectsAsync();
+        if (!result.Succeeded) return [];
+
+        var projects = result.Result!.ToList();
+        var filteredProjects = tab.Equals("ALL", StringComparison.CurrentCultureIgnoreCase)
+            ? projects
+            : projects.Where(p => p.Status.StatusName == tab).ToList();
+
+        // using mappers to map projects to view models
+        var projectCards = filteredProjects
+            .Select(ProjectViewModelMapper.ToProjectCardViewModel)  
+            .ToList();
+
+        return projectCards;
+    }
+    
+    [HttpPost]
+    public async Task<IActionResult> EditProject([FromForm] EditProjectViewModel model)
+    {
+        if (!ModelState.IsValid)
+            return Json(new { success = false, errors = GetModelErrors() });
+
+        var dto = ProjectViewModelMapper.ToUpdateProjectFormDto(model);
+        try
+        {
+            var result = await _projectService.UpdateProjectAsync(dto);
+            if (!result.Succeeded)
+                return Json(new { success = false, error = result.Error ?? "Failed to update project" });
+            
+            var projectViewModel = ProjectViewModelMapper.ToProjectCardViewModel(result.Result!);
+            await CreateProjectNotification(projectViewModel.ImageUrl,"Project Updated",$"Project {dto.ProjectName} has been updated");
+            return Json(new { success = true, project = projectViewModel }); 
         }
-        return Json(new { success = true, project = result.Result });
+        catch (Exception ex)
+        { return Json(new { success = false, error = ex.Message}); }
+    }
+
+    [HttpDelete("projects/{id}")]
+    public async Task<IActionResult> DeleteProject(string id)
+    {
+        var project = await _projectService.GetProjectByIdAsync(id);
+        if (!project.Succeeded)
+            return Json(new { success = false, error = project.Error });
+
+        var result = await _projectService.DeleteProjectAsync(id);
+        if (!result.Succeeded)
+            return Json(new { success = false, error = result.Error });
+        
+        var projectViewModel = ProjectViewModelMapper.ToProjectCardViewModel(result.Result!);
+        await CreateProjectNotification(projectViewModel.ImageUrl, "Project Deleted", $"Project {project.Result!.ProjectName} has been deleted");
+        return Json(new { success = true, project = projectViewModel }); 
+    }
+    
+    [HttpPost]
+    public async Task<IActionResult> RemoveMember(string projectId, string userId)
+    {
+        var result = await _projectService.RemoveProjectMemberAsync(projectId, userId);
+        if (result.Succeeded)
+            return Ok();
+        return BadRequest(result.Error);
     }
 
     [HttpGet("projects/list")]
     public async Task<IActionResult> GetFilteredProjects(string tab = "ALL")
     {
         var projects = await GetProjectsAsync(tab);
-        return Json(new { success = true, projects });
-    }
 
-    [HttpDelete("projects/{id}")]
-    public async Task<IActionResult> DeleteProject(string id)
-    {
-        var result = await _projectService.DeleteProjectAsync(id);
-        if (!result.Succeeded)
-        {
-            return Json(new { success = false, error = result.Error });
-        }
-
-        await CreateProjectNotification("Project Deleted", "A project has been deleted");
-        return Json(new { success = true });
+        return PartialView("Partials/Components/TabFilter/_FilteredProjects", projects);
+        // Return HTML instead of JSON for filtered projects
     }
 
     private async Task<TabFilterViewModel> CreateTabFilterAsync(string activeTab)
@@ -146,67 +193,30 @@ public class ProjectsController(
             {
                 Text = status.StatusName,
                 Count = count,
-                IsActive = status.StatusName.Replace(" ", "") == activeTab
+                IsActive = activeTab == status.StatusName
             });
         }
 
         return new TabFilterViewModel { Tabs = tabs };
     }
 
-    private async Task<List<ProjectCardViewModel>> GetProjectsAsync(string tab)
+    public static class DateTimeHelpers
     {
-        var result = await _projectService.GetProjectsAsync();
-        if (!result.Succeeded) return [];
-
-        var projects = result.Result!.ToList();
-        var filteredProjects = tab.Equals("ALL", StringComparison.CurrentCultureIgnoreCase)
-            ? projects
-            : projects.Where(p => p.Status.StatusName.Replace(" ", "") == tab).ToList();
-
-        return filteredProjects.Select(p => new ProjectCardViewModel
+        public static string GetTimeLeft(DateTime endDate)
         {
-            Id = p.Id,
-            ProjectName = p.ProjectName,
-            ClientName = p.Client.ClientName,
-            Description = p.Description,
-            StartDate = p.StartDate?.ToString("yyyy-MM-dd"),
-            EndDate = p.EndDate?.ToString("yyyy-MM-dd"),
-            TimeLeft = p.EndDate.HasValue ? GetTimeLeft(p.EndDate.Value) : null,
-            IsUrgent = p.IsUrgent,
-            IsOverdue = p.IsOverdue,
-            CompletedOnTime = p.CompletedOnTime,
-            ProjectImage = p.ImageUrl ?? "/images/project/default-project.svg",
-            Budget = p.Budget,
-            Status = p.Status,
-            Members = p.ProjectMembers?.Select(pm => new MemberViewModel
+            var timeLeft = endDate - DateTime.UtcNow;
+            switch (timeLeft.TotalDays)
             {
-                Id = pm.User.Id,
-                Avatar = pm.User.ImageUrl ?? "/images/avatars/default-avatar.svg",
-                FirstName = pm.User.FirstName,
-                LastName = pm.User.LastName
-            }).ToList() ?? []
-        }).ToList();
+                case < 0:
+                    return "Overdue";
+                case < 1:
+                    return "Due today";
+                default:
+                    return $"{timeLeft.Days} days left";
+            }
+        }
     }
-
-    private static string? GetTimeLeft(DateTime endDate)
-    {
-        var timeLeft = endDate - DateTime.UtcNow;
-        if (timeLeft.TotalDays < 0)
-            return "Overdue";
-        if (timeLeft.TotalDays < 1)
-            return "Due today";
-        if (timeLeft.TotalDays < 7)
-            return $"{timeLeft.Days} days left";
-        return $"{timeLeft.Days} days left";
-    }
-
-    private static PageHeaderViewModel CreatePageHeader() => new()
-    {
-        Title = "Projects",
-        ButtonText = "Add Project",
-        ModalId = "addprojectmodal"
-    };
-
+    
     private async Task<List<SelectListItem>> GetClientSelectListAsync()
     {
         var result = await _clientService.GetClientsAsync();
@@ -219,14 +229,15 @@ public class ProjectsController(
             : [];
     }
 
-    private async Task<List<SelectListItem>> GetMemberSelectListAsync()
+    private async Task<List<ProjectMemberViewModel>> GetMemberSelectListAsync()
     {
         var result = await _userService.GetUsersAsync();
         return result.Succeeded && result.Result != null
-            ? result.Result.Select(u => new SelectListItem
+            ? result.Result.Select(u => new ProjectMemberViewModel
             {
-                Value = u.Id,
-                Text = $"{u.FirstName} {u.LastName}"
+                Id = u.Id,
+                FullName = $"{u.FirstName} {u.LastName}",
+                ImageUrl = u.ImageUrl
             }).ToList()
             : [];
     }
@@ -237,41 +248,17 @@ public class ProjectsController(
         return statuses.Result?.Select(s => new SelectListItem
         {
             Text = s.StatusName,
-            Value = s.StatusName
+            Value = s.Id.ToString()
         }).ToList();
     }
-
-
-    private async Task CreateProjectNotification(string title, string message)
-    {
-        var notification = new NotificationDetailsDto
-        {
-            NotificationTypeId = 2, // Project type
-            NotificationTargetId = 2, // Admins
-            Title = title,
-            Message = message,
-            CreatedAt = DateTime.UtcNow
-        };
-
-        await _notificationService.AddNotificationAsync(notification);
-    }
-
-    private Dictionary<string, string[]> GetModelErrors()
-    {
-        return ModelState
-            .Where(x => x.Value!.Errors.Any())
-            .ToDictionary(
-                kvp => kvp.Key,
-                kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
-            );
-    }
-
+    
     [HttpGet("projects/members/search")]
     public async Task<IActionResult> SearchMembers(string term)
     {
         var result = await _userService.GetUsersAsync();
         if (!result.Succeeded || result.Result == null)
         {
+            Console.WriteLine("SearchMembers: Failed to get users");
             return Json(new List<object>());
         }
 
@@ -284,10 +271,41 @@ public class ProjectsController(
             {
                 id = u.Id,
                 fullName = $"{u.FirstName} {u.LastName}",
-                imageUrl = u.ImageUrl ?? "/images/avatars/default-avatar.svg"
+                imageUrl = u.ImageUrl
             })
             .ToList();
 
+        Console.WriteLine($"SearchMembers: Found {filteredMembers.Count} members for term '{term}'");
         return Json(filteredMembers);
+    }
+
+
+    private async Task CreateProjectNotification(string imageUrl, string title, string message)
+    {
+        var notificationDetails = new NotificationDetailsDto
+        {
+            NotificationTypeId = 2, // Project
+            NotificationTargetId = 1, // Admin
+            Title = title,
+            Message = message,
+            ImageUrl = imageUrl,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        var result = await _notificationService.AddNotificationAsync(notificationDetails);
+        if (!result.Succeeded)
+        {
+            // Console.WriteLine($"Error creating notification: {result.Error}");
+        }
+    }
+
+    private Dictionary<string, string[]> GetModelErrors()
+    {
+        return ModelState
+            .Where(x => x.Value!.Errors.Any())
+            .ToDictionary(
+                kvp => kvp.Key,
+                kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
+            );
     }
 }

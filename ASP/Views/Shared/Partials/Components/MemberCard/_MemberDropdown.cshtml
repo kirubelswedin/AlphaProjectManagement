@@ -1,0 +1,31 @@
+@model MemberDropdownViewModel
+
+<div class="dropdown-window" data-for="member-dropdown-@Model.Id">
+  <div class="dropdown-content">
+    <div class="dropdown-items">
+      <div class="dropdown-item" data-modal="editMemberModal" data-id="@Model.Id">
+        <i class="fa-duotone fa-solid fa-pencil"></i>
+        <span>Edit Member</span>
+      </div>
+
+      <div class="dropdown-item">
+        <div class="content-item">
+          <i class="fa-duotone fa-solid fa-shield-check"></i>
+          <span>Admin Access</span>
+          <label class="switch">
+            <input type="checkbox" @(Model.IsAdmin ? "checked" : "") data-toggle-admin data-id="@Model.Id"
+              data-is-admin="@Model.IsAdmin.ToString().ToLower()">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="dropdown-divider"></div>
+
+      <div class="dropdown-item danger" data-action="delete-member" data-id="@Model.Id">
+        <i class="fa-duotone fa-solid fa-trash-can"></i>
+        <span>Delete Member</span>
+      </div>
+    </div>
+  </div>
+</div>

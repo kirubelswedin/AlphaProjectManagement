@@ -1,4 +1,4 @@
-@model AddClientsViewModel
+@model AddClientViewModel
 
 @{
     const string modalId = "addclientmodal";
@@ -15,46 +15,46 @@
             </div>
             <div class="form-modal-body">
                 <form asp-controller="Clients" asp-action="AddClient" method="post" enctype="multipart/form-data"
-                    novalidate id="clientForm" data-id="add">
-                    @Html.AntiForgeryToken()
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-                    @* <input type="hidden" asp-for="Id" /> *@
+                      id="addClientForm" data-id="add" novalidate>
+                    
+                    <div asp-validation-summary="ModelOnly" class="field-error"></div>
 
                     <!-- Client Image -->
                     <div class="form-group">
                         <label class="form-label hide" asp-for="ImageFile"></label>
                         <div class="image-preview-container shape-round" data-file-upload>
-                            <img class="hide" alt="Client preview" />
-                            <div class="circle circle-gray upload-overlay">
+                            <img class="hide" alt="Client preview"/>
+                            <div class="circle circle-gray">
                                 <i class="fa-duotone fa-solid fa-camera"></i>
+                                <i class="fa-solid fa-pen-to-square"></i>
                             </div>
-                            <input asp-for="ImageFile" accept="image/*" autocomplete="off" />
+                            <input asp-for="ImageFile" accept="image/*" autocomplete="off"/>
                         </div>
-                        <span class="field-error" data-valmsg-for="ImageFile"></span>
+                        <span asp-validation-for="ImageFile" class="field-error"></span>
                     </div>
 
                     <!-- Client Name -->
                     <div class="form-group">
-                        <label class="form-label" asp-for="ClientName">Name</label>
-                        <input asp-for="ClientName" class="form-input" autocomplete="off" />
-                        <span class="field-error" data-valmsg-for="ClientName"></span>
+                        <label class="form-label" asp-for="ClientName"></label>
+                        <input asp-for="ClientName" class="form-input" autocomplete="off"/>
+                        <span asp-validation-for="ClientName" class="field-error"></span>
                     </div>
 
                     <!-- Contact Person -->
                     <div class="form-column">
                         <!-- First Name -->
                         <div class="form-group half">
-                            <label class="form-label" asp-for="FirstName"></label>
-                            <input asp-for="FirstName" class="form-input" autocomplete="off" />
-                            <span class="field-error" data-valmsg-for="FirstName"></span>
+                            <label class="form-label" asp-for="ContactPerson"></label>
+                            <label class="form-label hide" asp-for="FirstName"></label>
+                            <input asp-for="FirstName" class="form-input" autocomplete="off"/>
+                            <span asp-validation-for="FirstName" class="field-error"></span>
                         </div>
 
                         <!-- Last Name -->
-                        <div class="form-group half">
-                            <label class="form-label" asp-for="LastName"></label>
-                            <input asp-for="LastName" class="form-input" autocomplete="off" />
-                            <span class="field-error" data-valmsg-for="LastName"></span>
+                        <div class="form-group half right">
+                            <label class="form-label hide" asp-for="LastName"></label>
+                            <input asp-for="LastName" class="form-input" autocomplete="off"/>
+                            <span asp-validation-for="LastName" class="field-error"></span>
                         </div>
                     </div>
 
@@ -62,38 +62,38 @@
                         <!-- Email -->
                         <div class="form-group half">
                             <label class="form-label" asp-for="Email"></label>
-                            <input asp-for="Email" class="form-input" autocomplete="off" />
-                            <span class="field-error" data-valmsg-for="Email"></span>
+                            <input asp-for="Email" class="form-input" autocomplete="off"/>
+                            <span asp-validation-for="Email" class="field-error"></span>
                         </div>
 
                         <!-- PhoneNumber -->
                         <div class="form-group half">
-                            <label class="form-label" asp-for="PhoneNumber">Phone</label>
-                            <input asp-for="PhoneNumber" class="form-input" autocomplete="off" />
-                            <span class="field-error" data-valmsg-for="PhoneNumber"></span>
+                            <label class="form-label" asp-for="PhoneNumber"></label>
+                            <input asp-for="PhoneNumber" class="form-input" autocomplete="off"/>
+                            <span asp-validation-for="PhoneNumber" class="field-error"></span>
                         </div>
                     </div>
 
-                    <!-- Street StreetAddress -->
+                    <!-- Street Address -->
                     <div class="form-group">
                         <label class="form-label" asp-for="StreetAddress"></label>
-                        <input asp-for="StreetAddress" class="form-input" autocomplete="off" />
-                        <span class="field-error" data-valmsg-for="StreetStreetAddress"></span>
+                        <input asp-for="StreetAddress" class="form-input" autocomplete="off"/>
+                        <span asp-validation-for="StreetAddress" class="field-error"></span>
                     </div>
 
                     <div class="form-column">
                         <!-- Postal Code -->
                         <div class="form-group half">
-                            <label class="form-label" asp-for="PostalCode">ZIP / Postal Code</label>
-                            <input asp-for="PostalCode" class="form-input" autocomplete="off" />
-                            <span class="field-error" data-valmsg-for="PostalCode"></span>
+                            <label class="form-label" asp-for="PostalCode"></label>
+                            <input asp-for="PostalCode" class="form-input" autocomplete="off"/>
+                            <span asp-validation-for="PostalCode" class="field-error"></span>
                         </div>
 
                         <!-- City -->
                         <div class="form-group half">
                             <label class="form-label" asp-for="City"></label>
-                            <input asp-for="City" class="form-input" autocomplete="off" />
-                            <span class="field-error" data-valmsg-for="City"></span>
+                            <input asp-for="City" class="form-input" autocomplete="off"/>
+                            <span asp-validation-for="City" class="field-error"></span>
                         </div>
                     </div>
 
@@ -107,11 +107,10 @@
                                 Variant = "primary"
                             };
                         }
-                        <partial name="Partials/Components/ui/_Button" model="@buttonModel" />
+                        <partial name="Partials/Components/ui/_Button" model="@buttonModel"/>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </section>
-

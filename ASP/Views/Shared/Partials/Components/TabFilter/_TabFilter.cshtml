@@ -3,9 +3,9 @@
 <div class="projects-tabs">
   @foreach (var tab in Model.Tabs)
   {
-    <a class="tab @(tab.IsActive ? "active" : "")" role="button">
+    <div class="tab @(tab.IsActive ? "active" : "")" data-status="@tab.Text.ToUpper()" role="button">
       @tab.Text
       <span class="count">[@tab.Count]</span>
-    </a>
+    </div>
   }
 </div>

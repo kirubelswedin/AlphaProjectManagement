@@ -3,13 +3,13 @@ namespace Business.Dtos;
 public class UserDetailsDto
 {
   public string Id { get; set; } = null!;
-  public string? Avatar { get; set; }
-  public string? FirstName { get; set; } = null!;
-  public string? LastName { get; set; } = null!;
+  public string? ImageUrl { get; set; }
   public string FullName => $"{FirstName} {LastName}";
-  public string? Email { get; set; } = null!;
-  public string? PhoneNumber { get; set; } = null!;
-  public string? JobTitle { get; set; } = null!;
+  public string? FirstName { get; set; } 
+  public string? LastName { get; set; }
+  public string? Email { get; set; } 
+  public string? PhoneNumber { get; set; } 
+  public string? JobTitle { get; set; } 
   public string StreetAddress { get; set; } = null!;
   public string City { get; set; } = null!;
   public string PostalCode { get; set; } = null!;

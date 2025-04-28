@@ -75,9 +75,13 @@
 	--dark-700: #414144;
 	--dark-800: #525354;
 	--dark-900: #707070;
+	--dark-900-10: rgba(112, 112, 112, 0.1);
 
 	--dark-opacity-20: rgba(26, 25, 38, 0.2);
 	--dark-opacity-60: rgba(26, 25, 38, 0.6);
+	--light-opacity-70: rgba(74, 74, 90, 0.6);
+	
+	
 
 	/* Text & Background */
 	--primary-text: var(--dark-100);
@@ -150,6 +154,9 @@
 	/* Member cards */
 	--jobtitle-text: var(--primary-text-inverted);
 	--jobtitle-background: var(--main-background-inverted);
+	
+	/* Member tags */
+	--member-tag-background: var(--white-200);
 
 	/* Forms */
 	--form-input-background: var(--surface-background);
@@ -161,10 +168,12 @@
 	--box-shadow-1: 0 5px 5px 1px rgba(0, 0, 0, 0.05);
 	--box-shadow-2: 0 4px 20px rgba(0, 0, 0, 0.08);
 	--box-shadow-3: 0 4px 40px rgba(0, 0, 0, 0.2);
+	
+	--avatars-border: 2px solid #F1F3F7FF;
 
 	/* shapes - circle */
 	--circle-gray-text-color: var(--gray-600);
-	--circle-gray-background-color: var(--dark-900);
+	--circle-gray-background-color: var(--dark-opacity-60);
 	--hover-grey-icon: var(--gray-100);
 
 	--hover-theme-icon: var(--purple);
@@ -247,14 +256,19 @@
 	/* Member cards */
 	--jobtitle-background: var(--dark-600);
 
+	/* Member tags */
+	--member-tag-background: var(--dark-600);
+
 	/* Shadows, borders & dividers */
 	--box-shadow-1: 0 5px 5px 1px rgba(0, 0, 0, 0.2);
 	--box-shadow-2: 0 4px 20px rgba(0, 0, 0, 0.3);
 	--box-shadow-3: 0 4px 40px rgba(0, 0, 0, 0.4);
 
+	--avatars-border: 2px solid #151517FF;
+
 	/* shapes - circle */
 	--circle-gray-text-color: var(--dark-500);
-	--circle-gray-background-color: var(--dark-900);
+	--circle-gray-background-color: var(--light-opacity-70);
 	--hover-grey-icon: var(--gray-600);
 
 	--hover-grey: var(--dark-500);
@@ -458,4 +472,42 @@ main {
 
 .open {
 	display: flex !important;
+}
+
+
+/* Page Header */
+.page-header {
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+	margin-bottom: 2rem;
+}
+
+.page-header-content {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.page-header-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.page-title {
+	font-size: 2.25rem;
+	font-weight: var(--font-bold);
+	color: var(--primary-text);
+	margin: 0;
+}
+
+.page-subtitle {
+	color: var(--secondary-text);
+	margin: 0.25rem 0 0;
+	font-size: 0.9rem;
+}
+
+.page-action {
+	display: flex;
+	align-items: center;
 }

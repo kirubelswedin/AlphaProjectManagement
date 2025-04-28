@@ -25,3 +25,66 @@
 	gap: 1.5rem;
 	width: 100%;
 }
+
+
+/* pProjects Tabfiler */
+.projects-tabs {
+	display: flex;
+	gap: 2rem;
+	margin-bottom: 1.5rem;
+	border-bottom: 1px solid var(--border-color);
+	overflow-y: auto;
+	white-space: nowrap;
+	scrollbar-width: thin;
+	-ms-overflow-style: none;
+	position: relative;
+}
+
+.projects-tabs::-webkit-scrollbar {
+	display: none;
+}
+
+.projects-tabs::after {
+	content: "";
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	width: 30px;
+	background: linear-gradient(to right, transparent, var(--main-background));
+	pointer-events: none;
+	opacity: 0;
+	transition: opacity 0.3s ease;
+}
+
+.projects-tabs.has-overflow::after {
+	opacity: 1;
+}
+
+.tab {
+	text-decoration: none;
+	color: var(--secondary-text);
+	font-weight: 500;
+	font-size: 0.75rem;
+	letter-spacing: 0.05rem;
+	padding: 0.9rem 0;
+	position: relative;
+	transition: color 0.15s ease-in-out;
+	flex-shrink: 0;
+	cursor: pointer;
+	text-transform: uppercase;
+}
+
+.tab.active {
+	color: var(--accent);
+}
+
+.tab.active::after {
+	content: "";
+	position: absolute;
+	bottom: -0.1rem;
+	left: 0;
+	width: 100%;
+	height: 3px;
+	background-color: var(--accent);
+}

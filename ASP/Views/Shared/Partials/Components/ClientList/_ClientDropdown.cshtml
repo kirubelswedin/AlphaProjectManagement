@@ -1,0 +1,20 @@
+@model ClientDropdownViewModel
+
+<div class="dropdown-window" data-for="client-dropdown-@Model.Id">
+    <div class="dropdown-content">
+        <div class="dropdown-items">
+            <div class="dropdown-item" 
+                 onclick="window.dispatchEvent(new CustomEvent('openModal', { detail: { modalId: 'editclientmodal', clientId: '@Model.Id' } }))">
+                <i class="fa-duotone fa-solid fa-pencil"></i>
+                <span>Edit Client</span>
+            </div>
+
+            <div class="dropdown-divider"></div>
+            
+            <div class="dropdown-item danger" data-action="delete-client" data-id="@Model.Id">
+                <i class="fa-duotone fa-solid fa-trash-can"></i>
+                <span>Delete Client</span>
+            </div>
+        </div>
+    </div>
+</div>

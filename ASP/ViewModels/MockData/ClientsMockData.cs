@@ -15,6 +15,9 @@ public static class ClientsMockData
       LastName = "Anderson",
       Email = "john.anderson@techcorp.com",
       PhoneNumber = "+46 70 123 45 67",
+      StreetAddress = "456 Tech St",
+      PostalCode = "67890",
+      City = "Tech City",
       CreatedAt = DateTime.Now.AddMonths(-6)
     },
     new()
@@ -25,6 +28,9 @@ public static class ClientsMockData
       LastName = "Johnson",
       Email = "sarah.j@healthcareplus.com",
       PhoneNumber = "+46 73 456 78 90",
+      StreetAddress = "123 Main St",
+      PostalCode = "12345",
+      City = "Anytown",
       CreatedAt = DateTime.Now.AddMonths(-4)
     },
     new()
@@ -35,6 +41,9 @@ public static class ClientsMockData
       LastName = "Brown",
       Email = "m.brown@globalsales.com",
       PhoneNumber = "+46 76 789 01 23",
+      StreetAddress = "789 Oak St",
+      PostalCode = "54321",
+      City = "Sometown",
       CreatedAt = DateTime.Now.AddMonths(-3)
     },
     new()
@@ -55,6 +64,9 @@ public static class ClientsMockData
       LastName = "Lee",
       Email = "david.lee@datavizcorp.com",
       PhoneNumber = "+46 70 987 65 43",
+      StreetAddress = "456 Elm St",
+      PostalCode = "67890",
+      City = "Othertown",
       CreatedAt = DateTime.Now.AddMonths(-1)
     }
   };
@@ -75,7 +87,7 @@ public static class ClientsMockData
 
     _clients.Add(clientEntity);
   }
-  
+
   public static List<Client> GetClients()
   {
     return _clients.Select(c => new Client

@@ -7,13 +7,12 @@ using Domain.Extensions;
 
 namespace ASP.Controllers;
 
-public class AuthController(IAuthService authService, INotificationService notificationService, IUserService userService) : Controller
+public class AuthController(IAuthService authService, INotificationService notificationService, IUserService userService ) : Controller
 {
     private readonly IAuthService _authService = authService;
     private readonly INotificationService _notificationService = notificationService;
     private readonly IUserService _userService = userService;
     
- 
     [Route("auth/signup")]
     public IActionResult SignUp(string returnUrl = "~/")
     {
@@ -47,7 +46,7 @@ public class AuthController(IAuthService authService, INotificationService notif
         return View(model);
     }
 
-    
+
     [Route("auth/login")]
     public IActionResult Login(string returnUrl = "~/")
     {
@@ -67,10 +66,11 @@ public class AuthController(IAuthService authService, INotificationService notif
 
             if (authResult.Succeeded)
             {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var userResult = await _userService.GetUserByIdAsync(userId!);
+                // var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                // get user from email, not claims
+                var userResult = await _userService.GetUserByEmailAsync(loginFormData.Email!);
                 var user = userResult.Result;
-                
+
                 if (user != null)
                 {
                     var notificationFormData = new NotificationDetailsDto
@@ -79,11 +79,21 @@ public class AuthController(IAuthService authService, INotificationService notif
                         NotificationTypeId = 1,
                         NotificationTargetId = 1,
                         Message = $"{user.FirstName} {user.LastName} signed in.",
-                        ImageUrl = user.ImageUrl,
-                        CreatedAt = DateTime.UtcNow
+                        ImageUrl = !string.IsNullOrWhiteSpace(user.ImageUrl) ? user.ImageUrl : "default-user.svg",
+                        ImageType = "avatars",
+                        CreatedAt = DateTime.UtcNow,
+                        UserId = user.Id
                     };
 
-                    await _notificationService.AddNotificationAsync(notificationFormData);
+                    var notificationResult = await _notificationService.AddNotificationAsync(notificationFormData);
+                    if (!notificationResult.Succeeded)
+                    {
+                        Console.WriteLine($"[ERROR] Kunde inte skapa notification: {notificationResult.Error}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"[ERROR] Ingen användare hittades med email: {loginFormData.Email}");
                 }
 
                 return LocalRedirect(returnUrl);
@@ -94,8 +104,8 @@ public class AuthController(IAuthService authService, INotificationService notif
         ViewBag.ErrorMessage = "Unable to login. Try another email or password.";
         return View(model);
     }
-    
-    
+
+
     [HttpGet]
     [Route("auth/logout")]
     public async Task<IActionResult> Logout()
@@ -103,4 +113,4 @@ public class AuthController(IAuthService authService, INotificationService notif
         await _authService.SignOutAsync();
         return LocalRedirect("~/");
     }
-  }
+}

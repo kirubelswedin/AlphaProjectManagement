@@ -9,6 +9,7 @@ public class Project
     public string? Description { get; set; }
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
+    public TimeSpan? TimeLeft => !IsCompleted && EndDate.HasValue ? EndDate.Value - DateTime.UtcNow : null;
     public decimal? Budget { get; set; }
 
     public User User { get; set; } = null!;
@@ -26,5 +27,7 @@ public class Project
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     
-    public ICollection<ProjectMember> ProjectMembers { get; set; }
+    
+    public ICollection<ProjectMember>? ProjectMembers { get; set; }
+    public IEnumerable<User?> Members => ProjectMembers?.Select(pm => pm.User) ?? [];
 }

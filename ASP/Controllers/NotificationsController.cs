@@ -19,6 +19,13 @@ public class NotificationsController(IHubContext<NotificationHub> notificationHu
     [HttpPost]
     public async Task<IActionResult> CreateNotification(NotificationDetailsDto notificationDetailsDto)
     {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized();
+
+        notificationDetailsDto.UserId = userId;
+
+        Console.WriteLine($"[DEBUG] CreateNotification: Title='{notificationDetailsDto.Title}', Message='{notificationDetailsDto.Message}', ImageUrl='{notificationDetailsDto.ImageUrl}', ImageType='{notificationDetailsDto.ImageType}', UserId='{notificationDetailsDto.UserId}'");
         await _notificationService.AddNotificationAsync(notificationDetailsDto);
         var notifications = await _notificationService.GetNotificationsAsync("");
         var newNotification = notifications.Result?.OrderByDescending(x => x.CreatedAt).FirstOrDefault();
@@ -26,6 +33,10 @@ public class NotificationsController(IHubContext<NotificationHub> notificationHu
         if (newNotification != null)
         {
             await _notificationHub.Clients.All.SendAsync("ReceiveNotification", newNotification);
+        }
+        else
+        {
+            Console.WriteLine("[DEBUG] No new notification found to send via SignalR.");
         }
         return Ok(new { success = true });
     }
@@ -45,37 +56,7 @@ public class NotificationsController(IHubContext<NotificationHub> notificationHu
 
         return Ok(new { success = true, notifications = result.Result?.ToList() ?? [] });
     }
-
-    [HttpGet("unread-count")]
-    public async Task<IActionResult> GetUnreadCount()
-    {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
-        var roleName = User.FindFirstValue(ClaimTypes.Role);
-
-        if (string.IsNullOrEmpty(userId))
-            return Unauthorized();
-
-        var result = await _notificationService.GetNotificationsAsync(userId, roleName);
-        if (!result.Succeeded)
-            return NotFound(new { error = result.Error });
-
-        var unreadCount = result.Result?.Count(n => !n.IsRead) ?? 0;
-        return Ok(new { success = true, count = unreadCount });
-    }
-
-    [HttpPost("read/{id}")]
-    public async Task<IActionResult> MarkAsRead(string id)
-    {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
-
-        if (string.IsNullOrEmpty(userId))
-            return Unauthorized();
-
-        // Här skulle vi ha en metod för att markera som läst
-        // await _notificationService.MarkAsReadAsync(id, userId);
-        await _notificationHub.Clients.User(userId).SendAsync("NotificationRead", id);
-        return Ok(new { success = true });
-    }
+    
 
     [HttpPost("dismiss/{id}")]
     public async Task<IActionResult> DismissNotification(string id)
@@ -89,5 +70,12 @@ public class NotificationsController(IHubContext<NotificationHub> notificationHu
         await _notificationHub.Clients.All.SendAsync("NotificationDismissed", id);
         return Ok(new { success = true });
     }
-    
+
 }
+
+
+
+
+
+
+

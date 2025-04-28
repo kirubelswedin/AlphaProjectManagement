@@ -9,18 +9,20 @@ public class AzureImageHandler : IImageHandler
 {
     private readonly BlobContainerClient _containerClient;
     private readonly IConfiguration _configuration;
+    private readonly string _baseUrl;
 
     public AzureImageHandler(IConfiguration configuration)
     {
         _configuration = configuration;
         var connectionstring = _configuration["AzureStorageAccount:ConnectionString"];
         var containerName = _configuration["AzureStorageAccount:ContainerName"];
+        _baseUrl = _configuration["AzureStorageAccount:BaseUrl"] ?? "";
 
         _containerClient = new BlobContainerClient(connectionstring, containerName);
         _containerClient.CreateIfNotExists();
     }
 
-    public async Task<string?> SaveImageAsync(IFormFile file, string directory)
+    public async Task<string?> SaveImageAsync(IFormFile? file, string directory)
     {
         if (file == null || file.Length == 0)
             return null!;
@@ -41,7 +43,7 @@ public class AzureImageHandler : IImageHandler
             HttpHeaders = blobHttpHeader
         });
 
-
-        return fileName;
+        // Return full URL to the blob
+        return $"{_baseUrl}/{_containerClient.Name}/{fileName}";
     }
 }

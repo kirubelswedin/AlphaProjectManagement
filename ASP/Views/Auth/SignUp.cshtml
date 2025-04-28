@@ -7,10 +7,10 @@
 <section id="signup" class="card">
     @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
     {
-        <div class="alert-notification error">
+        <div class="alert-notification field-error">
             @ViewBag.ErrorMessage
         </div>
-    }
+    }   
 
     <div class="card-header">
         <h1>Create Account</h1>
@@ -38,32 +38,38 @@
                 <div class="form-group">
                     <label asp-for="FirstName">First Name</label>
                     <input asp-for="FirstName" placeholder="Enter your first name" />
-                    <span asp-validation-for="FirstName"></span>
+                    <span asp-validation-for="FirstName" class="field-error"></span>
                 </div>
 
                 <div class="form-group">
                     <label asp-for="LastName">Last Name</label>
                     <input asp-for="LastName" placeholder="Enter your last name" />
-                    <span asp-validation-for="LastName"></span>
+                    <span asp-validation-for="LastName" class="field-error"></span>
                 </div>
             </div>
 
             <div class="form-group">
                 <label asp-for="Email">Email</label>
                 <input asp-for="Email" placeholder="Enter your email address" />
-                <span asp-validation-for="Email"></span>
+                <span asp-validation-for="Email" class="field-error"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group password-group">
                 <label asp-for="Password">Password</label>
-                <input asp-for="Password" placeholder="Create a password" />
-                <span asp-validation-for="Password"></span>
+                <input asp-for="Password" type="password" placeholder="Create a password" />
+                <span class="password-toggle">
+                    <i class="fa-sharp-duotone fa-solid fa-eye-slash"></i>
+                </span>
+                <span asp-validation-for="Password" class="field-error"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group password-group">
                 <label asp-for="ConfirmPassword">Confirm Password</label>
-                <input asp-for="ConfirmPassword" placeholder="Confirm your password" />
-                <span asp-validation-for="ConfirmPassword"></span>
+                <input asp-for="ConfirmPassword" type="password" placeholder="Confirm your password" />
+                <span class="password-toggle">
+                    <i class="fa-sharp-duotone fa-solid fa-eye-slash"></i>
+                </span>
+                <span asp-validation-for="ConfirmPassword" class="field-error"></span>
             </div>
 
             <div class="terms-accept">
@@ -90,3 +96,4 @@
         <a asp-controller="Auth" asp-action="Login">Log In</a>
     </div>
 </section>
+

@@ -10,93 +10,40 @@ public static class ProjectMapper
     public static ProjectEntity ToEntity(AddProjectFormDto? dto, string? newImageUrl = null, string? createdById = null)
     {
         if (dto == null) return null!;
+
+        if (string.IsNullOrEmpty(createdById))
+            throw new ArgumentException("CreatedById is required", nameof(createdById));
+
         return new ProjectEntity
         {
+            Id = Guid.NewGuid().ToString(),
             ImageUrl = newImageUrl,
             ProjectName = dto.ProjectName,
             ClientId = dto.ClientId,
             Description = dto.Description,
             StartDate = dto.StartDate,
             EndDate = dto.EndDate,
-            UserId = createdById ?? dto.UserId,
             Budget = dto.Budget,
-            StatusId = 1, // default status
+            UserId = createdById,
+            StatusId = 1,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
-        };
-    }
-
-    // UpdateProjectFormDto to ProjectEntity
-    public static ProjectEntity ToEntity(UpdateProjectFormDto? dto, string? newImageUrl = null)
-    {
-        if (dto == null) return null!;
-        return new ProjectEntity
-        {
-            Id = dto.Id,
-            ImageUrl = newImageUrl ?? dto.ImageUrl,
-            ProjectName = dto.ProjectName,
-            ClientId = dto.ClientId,
-            Description = dto.Description,
-            StartDate = dto.StartDate,
-            EndDate = dto.EndDate,
-            UserId = dto.UserId,
-            Budget = dto.Budget,
-            StatusId = dto.StatusId
-        };
-    }
-
-    // ProjectEntity to a Project
-    public static Project ToModel(ProjectEntity? entity)
-    {
-        if (entity == null) return null!;
-        return new Project
-        {
-            Id = entity.Id,
-            ImageUrl = entity.ImageUrl,
-            ProjectName = entity.ProjectName,
-            Client = ClientMapper.ToModel(entity.Client),
-            Description = entity.Description,
-            StartDate = entity.StartDate,
-            EndDate = entity.EndDate,
-            Budget = entity.Budget,
-            User = UserMapper.ToModel(entity.User),
-            Status = StatusMapper.ToModel(entity.Status),
-            IsCompleted = entity.IsCompleted,
-            CompletedOnTime = entity.CompletedOnTime,
-            CompletedAt = entity.CompletedAt,
-            CreatedAt = entity.CreatedAt,
-            UpdatedAt = entity.UpdatedAt,
-            ProjectMembers = entity.ProjectMembers.Select(pm => new ProjectMember
-            {
-                Id = pm.Id,
-                ProjectId = pm.ProjectId,
-                UserId = pm.UserId,
-                User = UserMapper.ToModel(pm.User),
-                RoleId = pm.RoleId,
-                Role = new ProjectRole
-                {
-                    Id = pm.Role.Id,
-                    Name = pm.Role.Name,
-                    Description = pm.Role.Description,
-                    IsDefault = pm.Role.IsDefault
-                },
-                JoinedAt = pm.JoinedAt,
-                UpdatedAt = pm.UpdatedAt
-            }).ToList()
         };
     }
 
     // ProjectEntity to a ProjectDetailsDto
     public static ProjectDetailsDto ToDetailsDto(ProjectEntity? entity)
     {
-        if (entity == null)
-            return null!;
-
+        if (entity == null) return null!;
+        
+        // Debugging output
+        // Console.WriteLine("[ProjectMapper.ToDetailsDto] entity.Id=" + entity.Id + ", entity.ImageUrl=" + entity.ImageUrl);
+        
         return new ProjectDetailsDto
         {
             // Basic Information
             Id = entity.Id,
-            ImageUrl = entity.ImageUrl,
+            ImageUrl = entity.ImageUrl, 
             ProjectName = entity.ProjectName,
             Description = entity.Description,
             StartDate = entity.StartDate,
@@ -122,34 +69,64 @@ public static class ProjectMapper
             // Members
             Members = entity.ProjectMembers.Select(member => new ProjectMemberDto
             {
-                UserId = member.UserId,
-                FullName = $"{member.User.FirstName} {member.User.LastName}",
-                ImageUrl = member.User.ImageUrl,
                 RoleId = member.RoleId,
                 RoleName = member.Role.Name,
-                JoinedAt = member.JoinedAt
+                JoinedAt = member.JoinedAt,
+                User = new UserDetailsDto
+                {
+                    Id = member.User.Id,
+                    FirstName = member.User.FirstName,
+                    LastName = member.User.LastName,
+                    ImageUrl = member.User.ImageUrl,
+                    Email = member.User.Email,
+                    PhoneNumber = member.User.PhoneNumber,
+                    JobTitle = member.User.JobTitle,
+                    StreetAddress = member.User.Address?.StreetAddress ?? "",
+                    City = member.User.Address?.City ?? "",
+                    PostalCode = member.User.Address?.PostalCode ?? "",
+                }
             }).ToList(),
-
-            // Statistics for dashboard etc
-            TotalMembers = entity.ProjectMembers.Count,
-            CompletedTasks = 0,
-            TotalTasks = 0,
-
+            
             // Time Tracking
             IsCompleted = entity.IsCompleted,
             CompletedOnTime = entity.CompletedOnTime,
-            CompletedAt = entity.CompletedAt
+            CompletedAt = entity.CompletedAt,
+            
+            // Statistics for dashboard etc
+            TotalMembers = entity.ProjectMembers.Count,
+            // CompletedTasks = 0,
+            // TotalTasks = 0,
         };
     }
 
-    public static void UpdateFromDto(ProjectEntity entity, UpdateProjectFormDto dto)
+    // Updates an existing ProjectEntity instance with data from UpdateProjectFormDto
+    public static void ApplyUpdatesToEntity(UpdateProjectFormDto? dto, ProjectEntity? entity, string? newImageUrl = null)
     {
+        if (dto == null || entity == null) return;
+
+        entity.ImageUrl = newImageUrl ?? entity.ImageUrl;
         entity.ProjectName = dto.ProjectName;
+        entity.ClientId = dto.ClientId;
         entity.Description = dto.Description;
         entity.StartDate = dto.StartDate;
         entity.EndDate = dto.EndDate;
         entity.Budget = dto.Budget;
-        entity.StatusId = dto.StatusId;
-        entity.ClientId = dto.ClientId;
+        entity.StatusId = dto.StatusId; 
+        entity.UpdatedAt = DateTime.UtcNow;
+
+        // Handle completion logic
+        var wasCompleted = entity.StatusId == 4 && !entity.IsCompleted;
+        if (wasCompleted)
+        {
+            entity.IsCompleted = true;
+            entity.CompletedAt = DateTime.UtcNow;
+            entity.CompletedOnTime = DateTime.UtcNow <= entity.EndDate;
+        }
+        else if (entity.IsCompleted && dto.StatusId != 4)
+        {
+            entity.IsCompleted = false;
+            entity.CompletedAt = null;
+            entity.CompletedOnTime = false;
+        }
     }
 }

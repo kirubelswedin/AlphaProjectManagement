@@ -1,6 +1,4 @@
-using System.Collections;
 using ASP.ViewModels.Components;
-using ASP.ViewModels.forms;
 using ASP.ViewModels.Forms;
 
 namespace ASP.ViewModels.Views;
@@ -14,7 +12,9 @@ public class MembersViewModel
         ModalId = "addmembermodal"
     };
 
-    public AddMembersViewModel AddMember { get; set; } = new();
-    public EditMembersViewModel EditProject { get; set; } = new();
     public IEnumerable<MemberCardViewModel> Members { get; set; } = [];
+    
+    // Forms data
+    public AddMemberViewModel AddMember { get; set; } = new();
+    public EditMemberViewModel EditMember { get; set; } = new();
 }

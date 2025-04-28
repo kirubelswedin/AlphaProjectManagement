@@ -69,6 +69,18 @@
 	}
 
 	/* Header */
+	.notification-message {
+		max-width: 13rem;
+	}
+	.dropdown-content.notification {
+		width: calc(20rem + 100%);
+		max-height: 30rem;
+
+	}
+	.dropdown-wrapper.active .dropdown-content.notification  {
+		transform: translateX(70px); 
+	}
+	
 	.hamburger-icon {
 		display: flex;
 		cursor: pointer;
@@ -144,9 +156,13 @@
 }
 
 @media screen and (width <= 25rem) {
-	.notification-btn {
-		display: none;
+	header {
+		padding: 1rem 1rem;
 	}
+
+	/* .notification-btn {
+		display: none;
+	} */
 
 	/* remove text on action button - mobile */
 	.page-header .base-button.primary-button {
@@ -167,16 +183,6 @@
 
 	.page-header .base-button.primary-button .button-icon {
 		font-size: 1.5rem;
-	}
-
-	.deadline {
-		padding: 0.3rem 0.6rem;
-		font-size: 0.875rem;
-	}
-
-	.team-members .avatar {
-		width: 1.75rem;
-		height: 1.75rem;
 	}
 
 	.projects-tabs {
