@@ -43,7 +43,6 @@ const WindowManager = {
 
 	// Generell fönsterhantering
 	closeWindow(targetId) {
-		// Kontrollera om det är en dropdown
 		const dropdownWrapper = document
 			.querySelector(`[data-target="#${targetId}"]`)
 			?.closest(".dropdown-wrapper");

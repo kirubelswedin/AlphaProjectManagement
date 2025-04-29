@@ -5,6 +5,7 @@ namespace Business.Dtos;
 
 public class AddProjectFormDto
 {
+    [DataType(DataType.Upload)]
     public IFormFile? ImageFile { get; set; }
 
     [Required(ErrorMessage = "Project name is required")]

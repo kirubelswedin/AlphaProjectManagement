@@ -1,10 +1,10 @@
 @model ProjectCardViewModel
 
 @{
-  string deadlineClass = "deadline";
-  string deadlineText = Model.TimeLeft ?? string.Empty;
+  var deadlineClass = "deadline";
+  var deadlineText = Model.TimeLeft ?? string.Empty;
 
-  if (Model.Status.StatusName == "Completed")
+  if (Model.Status?.StatusName == "C ompleted")
   {
     // completed project - green gradient on time, red gradient if overdue
     deadlineClass += Model.CompletedOnTime ? " completed-success" : " completed-overdue";

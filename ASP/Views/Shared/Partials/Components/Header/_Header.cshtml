@@ -1,13 +1,12 @@
 @using System.Security.Claims
 @using ASP.Mappers
-
 @{
     var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
     var roleName = User.FindFirstValue(ClaimTypes.Role) ?? "";
 
     var displayName = await userService.GetDisplayNameAsync(userId);
     var user = await userManager.FindByIdAsync(userId);
-    var userAvatar = user?.ImageUrl ?? "/images/avatars/default-user.svg";
+    var userAvatar = (user?.ImageUrl ?? "default-user.svg").GetImageUrl("users");
     
     // Get total count of notifications (inkl. dismissed)
     var totalCount = await notificationService.GetTotalNotificationCountAsync(userId, roleName);
@@ -57,7 +56,7 @@
     <div class="dropdown-wrapper" id="profile-dropdown">
         <button id="profile-dropdown-button" class="dropdown-toggle user-profile-btn" data-window="dropdown"
             data-target="profile-dropdown" aria-label="User Profile" aria-haspopup="true" aria-expanded="false">
-            <img src="@userAvatar" alt="User avatar" />
+            <img src="@userAvatar" alt="@displayName's avatar" />
         </button>
 
         @{
@@ -65,7 +64,7 @@
             {
                 UserId = userId,
                 DisplayName = displayName,
-                AvatarUrl = userAvatar,
+                ImageUrl = userAvatar,
                 IsDarkMode = false,
                 LogoutUrl = Url.Action("Logout", "Auth") ?? "#"
             };

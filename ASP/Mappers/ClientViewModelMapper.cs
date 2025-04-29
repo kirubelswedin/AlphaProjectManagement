@@ -11,6 +11,7 @@ public class ClientViewModelMapper
     {
         return new AddClientFormDto
         {
+            ImageFile = model.ImageFile,
             ClientName = model.ClientName,
             FirstName = model.FirstName,
             LastName = model.LastName,
@@ -28,7 +29,7 @@ public class ClientViewModelMapper
         {
             Id = model.Id,
             ImageFile = model.ImageFile,
-            ImageUrl = model.ImageUrl,
+            ImageUrl = (model.ImageUrl ?? "default-client.svg").GetImageUrl("clients"),
             ClientName = model.ClientName,
             FirstName = model.FirstName,
             LastName = model.LastName,
@@ -45,7 +46,7 @@ public class ClientViewModelMapper
         return new ClientListViewModel
         {
             Id = client.Id,
-            ImageUrl = client.ImageUrl.GetImageUrl("clients"),
+            ImageUrl = (client.ImageUrl ?? "default-client.svg").GetImageUrl("clients"),
             ClientName = client.ClientName,
             FirstName = client.FirstName,
             LastName = client.LastName,

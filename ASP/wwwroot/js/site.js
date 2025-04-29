@@ -518,7 +518,8 @@ function initProjectForm() {
 			tagClass: 'member-tag',
 			emptyMessage: 'No members found.',
 			preSelectedItems: [],
-			selectedInputIds: 'SelectedMemberIdsAdd'
+			selectedInputIds: 'SelectedMemberIdsAdd',
+			allItems: []
 		});
 	}
 }
@@ -540,22 +541,43 @@ window.addEventListener("openModal", function (e) {
 		fetch(`/projects/${projectId}`)
 			.then((response) => response.json())
 			.then((data) => {
-				console.log('Projektdata:', data);
-				console.log('Medlemmar till tagSelector:', data.project.members);
-
 				if (!(data.success && data.project)) {
 					console.error("Failed to fetch project data.");
 					return;
 				}
 
+				// fill clients
+				const clientSelect = form.querySelector("[name='ClientId']");
+				if (clientSelect && data.clients) {
+					clientSelect.innerHTML = "";
+					data.clients.forEach(c => {
+						const option = document.createElement("option");
+						option.value = c.value;
+						option.textContent = c.text;
+						if (c.value === data.project.clientId) option.selected = true;
+						clientSelect.appendChild(option);
+					});
+				}
+
+				// fill statuses
+				const statusSelect = form.querySelector("[name='StatusId']");
+				if (statusSelect && data.statuses) {
+					statusSelect.innerHTML = "";
+					data.statuses.forEach(s => {
+						const option = document.createElement("option");
+						option.value = s.value;
+						option.textContent = s.text;
+						if (String(s.value) === String(data.project.status?.id || data.project.statusId)) option.selected = true;
+						statusSelect.appendChild(option);
+					});
+				}
+
 				// Project fields
 				form.querySelector("[name='Id']").value = data.project.id ?? "";
 				form.querySelector("[name='ProjectName']").value = data.project.projectName ?? "";
-				form.querySelector("[name='ClientId']").value = data.project.clientId ?? "";
 				form.querySelector("[name='StartDate']").value = data.project.startDate ? data.project.startDate.split("T")[0] : "";
 				form.querySelector("[name='EndDate']").value = data.project.endDate ? data.project.endDate.split("T")[0] : "";
 				form.querySelector("[name='Budget']").value = data.project.budget ?? "";
-				form.querySelector("[name='StatusId']").value = data.project.statusId ?? "";
 
 				// Project image
 				const imgPreview = form.querySelector(".image-preview-container img");
@@ -571,19 +593,14 @@ window.addEventListener("openModal", function (e) {
 				}
 
 				// Quill Description
-				// Remove any previous Quill instance (if you want to be extra safe)
 				if (form.querySelector("#edit-project-description-editor").__quill) {
 					form.querySelector("#edit-project-description-editor").__quill = null;
 				}
-
-				// create new Quill instance
 				const quillInstance = new Quill(form.querySelector("#edit-project-description-editor"), {
-					modules: {
-						toolbar: '#edit-project-description-toolbar'
-					},
+					modules: { toolbar: '#edit-project-description-toolbar' },
 					theme: 'snow'
 				});
-				quillInstance.setContents([]); // Clear existing content
+				quillInstance.setContents([]);
 				if (data.project.description) {
 					quillInstance.clipboard.dangerouslyPasteHTML(data.project.description);
 				}
@@ -594,12 +611,11 @@ window.addEventListener("openModal", function (e) {
 				const projectMembersSelect = document.getElementById('SelectedMemberIds');
 				if (projectMembersSelect) projectMembersSelect.innerHTML = '';
 
-				const preSelected = (data.project.members || []).map(m => ({
-					id: m.userId,
-					fullName: m.fullName,
+				const preSelected = (data.project.allMembers || []).map(m => ({
+					id: m.id,
+					fullName: m.fullName || [m.firstName, m.lastName].filter(Boolean).join(" "),
 					imageUrl: m.imageUrl
 				}));
-				console.log('preSelectedItems till initTagSelector:', preSelected);
 
 				initTagSelector({
 					containerId: 'selected-members-edit',
@@ -611,7 +627,8 @@ window.addEventListener("openModal", function (e) {
 					tagClass: 'member-tag',
 					emptyMessage: 'No members found.',
 					preSelectedItems: preSelected,
-					selectedInputIds: 'SelectedMemberIdsEdit'
+					selectedInputIds: 'SelectedMemberIdsEdit',
+					allItems: data.members 
 				});
 
 				// Ajax submit handler
@@ -624,7 +641,6 @@ window.addEventListener("openModal", function (e) {
 						form.querySelector("[name='Description']").value = quill.root.innerHTML;
 					}
 
-					// make sure all selected members is in the select
 					let selectedMembers;
 					if (window.getTagSelectorSelectedIds) {
 						selectedMembers = window.getTagSelectorSelectedIds('selected-members-edit');
@@ -1057,7 +1073,102 @@ function initMemberForm() {
  * Member form / Edit
  * ----------------------------------------------------------------------
  */
+window.addEventListener("openModal", function (e) {
+	const { modalId, memberId } = e.detail || {};
+	if (modalId === "editmembermodal" && memberId) {
+		const form = document.querySelector("#editmembermodal form");
+		if (!form) {
+			console.error("Edit member form not found in DOM");
+			return;
+		}
 
+		fetch(`/members/${memberId}`)
+			.then(response => response.json())
+			.then(data => {
+				if (!(data.success && data.member)) {
+					console.error("Failed to fetch member data.");
+					return;
+				}
+
+				const member = data.member;
+
+				// Fill in the fields
+				const fields = [
+					['Id', 'id'],
+					['FirstName', 'firstName'],
+					['LastName', 'lastName'],
+					['Email', 'email'],
+					['PhoneNumber', 'phoneNumber'],
+					['JobTitle', 'jobTitle'],
+					['StreetAddress', 'streetAddress'],
+					['PostalCode', 'postalCode'],
+					['City', 'city']
+				];
+				fields.forEach(([inputName, memberKey]) => {
+					const input = form.querySelector(`[name='${inputName}']`);
+					if (input && input.value !== (member[memberKey] ?? "")) {
+						input.value = member[memberKey] ?? "";
+					}
+				});
+
+				// Image preview and container
+				const imgPreview = form.querySelector(".image-preview-container img");
+				const container = form.querySelector(".image-preview-container");
+				if (imgPreview) {
+					if (member.imageUrl) {
+						if (imgPreview.src !== member.imageUrl) imgPreview.src = member.imageUrl;
+						imgPreview.classList.remove("hide");
+						if (typeof updateImagePreviewState === "function" && container) {
+							updateImagePreviewState(container, true);
+						}
+					} else {
+						if (imgPreview.src !== "") imgPreview.src = "";
+						imgPreview.classList.add("hide");
+						if (typeof updateImagePreviewState === "function" && container) {
+							updateImagePreviewState(container, false);
+						}
+					}
+				}
+
+				// Reset file input
+				const fileInput = form.querySelector("input[type='file'][name='ImageFile']");
+				if (fileInput) fileInput.value = "";
+
+				// Reset validation errors
+				form.querySelectorAll(".field-error").forEach(el => { if (el.textContent !== "") el.textContent = ""; });
+
+				// Ajax submit handler
+				form.onsubmit = async function (ev) {
+					ev.preventDefault();
+
+					const formData = new FormData(form);
+					try {
+						const response = await fetch(`/users/EditMember`, {
+							method: "POST",
+							body: formData
+						});
+						const result = await response.json();
+						if (result.success) {
+							WindowManager.closeModal("editmembermodal");
+							location.reload();
+						} else if (result.errors) {
+							for (const [field, errors] of Object.entries(result.errors)) {
+								const errorElem = form.querySelector(`.field-error[data-valmsg-for='${field}']`);
+								if (errorElem) errorElem.textContent = errors.join(", ");
+							}
+						} else if (result.error) {
+							alert(result.error);
+						}
+					} catch (err) {
+						console.error("Error submitting edit member form:", err);
+					}
+				};
+			})
+			.catch(error => {
+				console.error("Error fetching member data:", error);
+			});
+	}
+});
 
 /*
  * ----------------------------------------------------------------------

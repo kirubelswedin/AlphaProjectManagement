@@ -136,12 +136,12 @@ public class ClientsController(IClientService clientService, INotificationServic
         }
 
         var filteredClients = result.Result!
-            .Where(c => c.ClientName.Contains(term, StringComparison.OrdinalIgnoreCase))
+            .Where(c => c.ClientName != null && c.ClientName.Contains(term, StringComparison.OrdinalIgnoreCase))
             .Select(c => new
             {
                 id = c.Id,
                 text = c.ClientName,
-                image = c.ImageUrl.GetImageUrl("clients")
+                image = (c.ImageUrl ?? "default-client.svg").GetImageUrl("clients")
             })
             .ToList();
 

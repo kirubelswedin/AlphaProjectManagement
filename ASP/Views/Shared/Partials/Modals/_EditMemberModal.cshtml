@@ -16,6 +16,7 @@
       <div class="form-modal-body">
         <form asp-controller="Users" asp-action="EditMember" method="post" enctype="multipart/form-data"
               id="editMemberForm" data-id="edit" novalidate>
+          
           <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
           <input type="hidden" asp-for="Id"/>

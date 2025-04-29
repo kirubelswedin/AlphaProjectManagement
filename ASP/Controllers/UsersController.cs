@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Security.Claims;
+using ASP.Extensions;
 using ASP.Mappers;
 using ASP.ViewModels.Components;
 using ASP.ViewModels.Forms;
@@ -111,6 +112,7 @@ public class UsersController(IUserService userService, INotificationService noti
         catch (Exception ex)
         { return Json(new { success = false, error = ex.Message }); }
     }
+    
     [HttpDelete("members/{id}")]
     public async Task<IActionResult> DeleteMember(string id)
     {
@@ -142,8 +144,8 @@ public class UsersController(IUserService userService, INotificationService noti
             .Select(x => new
             {
                 id = x.Id,
+                ImageUrl = (x.ImageUrl ?? "default-user.svg").GetImageUrl("users"),
                 fullName = $"{x.FirstName} {x.LastName}",
-                imageUrl = x.ImageUrl
             })
             .ToList();
 

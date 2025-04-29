@@ -32,7 +32,7 @@ public class EditMemberViewModel
   [Display(Name = "Job Title")]
   public string? JobTitle { get; set; }
     
-  [Display(Name = "Street StreetAddress", Prompt = "Enter street address")]
+  [Display(Name = "Address", Prompt = "Enter street address")]
   public string? StreetAddress { get; set; }
     
   [Display(Name = "Postal Code", Prompt = "Enter postal code")]

@@ -17,7 +17,7 @@ public class ProjectCardViewModel
   public bool CompletedOnTime { get; set; }
 
   public decimal? Budget { get; set; }
-  public Status Status { get; set; } = null!;
+  public Status? Status { get; set; } 
 
   public List<ProjectMemberViewModel> AllMembers { get; set; } = [];
   public ProjectDropdownViewModel Dropdown => new() { Id = Id };

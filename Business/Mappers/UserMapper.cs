@@ -42,7 +42,7 @@ public static class UserMapper
         };
     }
 
-    public static UserEntity ToEntity(UpdateUserFormDto? dto, string? newImageUrl = null)
+    public static UserEntity ToEntity(UpdateUserFormDto? dto, string? imageUrl = null)
     {
         if (dto == null)
             return null!;
@@ -50,7 +50,7 @@ public static class UserMapper
         return new UserEntity
         {
             Id = dto.Id,
-            ImageUrl = newImageUrl ?? dto.ImageUrl,
+            ImageUrl = imageUrl ?? dto.ImageUrl,
             FirstName = dto.FirstName,
             LastName = dto.LastName,
             Email = dto.Email,
@@ -110,6 +110,27 @@ public static class UserMapper
             PostalCode = entity.Address?.PostalCode ?? string.Empty,
             IsAdmin = false
         };
+    }
+    
+    public static void ApplyUpdatesToEntity(UpdateUserFormDto dto, UserEntity entity, string? imageUrl = null)
+    {
+        entity.FirstName = dto.FirstName;
+        entity.LastName = dto.LastName;
+        entity.Email = dto.Email;
+        entity.UserName = dto.Email;
+        entity.PhoneNumber = dto.PhoneNumber;
+        entity.JobTitle = dto.JobTitle;
+        entity.UpdatedAt = DateTime.UtcNow;
+
+        if (entity.Address == null)
+            entity.Address = new UserAddressEntity();
+
+        entity.Address.StreetAddress = dto.StreetAddress;
+        entity.Address.PostalCode = dto.PostalCode;
+        entity.Address.City = dto.City;
+
+        if (imageUrl != null)
+            entity.ImageUrl = imageUrl;
     }
     
 }

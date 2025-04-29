@@ -54,6 +54,9 @@ public static class ClientsMockData
       LastName = "Wilson",
       Email = "emma.w@marketingpro.com",
       PhoneNumber = "+46 72 345 67 89",
+      StreetAddress = "321 Pine St",
+      PostalCode = "98765",
+      City = "Yourtown",
       CreatedAt = DateTime.Now.AddMonths(-2)
     },
     new()

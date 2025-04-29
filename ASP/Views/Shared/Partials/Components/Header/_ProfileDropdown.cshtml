@@ -1,0 +1,43 @@
+@model ProfileDropdownViewModel
+@{
+    Layout = null;
+}
+
+<div class="dropdown-content">
+    @* Profile info *@
+    <div class="dropdown-item ">
+        <span>@Model.DisplayName</span>
+        <img src="@Model.ImageUrl" alt="@Model.DisplayName" class="profile-avatar" />
+    </div>
+
+    @* Profile settings *@
+    <div class="dropdown-item" onclick="window.location.href='/admin/profile'">
+        <i class="fa-duotone fa-solid fa-user"></i>
+        <span>Profile</span>
+        <i class="fa-duotone fa-solid fa-gear settings-icon"></i>
+    </div>
+
+    @* Theme toggle *@
+    <div class="dropdown-item">
+        <div class="theme-menu-item">
+            <i class="fa-duotone fa-solid fa-moon dark-icon"></i>
+            <i class="fa-duotone fa-solid fa-sun light-icon"></i>
+            <span class="theme-text">
+                <span class="dark-text">Dark Mode</span>
+                <span class="light-text">Light Mode</span>
+            </span>
+            <label class="switch">
+                <input type="checkbox" id="darkModeToggle" @(Model.IsDarkMode ? "checked" : "") />
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="dropdown-divider"></div>
+
+    @* Logout *@
+    <div class="dropdown-item danger" onclick="window.location.href='@Model.LogoutUrl'">
+        <i class="fa-duotone fa-solid fa-right-from-bracket"></i>
+        <span>Logout</span>
+    </div>
+</div>

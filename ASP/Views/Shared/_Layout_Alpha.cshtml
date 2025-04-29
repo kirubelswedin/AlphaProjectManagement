@@ -23,51 +23,50 @@
     
     @await RenderSectionAsync("Styles", required: false)
 </head>
-
-<body data-theme="light">
-    <!-- Mobile Menu -->
-    <div class="mobile-menu">
-        <div class="mobile-menu-content">
-            <partial name="Partials/Components/Sidebar/_LogoTypeLink" />
-            <partial name="Partials/Components/Sidebar/_NavLinks" />
+    <body data-theme="light">
+        <!-- Mobile Menu -->
+        <div class="mobile-menu">
+            <div class="mobile-menu-content">
+                <partial name="Partials/Components/Sidebar/_LogoTypeLink" />
+                <partial name="Partials/Components/Sidebar/_NavLinks" />
+            </div>
         </div>
-    </div>
 
-    <!-- Mobile Menu Overlay -->
-    <div class="mobile-menu-overlay"></div>
+        <!-- Mobile Menu Overlay -->
+        <div class="mobile-menu-overlay"></div>
 
-    <div class="theme-toggle">
-        <i class="fa-duotone fa-solid fa-sun-bright light-icon"></i>
-        <i class="fa-duotone fa-solid fa-moon-stars dark-icon"></i>
-    </div>
+        <!-- Theme Toggle -->
+        <div class="theme-toggle">
+            <i class="fa-duotone fa-solid fa-sun-bright light-icon"></i>
+            <i class="fa-duotone fa-solid fa-moon-stars dark-icon"></i>
+        </div>
 
-    <div class="alpha-wrapper">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <partial name="Partials/Components/Sidebar/_LogoTypeLink" />
-            <partial name="Partials/Components/Sidebar/_NavLinks" />
+        <div class="alpha-wrapper">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <partial name="Partials/Components/Sidebar/_LogoTypeLink" />
+                <partial name="Partials/Components/Sidebar/_NavLinks" />
 
-            <!-- Sidebar Resizer -->
-            <div class="sidebar-resizer" title="click to resize"></div>
-        </aside>
+                <!-- Sidebar Resizer -->
+                <div class="sidebar-resizer" title="click to resize"></div>
+            </aside>
 
-        <!-- Header -->
-        <header class="header">
-            <partial name="Partials/Components/Header/_Header" />
-        </header>
+            <!-- Header -->
+            <header class="header">
+                <partial name="Partials/Components/Header/_Header" />
+            </header>
 
-        <main class="main-content">
-            @RenderBody()
-        </main>
-    </div>
+            <main class="main-content">
+                @RenderBody()
+            </main>
+        </div>
 
-    <script src="~/js/windowManager.js" asp-append-version="true"></script>
-    <script src="~/js/notifications.js" asp-append-version="true"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    <script src="~/js/tags.js" asp-append-version="true"></script>
-    <script src="~/js/theme.js" asp-append-version="true"></script>
+        <script src="~/js/windowManager.js" asp-append-version="true"></script>
+        <script src="~/js/notifications.js" asp-append-version="true"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+        <script src="~/js/tags.js" asp-append-version="true"></script>
+        <script src="~/js/theme.js" asp-append-version="true"></script>
 
-    @await RenderSectionAsync("Scripts", required: false)
-</body>
-
+        @await RenderSectionAsync("Scripts", required: false)
+    </body>
 </html>

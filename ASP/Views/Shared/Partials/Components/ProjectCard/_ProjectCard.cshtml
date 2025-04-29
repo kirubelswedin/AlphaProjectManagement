@@ -1,5 +1,6 @@
 @model ProjectCardViewModel
 
+
 <div class="project-card">
   <div class="project-header">
     <div class="project-image">
@@ -8,8 +9,8 @@
     <div class="project-info">
       <h3>@Model.ProjectName</h3>
       <p>@Model.ClientName</p>
-      <div class="project-status @Model.Status.StatusName.ToLower().Replace(" ", "")">
-        @Model.Status.StatusName
+      <div class="project-status @Model.Status?.StatusName.ToLower().Replace(" ", "")">
+        @Model.Status?.StatusName
       </div>
     </div>
 

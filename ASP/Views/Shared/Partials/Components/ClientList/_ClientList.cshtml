@@ -1,5 +1,4 @@
 @model IEnumerable<ClientListViewModel>
-
 @{
   var clients = Model.ToList();
 }
@@ -41,7 +40,7 @@
                   <img src="@client.ImageUrl" alt="@client.ClientName" />
                 </td>
                 <td class="client-name">@client.ClientName</td>
-                <td class="client-contact">@client.ContactPerson</td>
+                <td class="client-contact">@client.FirstName @client.LastName</td>
                 <td class="client-email">@client.Email</td>
                 <td class="client-phone">@client.PhoneNumber</td>
                 <td class="client-date">@DateTime.UtcNow.ToString("yyyy-MM-dd")</td>

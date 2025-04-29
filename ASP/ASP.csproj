@@ -29,4 +29,10 @@
       <ProjectReference Include="..\Data\Data.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="wwwroot\images\clients\" />
+      <Folder Include="wwwroot\images\projects\" />
+      <Folder Include="wwwroot\images\users\" />
+    </ItemGroup>
+
 </Project>

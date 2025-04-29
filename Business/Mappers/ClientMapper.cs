@@ -91,8 +91,8 @@ public static class ClientMapper
         entity.StreetAddress = form.StreetAddress;
         entity.PostalCode = form.PostalCode;
         entity.City = form.City;
+        
         if (imageUrl != null)
             entity.ImageUrl = imageUrl;
-
     }
 }

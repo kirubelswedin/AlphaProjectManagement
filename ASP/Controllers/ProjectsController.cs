@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using ASP.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using ASP.ViewModels.Components;
 using ASP.ViewModels.Forms;
@@ -87,8 +88,17 @@ public class ProjectsController(
             return Json(new { success = false, error = result.Error });
         
         var projectViewModel = ProjectViewModelMapper.ToProjectCardViewModel(result.Result);
-        return Json(new { success = true, project = projectViewModel });
+        
+        var clients = await GetClientSelectListAsync();
+        var members = await GetMemberSelectListAsync();
+        var statuses = await GetStatusSelectListAsync();
+        
+        if (statuses == null) return Json(new { success = false, error = "Failed to get statuses" });
+            Console.WriteLine($" Clients count: {clients.Count}, Members count: {members.Count}, Statuses count: {statuses.Count}");
+        
+        return Json(new { success = true, project = projectViewModel, clients, members, statuses });
     }
+    
 
     private async Task<List<ProjectCardViewModel>> GetProjectsAsync(string tab)
     {
@@ -98,7 +108,7 @@ public class ProjectsController(
         var projects = result.Result!.ToList();
         var filteredProjects = tab.Equals("ALL", StringComparison.CurrentCultureIgnoreCase)
             ? projects
-            : projects.Where(p => p.Status.StatusName == tab).ToList();
+            : projects.Where(p => p.Status?.StatusName == tab).ToList();
 
         // using mappers to map projects to view models
         var projectCards = filteredProjects
@@ -122,8 +132,16 @@ public class ProjectsController(
                 return Json(new { success = false, error = result.Error ?? "Failed to update project" });
             
             var projectViewModel = ProjectViewModelMapper.ToProjectCardViewModel(result.Result!);
+            
+            var clients = await GetClientSelectListAsync();
+            var members = await GetMemberSelectListAsync();
+            var statuses = await GetStatusSelectListAsync();
+            
+            if (statuses == null) return Json(new { success = false, error = "Failed to get statuses" });
+                Console.WriteLine($" Clients count: {clients.Count}, Members count: {members.Count}, Statuses count: {statuses.Count}");
+            
             await CreateProjectNotification(projectViewModel.ImageUrl,"Project Updated",$"Project {dto.ProjectName} has been updated");
-            return Json(new { success = true, project = projectViewModel }); 
+            return Json(new { success = true, project = projectViewModel, clients, members, statuses  }); 
         }
         catch (Exception ex)
         { return Json(new { success = false, error = ex.Message}); }
@@ -237,7 +255,7 @@ public class ProjectsController(
             {
                 Id = u.Id,
                 FullName = $"{u.FirstName} {u.LastName}",
-                ImageUrl = u.ImageUrl
+                ImageUrl = (u.ImageUrl ?? "default-user.svg").GetImageUrl("users")
             }).ToList()
             : [];
     }
@@ -253,16 +271,16 @@ public class ProjectsController(
     }
     
     [HttpGet("projects/members/search")]
-    public async Task<IActionResult> SearchMembers(string term)
+    public async Task<IActionResult> SearchUsers(string term)
     {
         var result = await _userService.GetUsersAsync();
         if (!result.Succeeded || result.Result == null)
         {
-            Console.WriteLine("SearchMembers: Failed to get users");
+            Console.WriteLine("SearchUsers: Failed to get users");
             return Json(new List<object>());
         }
 
-        var filteredMembers = result.Result
+        var filteredUsers = result.Result
             .Where(u =>
                 (u.FirstName?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false) ||
                 (u.LastName?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false) ||
@@ -270,13 +288,13 @@ public class ProjectsController(
             .Select(u => new
             {
                 id = u.Id,
+                ImageUrl = (u.ImageUrl ?? "default-user.svg").GetImageUrl("users"),
                 fullName = $"{u.FirstName} {u.LastName}",
-                imageUrl = u.ImageUrl
             })
             .ToList();
 
-        Console.WriteLine($"SearchMembers: Found {filteredMembers.Count} members for term '{term}'");
-        return Json(filteredMembers);
+        Console.WriteLine($"SearchUsers: Found {filteredUsers.Count} users for term '{term}'");
+        return Json(filteredUsers);
     }
 
 

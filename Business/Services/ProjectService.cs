@@ -145,7 +145,7 @@ public class ProjectService(
     {
         try
         {
-            // Fetch the tracked project entity including members and users
+            // Fetch the tracked project entity
             var existingProjectResult = await _projectRepository.GetAsync(
                 x => x.Id == formDto.Id,
                 includes: [

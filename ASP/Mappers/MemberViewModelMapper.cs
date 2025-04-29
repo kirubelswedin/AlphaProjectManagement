@@ -31,7 +31,7 @@ public class MemberViewModelMapper
         {
             Id = model.Id,
             ImageFile = model.ImageFile,
-            ImageUrl = model.ImageUrl,
+            ImageUrl = (model.ImageUrl ?? "default-user.svg").GetImageUrl("users"),
             FirstName = model.FirstName,
             LastName = model.LastName,
             Email = model.Email,
@@ -50,7 +50,7 @@ public class MemberViewModelMapper
         return new MemberCardViewModel
         {
             Id = user.Id,
-            ImageUrl = user.ImageUrl.GetImageUrl("members"),
+            ImageUrl = (user.ImageUrl ?? "default-user.svg").GetImageUrl("users"),
             FirstName = user.FirstName,
             LastName = user.LastName,
             Email = user.Email,

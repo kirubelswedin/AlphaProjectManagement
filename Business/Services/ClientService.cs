@@ -82,9 +82,11 @@ public class ClientService(IClientRepository clientRepository, IImageHandler ima
             ClientMapper.ApplyUpdatesToEntity(formDto, existingClient, imageUrl);
             
             var result = await _clientRepository.UpdateAsync(existingClient);
+            if (!result.Succeeded)
+                return new ClientResult<ClientDetailsDto> { Succeeded = false, StatusCode = 500, Error = result.Error };
             
             var dto = ClientMapper.ToDetailsDto(existingClient);
-            return new ClientResult<ClientDetailsDto> { Succeeded = result.Succeeded, StatusCode = result.StatusCode, Error = result.Error, Result = dto };
+            return new ClientResult<ClientDetailsDto> { Succeeded = result.Succeeded, StatusCode = 200, Result = dto };
         }
         catch (Exception ex)
         { return new ClientResult<ClientDetailsDto> { Succeeded = false, StatusCode = 500, Error = $"Failed to update client: {ex.Message}" }; }

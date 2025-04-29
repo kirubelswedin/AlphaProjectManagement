@@ -34,11 +34,10 @@ public class NotificationService(INotificationRepository notificationRepository,
         {
             detailsDto.ImageType = detailsDto.NotificationTypeId switch
             {
-                1 => "avatars",  // user
-                2 => "members",
-                3 => "projects",
-                4 => "clients",
-                _ => "avatars"
+                1 => "users",
+                2 => "projects",
+                3 => "clients",
+                _ => "clients"
             };
         }
 
@@ -83,10 +82,10 @@ public class NotificationService(INotificationRepository notificationRepository,
     public async Task<int> GetTotalNotificationCountAsync(string userId, string? roleName = null)
     {
         const string adminTargetName = "Admin";
-        // Hämta notifications för rätt target (t.ex. Admin)
+        // Get notifications for right target
         var notificationResult = (!string.IsNullOrEmpty(roleName) && roleName == adminTargetName)
             ? await _notificationRepository.GetAllAsync(
-                filterBy: x => true // Alla notifications för admin
+                filterBy: x => true // Get all notifications for admin
             )
             : await _notificationRepository.GetAllAsync(
                 filterBy: x => x.NotificationTarget.TargetName != adminTargetName,

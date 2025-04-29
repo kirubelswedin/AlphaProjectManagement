@@ -2,8 +2,10 @@
 
 <div class="dropdown-window" data-for="member-dropdown-@Model.Id">
   <div class="dropdown-content">
+    
     <div class="dropdown-items">
-      <div class="dropdown-item" data-modal="editMemberModal" data-id="@Model.Id">
+      <div class="dropdown-item" 
+           onclick="window.dispatchEvent(new CustomEvent('openModal', { detail: { modalId: 'editmembermodal', memberId: '@Model.Id' } }))">
         <i class="fa-duotone fa-solid fa-pencil"></i>
         <span>Edit Member</span>
       </div>
@@ -14,7 +16,7 @@
           <span>Admin Access</span>
           <label class="switch">
             <input type="checkbox" @(Model.IsAdmin ? "checked" : "") data-toggle-admin data-id="@Model.Id"
-              data-is-admin="@Model.IsAdmin.ToString().ToLower()">
+                   data-is-admin="@Model.IsAdmin.ToString().ToLower()">
             <span class="slider"></span>
           </label>
         </div>

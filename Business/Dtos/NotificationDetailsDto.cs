@@ -7,7 +7,7 @@ public class NotificationDetailsDto
     public int NotificationTargetId { get; set; }
     public string Title { get; set; } = null!;
     public string? ImageUrl { get; set; }
-    public string ImageType { get; set; } = null!; // ex: "avatars", "members", "clients", "projects"
+    public string ImageType { get; set; } = null!; // ex: "users", "clients", "projects"
     public string Message { get; set; } = null!;
     public DateTime CreatedAt { get; set; }
     public bool IsRead { get; set; }

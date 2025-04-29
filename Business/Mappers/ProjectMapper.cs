@@ -54,6 +54,17 @@ public static class ProjectMapper
             StatusId = entity.Status.Id,
             StatusName = entity.Status.StatusName,
             StatusColor = entity.Status.Color,
+            
+            Status = new Status
+            {
+                Id = entity.Status.Id,
+                StatusName = entity.Status.StatusName,
+                Color = entity.Status.Color,
+                SortOrder = entity.Status.SortOrder,
+                IsDefault = entity.Status.IsDefault,
+                CreatedAt = entity.Status.CreatedAt,
+                UpdatedAt = entity.Status.UpdatedAt
+            },
 
             // Client Information
             ClientId = entity.Client.Id,

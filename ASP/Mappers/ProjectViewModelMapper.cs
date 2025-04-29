@@ -3,7 +3,6 @@ using ASP.Extensions;
 using ASP.ViewModels.Components;
 using ASP.ViewModels.Forms;
 using Business.Dtos;
-using Domain.Models;
 
 namespace ASP.Mappers;
 
@@ -30,7 +29,7 @@ public static class ProjectViewModelMapper
         {
             Id = model.Id,
             ImageFile = model.ImageFile,
-            ImageUrl = model.ImageUrl,
+            ImageUrl = (model.ImageUrl ?? "default-project.svg").GetImageUrl("projects"),
             ProjectName = model.ProjectName,
             ClientId = model.ClientId,
             Description = model.Description,
@@ -39,7 +38,6 @@ public static class ProjectViewModelMapper
             Budget = model.Budget,
             StatusId = model.StatusId,
             SelectedMemberIds = model.SelectedMemberIds.ToList()
-
         };
     }
     
@@ -49,7 +47,7 @@ public static class ProjectViewModelMapper
         {
             Id = project.Id,
             ProjectName = project.ProjectName,
-            ClientName = project.Client?.ClientName ?? "Okänd kund",
+            ClientName = project.ClientName,
             Description = project.Description,
             StartDate = project.StartDate?.ToString("yyyy-MM-dd"),
             EndDate = project.EndDate?.ToString("yyyy-MM-dd"),
@@ -59,13 +57,13 @@ public static class ProjectViewModelMapper
             CompletedOnTime = project.CompletedOnTime,
             ImageUrl = (project.ImageUrl ?? "default-project.svg").GetImageUrl("projects"),
             Budget = project.Budget,
-            Status = project.Status, // Om Status kan vara null, hantera det i vyn
+            Status = project.Status, 
             AllMembers = project.Members?.Select(m => new ProjectMemberViewModel
             {
                 Id = m.User?.Id ?? "",
                 FirstName = m.User?.FirstName ?? "",
                 LastName = m.User?.LastName ?? "",
-                ImageUrl = (m.User?.ImageUrl ?? "default-user.svg").GetImageUrl("members"),
+                ImageUrl = (m.User?.ImageUrl ?? "default-user.svg").GetImageUrl("users"),
             }).ToList() ?? []
         };
     }

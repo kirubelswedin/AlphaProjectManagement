@@ -1,5 +1,4 @@
 @model AddClientViewModel
-
 @{
     const string modalId = "addclientmodal";
 }
@@ -44,7 +43,7 @@
                     <div class="form-column">
                         <!-- First Name -->
                         <div class="form-group half">
-                            <label class="form-label" asp-for="ContactPerson"></label>
+                            <label class="form-label" asp-for="ContactPerson">Contact Person</label>
                             <label class="form-label hide" asp-for="FirstName"></label>
                             <input asp-for="FirstName" class="form-input" autocomplete="off"/>
                             <span asp-validation-for="FirstName" class="field-error"></span>

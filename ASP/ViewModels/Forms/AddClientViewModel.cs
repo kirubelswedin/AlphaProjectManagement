@@ -4,7 +4,8 @@ namespace ASP.ViewModels.Forms;
 
 public class AddClientViewModel
 {
-    [Display(Name = "Client Image", Prompt = "Upload Client Image")]
+    [DataType(DataType.Upload)]
+    [Display(Name = "Image")]
     public IFormFile? ImageFile { get; set; }
     public string? ImageUrl { get; set; }
     

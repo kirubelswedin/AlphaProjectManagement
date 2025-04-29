@@ -41,7 +41,7 @@ public class UserService(
 
             string? imageUrl = null;
             if (formDto.ImageFile != null)
-                imageUrl = await _imageHandler.SaveImageAsync(formDto.ImageFile, "members");
+                imageUrl = await _imageHandler.SaveImageAsync(formDto.ImageFile, "users");
 
             var userEntity = UserMapper.ToEntity(formDto, imageUrl);
             var result = await _userRepository.AddAsync(userEntity);
@@ -114,31 +114,32 @@ public class UserService(
     {
         try
         {
-            var user = await _userManager.FindByIdAsync(formDto.Id);
-            if (user == null)
+            var existingUser = await _userManager.FindByIdAsync(formDto.Id);
+            if (existingUser == null)
                 return new UserResult<UserDetailsDto> { Succeeded = false, StatusCode = 404, Error = "User not found" };
-
-            // Check if email is being changed and if it already exists
-            if (user.Email != formDto.Email)
+            
+            if (existingUser.Email != formDto.Email)
             {
                 var emailExists = await UserExistsByEmailAsync(formDto.Email);
                 if (emailExists.Succeeded)
                     return new UserResult<UserDetailsDto> { Succeeded = false, StatusCode = 409, Error = "A user with this email already exists." };
             }
-            
-            var updatedUser = UserMapper.ToEntity(formDto);
-            updatedUser.UserName = updatedUser.Email;
-            
-            var result = await _userManager.UpdateAsync(updatedUser);
+
+            var imageUrl = existingUser.ImageUrl;
+            if (formDto.ImageFile != null)
+                imageUrl = await _imageHandler.SaveImageAsync(formDto.ImageFile, "users");
+
+            UserMapper.ApplyUpdatesToEntity(formDto, existingUser, imageUrl);
+
+            var result = await _userManager.UpdateAsync(existingUser);
             if (!result.Succeeded)
                 return new UserResult<UserDetailsDto> { Succeeded = false, StatusCode = 400, Error = result.Errors.FirstOrDefault()?.Description };
 
-            return new UserResult<UserDetailsDto> { Succeeded = true, StatusCode = 200 };
+            var dto = UserMapper.ToDetailsDto(existingUser);
+            return new UserResult<UserDetailsDto> { Succeeded = true, StatusCode = 200, Result = dto };
         }
         catch (Exception ex)
-        {
-            return new UserResult<UserDetailsDto> { Succeeded = false, StatusCode = 500, Error = ex.Message };
-        }
+        { return new UserResult<UserDetailsDto> { Succeeded = false, StatusCode = 500, Error = $"Failed to update user: {ex.Message}" }; }
     }
     
     public async Task<UserResult<UserDetailsDto>> DeleteMemberAsync(string id)
@@ -149,10 +150,10 @@ public class UserService(
             if (user == null)
                 return new UserResult<UserDetailsDto> { Succeeded = false, StatusCode = 404, Error = "User not found" };
 
-            // Ta bort användaren från alla projekt
+            // remove user from all projects
             await _projectService.RemoveUserFromAllProjectsAsync(id);
 
-            // Ta bort själva användaren
+            // remove the user
             var result = await _userManager.DeleteAsync(user);
             if (!result.Succeeded)
                 return new UserResult<UserDetailsDto> { Succeeded = false, StatusCode = 400, Error = result.Errors.FirstOrDefault()?.Description };
@@ -160,8 +161,6 @@ public class UserService(
             return new UserResult<UserDetailsDto> { Succeeded = true, StatusCode = 200 };
         }
         catch (Exception ex)
-        {
-            return new UserResult<UserDetailsDto> { Succeeded = false, StatusCode = 500, Error = ex.Message };
-        }
+        { return new UserResult<UserDetailsDto> { Succeeded = false, StatusCode = 500, Error = ex.Message }; }
     }
 }

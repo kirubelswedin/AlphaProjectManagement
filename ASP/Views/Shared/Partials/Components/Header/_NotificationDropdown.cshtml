@@ -1,0 +1,45 @@
+@model NotificationDropdownViewModel
+@{
+  Layout = null;
+}
+
+<div class="dropdown-content notification">
+  <div class="dropdown-header">
+    <div class="header-title">
+      <h4>Notification</h4>
+      @if (Model.UnreadCount > 0)
+      {
+        <span class="notification-number">@Model.UnreadCount</span>
+      }
+    </div>
+    <span class="notification-total">Total: @Model.TotalCount</span>
+  </div>
+
+  @if (!Model.Notifications.Any())
+  {
+    <div class="dropdown-item empty-message">
+      <span>No notifications</span>
+    </div>
+  }
+  else
+  {
+    @foreach (var notification in Model.Notifications)
+    {
+      <div class="dropdown-item @(notification.IsRead ? "read" : "")" data-id="@notification.Id"
+        data-read="@notification.IsRead.ToString().ToLower()">
+        <div class="content-item">
+          <img src="@notification.ImageUrl" alt="Notification image" class="notification-image" />
+          <div class="notification-content">
+            <div class="notification-message">@notification.Message</div>
+            <div class="notification-time time" data-created="@notification.CreatedAt.ToString("o")">
+              @notification.CreatedAt.ToString("yyyy-MM-ddTHH:mm:ss")
+            </div>
+          </div>
+          <button class="notification-close" onclick="notificationManager.dismissNotification('@notification.Id')">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+    }
+  }
+</div>

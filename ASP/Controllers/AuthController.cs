@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using ASP.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using ASP.ViewModels.Views;
 using Business.Dtos;
@@ -79,7 +80,7 @@ public class AuthController(IAuthService authService, INotificationService notif
                         NotificationTypeId = 1,
                         NotificationTargetId = 1,
                         Message = $"{user.FirstName} {user.LastName} signed in.",
-                        ImageUrl = !string.IsNullOrWhiteSpace(user.ImageUrl) ? user.ImageUrl : "default-user.svg",
+                        ImageUrl = (user.ImageUrl ?? "default-user.svg").GetImageUrl("users"),
                         ImageType = "avatars",
                         CreatedAt = DateTime.UtcNow,
                         UserId = user.Id
