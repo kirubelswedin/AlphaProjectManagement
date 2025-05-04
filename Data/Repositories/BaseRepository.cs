@@ -9,13 +9,12 @@ namespace Data.Repositories;
 public interface IBaseRepository<TEntity> where TEntity : class
 {
     Task<RepositoryResult> AddAsync(TEntity entity);
-    Task<RepositoryResult> DeleteAsync(Expression<Func<TEntity, bool>> findBy);
-    Task<RepositoryResult> ExistsAsync(Expression<Func<TEntity, bool>> findBy);
     Task<RepositoryResult<IEnumerable<TEntity>>> GetAllAsync(bool orderByDescending = false, Expression<Func<TEntity, object>>? sortByColumn = null, Expression<Func<TEntity, bool>>? filterBy = null, int take = 0, params Expression<Func<TEntity, object>>[] includes);
     Task<RepositoryResult<TEntity>> GetAsync(Expression<Func<TEntity, bool>> findBy, params Expression<Func<TEntity, object>>[] includes);
+    Task<RepositoryResult> ExistsAsync(Expression<Func<TEntity, bool>> findBy);
     Task<RepositoryResult> UpdateAsync(TEntity entity);
+    Task<RepositoryResult> DeleteAsync(Expression<Func<TEntity, bool>> findBy);
 }
-
 
 public abstract class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : class
 {
@@ -28,7 +27,8 @@ public abstract class BaseRepository<TEntity> : IBaseRepository<TEntity> where T
         _table = _context.Set<TEntity>();
     }
     
-    public virtual async Task<RepositoryResult> AddAsync(TEntity entity)
+    // Add a new entity to the database
+    public virtual async Task<RepositoryResult> AddAsync(TEntity? entity)
     {
         try
         {
@@ -46,7 +46,8 @@ public abstract class BaseRepository<TEntity> : IBaseRepository<TEntity> where T
         }
     }
     
-    public virtual async Task<RepositoryResult<IEnumerable<TEntity>>> GetAllAsync(bool orderByDescending = false, Expression<Func<TEntity, object>>? sortByColumn = null, Expression<Func<TEntity, bool>>? filterBy = null, int take = 0, params Expression<Func<TEntity, object>>[] includes)
+    // Get all entities, with options for sorting, filtering, and including related data.
+    public virtual async Task<RepositoryResult<IEnumerable<TEntity>>> GetAllAsync(bool orderByDescending = false, Expression<Func<TEntity, object>>? sortByColumn = null, Expression<Func<TEntity, bool>>? filterBy = null, int take = 0, params Expression<Func<TEntity, object>>[]? includes)
     {
         IQueryable<TEntity> query = _table;
 
@@ -70,7 +71,8 @@ public abstract class BaseRepository<TEntity> : IBaseRepository<TEntity> where T
     }
 
 
-    public virtual async Task<RepositoryResult<TEntity>> GetAsync(Expression<Func<TEntity, bool>> findBy, params Expression<Func<TEntity, object>>[] includes)
+    // Get a single entity that matches a condition, with optional related data.
+    public virtual async Task<RepositoryResult<TEntity>> GetAsync(Expression<Func<TEntity, bool>>? findBy, params Expression<Func<TEntity, object>>[]? includes)
     {
         IQueryable<TEntity> query = _table;
 
@@ -82,13 +84,13 @@ public abstract class BaseRepository<TEntity> : IBaseRepository<TEntity> where T
                 query = query.Include(include);
 
         var entity = await query.FirstOrDefaultAsync(findBy);
-        return entity != default
+        return entity != null
             ? new RepositoryResult<TEntity> { Succeeded = true, StatusCode = 200, Result = entity }
             : new RepositoryResult<TEntity> { Succeeded = false, StatusCode = 404, Error = "Entity not found." };
     }
 
 
-    public virtual async Task<RepositoryResult> ExistsAsync(Expression<Func<TEntity, bool>> findBy)
+    public virtual async Task<RepositoryResult> ExistsAsync(Expression<Func<TEntity, bool>>? findBy)
     {
         if (findBy == null)
             return new RepositoryResult { Succeeded = false, StatusCode = 400, Error = "Invalid expression" };
@@ -100,7 +102,7 @@ public abstract class BaseRepository<TEntity> : IBaseRepository<TEntity> where T
     }
     
 
-    public virtual async Task<RepositoryResult> UpdateAsync(TEntity entity)
+    public virtual async Task<RepositoryResult> UpdateAsync(TEntity? entity)
     {
         try
         {
@@ -120,7 +122,7 @@ public abstract class BaseRepository<TEntity> : IBaseRepository<TEntity> where T
         }
     }
 
-    public virtual async Task<RepositoryResult> DeleteAsync(Expression<Func<TEntity, bool>> findBy)
+    public virtual async Task<RepositoryResult> DeleteAsync(Expression<Func<TEntity, bool>>? findBy)
     {
         try
         {

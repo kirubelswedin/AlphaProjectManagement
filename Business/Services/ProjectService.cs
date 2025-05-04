@@ -23,8 +23,8 @@ public interface IProjectService
 public class ProjectService(
     IProjectRepository projectRepository,
     IImageHandler imageHandler,
-    ICacheHandler<IEnumerable<ProjectDetailsDto>> cacheHandler,
-    ILogger<ProjectService> logger)
+    ICacheHandler<IEnumerable<ProjectDetailsDto>> cacheHandler
+    )
     : IProjectService
 {
     private readonly IProjectRepository _projectRepository = projectRepository;
@@ -49,7 +49,7 @@ public class ProjectService(
             if (!result.Succeeded)
                 return new ProjectResult<ProjectDetailsDto> { Succeeded = false, StatusCode = 500, Error = result.Error };
 
-            // Hantera projektmedlemmar - nu direkt som lista
+            // adds project members
             if (formDto.SelectedMemberIds.Any())
             {
                 var failedMembers = new List<string>();
@@ -101,7 +101,7 @@ public class ProjectService(
                 { Succeeded = false, StatusCode = 500, Error = "Failed to retrieve projects" };
 
             var entities = result.Result;
-            var projects = entities?.Select(ProjectMapper.ToDetailsDto) ?? [];
+            var projects = entities?.Select(ProjectMapper.ToDetailsDto).ToList() ?? [];
 
             cacheHandler.SetCache(_cacheKey, projects);
             return new ProjectResult<IEnumerable<ProjectDetailsDto>> { Succeeded = true, StatusCode = 200, Result = projects };
@@ -145,7 +145,7 @@ public class ProjectService(
     {
         try
         {
-            // Fetch the tracked project entity
+            // Fetch the tracked project entity with members included
             var existingProjectResult = await _projectRepository.GetAsync(
                 x => x.Id == formDto.Id,
                 includes: [
@@ -164,8 +164,7 @@ public class ProjectService(
             {
                 finalImageUrl = await _imageHandler.SaveImageAsync(formDto.ImageFile, "projects");
             }
-
-            // Apply updates from the DTO using the mapper
+            
             ProjectMapper.ApplyUpdatesToEntity(formDto, entity, finalImageUrl);
 
             // Sync project members if any are provided
@@ -205,8 +204,7 @@ public class ProjectService(
                 return new ProjectResult<ProjectDetailsDto> { Succeeded = false, StatusCode = 500, Error = result.Error };
 
             await UpdateCacheAsync();
-
-            // Map to dto
+            
             var detailsDto = ProjectMapper.ToDetailsDto(entity);
 
             return new ProjectResult<ProjectDetailsDto> { Succeeded = true, StatusCode = 200, Result = detailsDto };
@@ -215,24 +213,25 @@ public class ProjectService(
         { return new ProjectResult<ProjectDetailsDto> { Succeeded = false, StatusCode = 500, Error = $"Failed to update project: {ex.Message}" }; }
     }
     
+    /// Helper method to remove a project member
     public async Task<ProjectResult> RemoveProjectMemberAsync(string projectId, string userId)
     {
         var repoResult = await _projectRepository.RemoveProjectMemberAsync(projectId, userId);
+        if (repoResult.Succeeded)
+            await UpdateCacheAsync();
+        
         return new ProjectResult
-        {
-            Succeeded = repoResult.Succeeded,
-            StatusCode = repoResult.StatusCode,
-            Error = repoResult.Error
-        };
+        { Succeeded = repoResult.Succeeded, StatusCode = repoResult.StatusCode, Error = repoResult.Error };
     }
     
     public async Task<ProjectResult> RemoveUserFromAllProjectsAsync(string userId)
     {
         var repoResult = await _projectRepository.RemoveAllProjectMembershipsForUserAsync(userId);
+        if (repoResult.Succeeded)
+            await UpdateCacheAsync();
+        
         return new ProjectResult
-        {
-            Succeeded = repoResult.Succeeded, StatusCode = repoResult.StatusCode, Error = repoResult.Error
-        };
+        { Succeeded = repoResult.Succeeded, StatusCode = repoResult.StatusCode, Error = repoResult.Error };
     }
 
     public async Task<ProjectResult<ProjectDetailsDto>> DeleteProjectAsync(string id)
@@ -241,18 +240,23 @@ public class ProjectService(
         {
             if (string.IsNullOrEmpty(id))
                 return new ProjectResult<ProjectDetailsDto> { Succeeded = false, StatusCode = 400, Error = "Project ID is required" };
+            
+            var project = await _projectRepository.GetAsync(x => x.Id == id);
+            if (!project.Succeeded || project.Result == null)
+                return new ProjectResult<ProjectDetailsDto> { Succeeded = false, StatusCode = 404, Error = "Project not found." };
 
             var result = await _projectRepository.DeleteAsync(x => x.Id == id);
-            if (!result.Succeeded)
-                return new ProjectResult<ProjectDetailsDto> { Succeeded = false, StatusCode = 500, Error = result.Error };
+            var dto = ProjectMapper.ToDetailsDto(project.Result);
 
             await UpdateCacheAsync();
-            return new ProjectResult<ProjectDetailsDto> { Succeeded = true, StatusCode = 200 };
+            return new ProjectResult<ProjectDetailsDto> { Succeeded = result.Succeeded, StatusCode = result.StatusCode, Error = result.Error, Result = dto};
         }
         catch (Exception ex)
         { return new ProjectResult<ProjectDetailsDto> { Succeeded = false, StatusCode = 500, Error = $"Failed to delete project: {ex.Message}" }; }
     }
 
+    // Updates the project cache
+    // Not using the return value for now, but can be used to update the UI or for ex. dashboard statistics
     private async Task<IEnumerable<ProjectDetailsDto>> UpdateCacheAsync()
     {
         var result = await _projectRepository.GetAllAsync
@@ -262,9 +266,9 @@ public class ProjectService(
             includes:
             [
                 x => x.Client,
+                x => x.ProjectMembers,
                 x => x.Status,
-                x => x.User,
-                x => x.ProjectMembers
+                x => x.User
             ]
         );
 
@@ -272,14 +276,14 @@ public class ProjectService(
             return [];
 
         var entities = result.Result;
-        var projects = entities?.Select(ProjectMapper.ToDetailsDto) ?? [];
+        var projects = entities?.Select(ProjectMapper.ToDetailsDto).ToList() ?? [];
         cacheHandler.SetCache(_cacheKey, projects);
         return projects;
     }
 
     public async Task<ProjectResult<ProjectDetailsDto>> GetProjectDetailsAsync(string id)
     {
-        logger.LogInformation($"GetProjectDetailsAsync called with id: {id}");
+        // logger.LogInformation($"GetProjectDetailsAsync called with id: {id}");
         try
         {
             var result = await _projectRepository.GetAsync(
@@ -299,8 +303,6 @@ public class ProjectService(
             return new ProjectResult<ProjectDetailsDto> { Succeeded = true, Result = projectDetails };
         }
         catch (Exception ex)
-        {
-            return new ProjectResult<ProjectDetailsDto> { Succeeded = false, Error = ex.Message };
-        }
+        { return new ProjectResult<ProjectDetailsDto> { Succeeded = false, Error = ex.Message }; }
     }
 }

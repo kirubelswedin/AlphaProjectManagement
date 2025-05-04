@@ -20,7 +20,7 @@ public class ProjectMemberEntity
     
     [Required]
     [ForeignKey(nameof(Role))]
-    public string RoleId { get; set; } = null!;
+    public string? RoleId { get; set; }
     public virtual ProjectRoleEntity Role { get; set; } = null!;
     
     public DateTime JoinedAt { get; set; } = DateTime.UtcNow;

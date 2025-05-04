@@ -8,7 +8,6 @@ public class ProjectDetailsDto
     public string Id { get; set; } = null!;
     public string? ImageUrl { get; set; } 
     public string ProjectName { get; set; } = null!;
-    public Client? Client { get; set; }
     public string? Description { get; set; } 
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
@@ -51,7 +50,7 @@ public class ProjectDetailsDto
 
 public class ProjectMemberDto
 {
-    public string RoleId { get; set; } = null!;
+    public string? RoleId { get; set; }
     public string RoleName { get; set; } = null!;
     public DateTime JoinedAt { get; set; }
     public UserDetailsDto User { get; set; } = null!;

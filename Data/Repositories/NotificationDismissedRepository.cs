@@ -12,15 +12,12 @@ public interface INotificationDismissedRepository : IBaseRepository<Notification
 
 public class NotificationDismissedRepository(AppDbContext context) : BaseRepository<NotificationDismissedEntity>(context), INotificationDismissedRepository
 {
+    // Get IDs of notifications dismissed by a specific user.
     public async Task<RepositoryResult<IEnumerable<string>>> GetNotificationsIdsAsync(string userId)
     {
         var ids = await _table.Where(x => x.UserId == userId).Select(x => x.NotificationId).ToListAsync();
-        return new RepositoryResult<IEnumerable<string>>
-        {
-            Succeeded = true, 
-            StatusCode = 200, 
-            Result = ids
-        };
+        
+        return new RepositoryResult<IEnumerable<string>> { Succeeded = true, StatusCode = 200, Result = ids };
     }
 }
 

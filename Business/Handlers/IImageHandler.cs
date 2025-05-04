@@ -4,5 +4,5 @@ namespace Business.Handlers;
 
 public interface IImageHandler
 {
-    Task<string?> SaveImageAsync(IFormFile? file, string directory);
+    Task <string?>  SaveImageAsync(IFormFile? file, string directory);
 }

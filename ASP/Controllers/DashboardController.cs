@@ -10,10 +10,6 @@ public class DashboardController : Controller
     [Route("admin/dashboard")]
     public IActionResult Index()
     {
-        Console.WriteLine("DashboardController.Index called");
-        Console.WriteLine($"User authenticated: {User.Identity?.IsAuthenticated}");
-        Console.WriteLine($"User name: {User.Identity?.Name}");
-
         foreach (var claim in User.Claims)
         {
             Console.WriteLine($"Claim: {claim.Type} = {claim.Value}");

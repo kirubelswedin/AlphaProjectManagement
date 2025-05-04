@@ -8,15 +8,19 @@ public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
 {
     public AppDbContext CreateDbContext(string[] args)
     {
+        // Locate the api project's appsettings.json file
+        var basePath = Path.Combine(Directory.GetCurrentDirectory(), "../ASP");
+        
         var configuration = new ConfigurationBuilder()
-            .SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "../ASP"))
-            .AddJsonFile("appsettings.json")
+            .SetBasePath(basePath)
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .Build();
-    
+        
         var connectionString = configuration.GetConnectionString("SqlServer");
         var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
+
         optionsBuilder.UseSqlServer(connectionString);
-    
+        
         return new AppDbContext(optionsBuilder.Options);
     }
 }

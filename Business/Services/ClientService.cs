@@ -16,10 +16,13 @@ public interface IClientService
 }
 
 
-public class ClientService(IClientRepository clientRepository, IImageHandler imageHandler) : IClientService
+public class ClientService(IClientRepository clientRepository, IImageHandler imageHandler, ICacheHandler<IEnumerable<ClientDetailsDto>> cacheHandler ) : IClientService
 {
     private readonly IClientRepository _clientRepository = clientRepository;
     private readonly IImageHandler _imageHandler = imageHandler;
+    
+    private readonly ICacheHandler<IEnumerable<ClientDetailsDto>> _cacheHandler = cacheHandler; 
+    private const string _cacheKey = "Clients";
 
     public async Task<ClientResult<ClientDetailsDto>> CreateClientAsync(AddClientFormDto? formDto)
     {
@@ -38,6 +41,8 @@ public class ClientService(IClientRepository clientRepository, IImageHandler ima
             if (!result.Succeeded)
                 return new ClientResult<ClientDetailsDto> { Succeeded = false, StatusCode = 500, Error = result.Error };
             
+            await UpdateCacheAsync();
+            
             var dto = ClientMapper.ToDetailsDto(entity);
             return new ClientResult<ClientDetailsDto> { Succeeded = result.Succeeded, StatusCode = result.StatusCode, Error = result.Error, Result = dto };
         }
@@ -45,13 +50,19 @@ public class ClientService(IClientRepository clientRepository, IImageHandler ima
         { return new ClientResult<ClientDetailsDto> { Succeeded = false, StatusCode = 500, Error = $"Failed to create project: {ex.Message}" }; }
     }
 
+    // TODO implement orderByDescending and cacheHandler
     public async Task<ClientResult<IEnumerable<ClientDetailsDto>>> GetClientsAsync()
     {
+        var cachedClients = _cacheHandler.GetFromCache(_cacheKey);
+        if (cachedClients != null)
+            return new ClientResult<IEnumerable<ClientDetailsDto>> { Succeeded = true, StatusCode = 200, Result = cachedClients };
+        
         var result = await _clientRepository.GetAllAsync();
         if (!result.Succeeded)
             return new ClientResult<IEnumerable<ClientDetailsDto>> { Succeeded = false, StatusCode = result.StatusCode, Error = result.Error };
 
-        var clients = result.Result!.Select(ClientMapper.ToDetailsDto);
+        var clients = result.Result!.Select(ClientMapper.ToDetailsDto).ToList();
+        _cacheHandler.SetCache(_cacheKey, clients);
         return new ClientResult<IEnumerable<ClientDetailsDto>> { Succeeded = true, StatusCode = 200, Result = clients };
     }
 
@@ -69,11 +80,11 @@ public class ClientService(IClientRepository clientRepository, IImageHandler ima
     {
         try
         {
-            var existingClientResult = await _clientRepository.GetAsync(x => x.Id == formDto.Id);
-            if (!existingClientResult.Succeeded)
-                return new ClientResult<ClientDetailsDto> { Succeeded = false, StatusCode = 404, Error = $"Client with id '{formDto.Id}' was not found." };
+            var clientResult = await _clientRepository.GetAsync(x => x.Id == formDto.Id);
+            if (!clientResult.Succeeded || clientResult.Result == null)
+                return new ClientResult<ClientDetailsDto> { Succeeded = false, StatusCode = 404, Error = "Client not found." };
 
-            var existingClient = existingClientResult.Result;
+            var existingClient = clientResult.Result;
             
             var imageUrl = existingClient!.ImageUrl;
             if (formDto.ImageFile != null)
@@ -85,6 +96,8 @@ public class ClientService(IClientRepository clientRepository, IImageHandler ima
             if (!result.Succeeded)
                 return new ClientResult<ClientDetailsDto> { Succeeded = false, StatusCode = 500, Error = result.Error };
             
+            await UpdateCacheAsync();
+            
             var dto = ClientMapper.ToDetailsDto(existingClient);
             return new ClientResult<ClientDetailsDto> { Succeeded = result.Succeeded, StatusCode = 200, Result = dto };
         }
@@ -94,16 +107,34 @@ public class ClientService(IClientRepository clientRepository, IImageHandler ima
 
     public async Task<ClientResult<ClientDetailsDto>> DeleteClientAsync(string id)
     {
-        var client = await _clientRepository.GetAsync(x => x.Id == id);
-        if (!client.Succeeded)
-            return new ClientResult<ClientDetailsDto> { Succeeded = false, StatusCode = client.StatusCode, Error = client.Error };
-
-        var result = await _clientRepository.DeleteAsync(x => x.Id == id);
-        var dto = ClientMapper.ToDetailsDto(client.Result);
-
-        return new ClientResult<ClientDetailsDto>
+        try
         {
-            Succeeded = result.Succeeded, StatusCode = result.StatusCode, Error = result.Error, Result = dto
-        };
+            if (string.IsNullOrEmpty(id))
+                return new ClientResult<ClientDetailsDto> { Succeeded = false, StatusCode = 400, Error = "Client ID is required." };
+            
+            var client = await _clientRepository.GetAsync(x => x.Id == id);
+            if (!client.Succeeded)
+                return new ClientResult<ClientDetailsDto> { Succeeded = false, StatusCode = client.StatusCode, Error = client.Error };
+
+            var result = await _clientRepository.DeleteAsync(x => x.Id == id);
+            var dto = ClientMapper.ToDetailsDto(client.Result);
+
+            await UpdateCacheAsync();
+            return new ClientResult<ClientDetailsDto> { Succeeded = result.Succeeded, StatusCode = result.StatusCode, Error = result.Error, Result = dto };
+        }
+        catch (Exception ex)
+        { return new ClientResult<ClientDetailsDto> { Succeeded = false, StatusCode = 500, Error = $"Failed to delete client: {ex.Message}" }; }
+    }
+    
+    private async Task<IEnumerable<ClientDetailsDto>> UpdateCacheAsync()
+    {
+        var result = await _clientRepository.GetAllAsync();
+        if (!result.Succeeded)
+            return [];
+        
+        var entities = result.Result!;
+        var clients = entities.Select(ClientMapper.ToDetailsDto).ToList();
+        _cacheHandler.SetCache(_cacheKey, clients);
+        return clients;
     }
 }

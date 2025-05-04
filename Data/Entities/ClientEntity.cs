@@ -24,14 +24,11 @@ public class ClientEntity
 
     [Phone]
     public string? PhoneNumber { get; set; }
-
-    [StringLength(200)]
+    
     public string? StreetAddress { get; set; }
-
-    [StringLength(50)]
+    
     public string? PostalCode { get; set; }
-
-    [StringLength(100)]
+    
     public string? City { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

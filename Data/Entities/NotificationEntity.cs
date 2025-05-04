@@ -18,22 +18,20 @@ public class NotificationEntity
     public virtual NotificationTargetEntity NotificationTarget { get; set; } = null!;
 
     [Required]
-    [MaxLength(100)]
     public string Title { get; set; } = null!;
 
     [Required]
-    [MaxLength(200)]
     public string? ImageUrl { get; set; } = null!;
     public string ImageType { get; set; } = null!;
 
     [Required]
-    [MaxLength(500)]
     public string Message { get; set; } = null!;
 
     public bool IsRead { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
+    public string? RecipientUserId { get; set; } // for individual recipients, null for groups
 
     public virtual ICollection<NotificationDismissedEntity> DismissedNotifications { get; set; } = [];
 

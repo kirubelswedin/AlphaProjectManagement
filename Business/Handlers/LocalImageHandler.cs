@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
+
 namespace Business.Handlers;
 
 public class LocalImageHandler(string imagePath) : IImageHandler
@@ -20,10 +21,10 @@ public class LocalImageHandler(string imagePath) : IImageHandler
             Directory.CreateDirectory(directoryPath);
 
         var filePath = Path.Combine(directoryPath, fileName);
-        using var stream = new FileStream(filePath, FileMode.Create);
+        await using var stream = new FileStream(filePath, FileMode.Create);
         await file.CopyToAsync(stream);
 
-        // Return relative path for web access
+        // relative path for web access
         return $"{directory}/{fileName}";
     }
 }

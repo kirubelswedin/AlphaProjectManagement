@@ -36,11 +36,10 @@ function initSidebarState() {
 	if (savedWidth) {
 		const width = parseFloat(savedWidth);
 		const minWidth = 4;
-
-		// Set width via CSS variable
+		
+		// Set sidebar width
 		document.documentElement.style.setProperty("--sidebar-width", `${width}rem`);
-
-		// Add minimized class after DOM is ready
+		
 		if (width <= minWidth) {
 			const sidebar = document.querySelector("aside");
 			if (sidebar) sidebar.classList.add("minimized");

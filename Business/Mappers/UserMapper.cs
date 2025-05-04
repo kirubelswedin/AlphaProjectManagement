@@ -8,9 +8,7 @@ public static class UserMapper
 {
     public static UserEntity ToEntity(SignUpFormDto? dto)
     {
-        if (dto == null)
-            return null!;
-
+        if (dto == null) return null!;
         return new UserEntity
         {
             FirstName = dto.FirstName,
@@ -21,8 +19,9 @@ public static class UserMapper
         };
     }
 
-    public static UserEntity ToEntity(AddUserFormDto dto, string? imageUrl = null)
+    public static UserEntity ToEntity(AddUserFormDto? dto, string? imageUrl = null)
     {
+        if (dto == null) return null!;
         return new UserEntity
         {
             FirstName = dto.FirstName,
@@ -42,60 +41,9 @@ public static class UserMapper
         };
     }
 
-    public static UserEntity ToEntity(UpdateUserFormDto? dto, string? imageUrl = null)
-    {
-        if (dto == null)
-            return null!;
-
-        return new UserEntity
-        {
-            Id = dto.Id,
-            ImageUrl = imageUrl ?? dto.ImageUrl,
-            FirstName = dto.FirstName,
-            LastName = dto.LastName,
-            Email = dto.Email,
-            UserName = dto.Email,
-            PhoneNumber = dto.PhoneNumber,
-            JobTitle = dto.JobTitle,
-            UpdatedAt = DateTime.UtcNow,
-            Address = new UserAddressEntity
-            {
-                StreetAddress = dto.StreetAddress,
-                PostalCode = dto.PostalCode,
-                City = dto.City
-            }
-        };
-    }
-
-    public static User ToModel(UserEntity? entity)
-    {
-        if (entity == null)
-            return null!;
-
-        return new User
-        {
-            Id = entity.Id,
-            FirstName = entity.FirstName,
-            LastName = entity.LastName,
-            Email = entity.Email,
-            PhoneNumber = entity.PhoneNumber,
-            JobTitle = entity.JobTitle,
-            ImageUrl = entity.ImageUrl,
-            Address = entity.Address != null ? new UserAddress
-            {
-                Id = entity.Address.UserId,
-                StreetAddress = entity.Address.StreetAddress,
-                PostalCode = entity.Address.PostalCode,
-                City = entity.Address.City,
-                Country = entity.Address.Country
-            } : null
-        };
-    }
-
     public static UserDetailsDto ToDetailsDto(UserEntity? entity)
     {
         if (entity == null) return null!;
-
         return new UserDetailsDto
         {
             Id = entity.Id,
@@ -121,13 +69,23 @@ public static class UserMapper
         entity.PhoneNumber = dto.PhoneNumber;
         entity.JobTitle = dto.JobTitle;
         entity.UpdatedAt = DateTime.UtcNow;
-
+        
+        // Manage address
         if (entity.Address == null)
-            entity.Address = new UserAddressEntity();
-
-        entity.Address.StreetAddress = dto.StreetAddress;
-        entity.Address.PostalCode = dto.PostalCode;
-        entity.Address.City = dto.City;
+        {
+            entity.Address = new UserAddressEntity {
+                UserId = entity.Id,
+                StreetAddress = dto.StreetAddress,
+                PostalCode = dto.PostalCode,
+                City = dto.City
+            };
+        }
+        else
+        {
+            entity.Address.StreetAddress = dto.StreetAddress;
+            entity.Address.PostalCode = dto.PostalCode;
+            entity.Address.City = dto.City;
+        }
 
         if (imageUrl != null)
             entity.ImageUrl = imageUrl;

@@ -8,7 +8,6 @@ public class NotificationTypeEntity
     public int Id { get; set; }
 
     [Required]
-    [StringLength(50)]
     public string TypeName { get; set; } = null!;
     
     public virtual ICollection<NotificationEntity> Notifications { get; set; } = [];

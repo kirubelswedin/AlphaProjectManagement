@@ -8,6 +8,8 @@ namespace Data.Extensions;
 
 public static class AuthenticationRegistrationExtension
 {
+    // Enables secure user authentication and login/session management
+    // using Identity with custom user entity and cookie settings.
     public static IServiceCollection AddLocalIdentity(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddIdentity<UserEntity, IdentityRole>(x =>

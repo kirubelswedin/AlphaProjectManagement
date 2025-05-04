@@ -233,9 +233,11 @@ input:checked + .slider:before {
 /* Notification Item Styling */
 .dropdown-content.notification {
 	width: 30rem;
-	max-height: 35rem;
+	max-height: 45rem;
 	overflow-y: auto;
 }
+
+
 
 .content-item {
 	display: flex;

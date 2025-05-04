@@ -15,15 +15,14 @@ public interface INotificationRepository : IBaseRepository<NotificationEntity>
 
 public class NotificationRepository(AppDbContext context) : BaseRepository<NotificationEntity>(context), INotificationRepository
 {
+    // Get recently/latest created notification.
     public async Task<NotificationResult<Notification>> GetLatestNotification()
     {
         var entity = await _table.OrderByDescending(x => x.CreatedAt).FirstOrDefaultAsync();
-        var notification = entity!.MapTo<Notification>();
-        return new NotificationResult<Notification>
-        {
-            Succeeded = true, 
-            StatusCode = 200, 
-            Result = notification
-        };
+        if (entity == null)
+            return new NotificationResult<Notification> { Succeeded = false, StatusCode = 404, Error = "No notifications found." };
+        
+        var notification = entity.MapTo<Notification>();
+        return new NotificationResult<Notification> { Succeeded = true, StatusCode = 200, Result = notification };
     }
 }

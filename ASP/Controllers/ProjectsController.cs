@@ -110,7 +110,7 @@ public class ProjectsController(
             ? projects
             : projects.Where(p => p.Status?.StatusName == tab).ToList();
 
-        // using mappers to map projects to view models
+        // mappers to map projects to view models
         var projectCards = filteredProjects
             .Select(ProjectViewModelMapper.ToProjectCardViewModel)  
             .ToList();

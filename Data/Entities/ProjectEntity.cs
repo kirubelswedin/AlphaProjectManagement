@@ -15,10 +15,8 @@ public class ProjectEntity
     public virtual ClientEntity Client { get; set; } = null!;
 
     [Required]
-    [MaxLength(100)]
     public string ProjectName { get; set; } = null!;
-
-    [MaxLength(500)]
+    
     public string? Description { get; set; }
 
     [DataType(DataType.Date)]

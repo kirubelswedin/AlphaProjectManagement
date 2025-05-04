@@ -6,7 +6,6 @@ namespace Business.Mappers;
 
 public static class ProjectMapper
 {
-    // AddProjectFormDto to ProjectEntity
     public static ProjectEntity ToEntity(AddProjectFormDto? dto, string? newImageUrl = null, string? createdById = null)
     {
         if (dto == null) return null!;
@@ -30,13 +29,10 @@ public static class ProjectMapper
             UpdatedAt = DateTime.UtcNow
         };
     }
-
-    // ProjectEntity to a ProjectDetailsDto
+    
     public static ProjectDetailsDto ToDetailsDto(ProjectEntity? entity)
     {
         if (entity == null) return null!;
-        
-        // Debugging output
         // Console.WriteLine("[ProjectMapper.ToDetailsDto] entity.Id=" + entity.Id + ", entity.ImageUrl=" + entity.ImageUrl);
         
         return new ProjectDetailsDto
@@ -109,8 +105,7 @@ public static class ProjectMapper
             // TotalTasks = 0,
         };
     }
-
-    // Updates an existing ProjectEntity instance with data from UpdateProjectFormDto
+    
     public static void ApplyUpdatesToEntity(UpdateProjectFormDto? dto, ProjectEntity? entity, string? newImageUrl = null)
     {
         if (dto == null || entity == null) return;

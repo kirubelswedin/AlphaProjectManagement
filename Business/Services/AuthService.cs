@@ -42,7 +42,7 @@ public class AuthService(SignInManager<UserEntity> signInManager, UserManager<Us
                     await _userService.AddUserToRoleAsync(userEntity, formDto.RoleName);
                 }
 
-                return new AuthResult { Succeeded = true, StatusCode = 201, SuccessMessage = $"User was created successfully." };
+                return new AuthResult { Succeeded = true, StatusCode = 201, SuccessMessage = "User was created successfully." };
             }
             throw new Exception("Unable to sign up user");
         }

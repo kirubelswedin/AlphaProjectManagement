@@ -68,7 +68,7 @@ public class AuthController(IAuthService authService, INotificationService notif
             if (authResult.Succeeded)
             {
                 // var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                // get user from email, not claims
+                // getting user from email instead of claims
                 var userResult = await _userService.GetUserByEmailAsync(loginFormData.Email!);
                 var user = userResult.Result;
 

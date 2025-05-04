@@ -22,16 +22,19 @@ public static class NotificationMapper
     };
   }
 
-  public static Notification ToModel(NotificationEntity entity)
+  public static NotificationDetailsDto ToDetailsDto(NotificationEntity entity)
   {
-    return new Notification
+    return new NotificationDetailsDto
     {
       Id = entity.Id,
+      NotificationTypeId = entity.NotificationTypeId,
+      NotificationTargetId = entity.NotificationTargetId,
+      Title = entity.Title,
       ImageUrl = entity.ImageUrl,
       ImageType = entity.ImageType,
       Message = entity.Message,
-      IsRead = entity.IsRead,
-      CreatedAt = entity.CreatedAt
+      CreatedAt = entity.CreatedAt,
+      IsRead = entity.IsRead
     };
   }
 }

@@ -2,6 +2,7 @@ using Data.Entities;
 
 namespace Data.Configuration;
 
+// default data to seed the database with standard values
 public static class SeedDataConfiguration
 {
   public static IEnumerable<NotificationTypeEntity> GetNotificationTypes()

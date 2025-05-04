@@ -16,6 +16,7 @@ public interface IProjectRepository : IBaseRepository<ProjectEntity>
 
 public class ProjectRepository(AppDbContext context) : BaseRepository<ProjectEntity>(context), IProjectRepository
 {
+    // Get all, including all related information
     public override async Task<RepositoryResult<IEnumerable<ProjectEntity>>> GetAllAsync(bool orderByDescending = false, Expression<Func<ProjectEntity, object>>? sortByColumn = null, Expression<Func<ProjectEntity, bool>>? filterBy = null, int take = 0, params Expression<Func<ProjectEntity, object>>[] includes)
     {
         var query = _table
@@ -39,14 +40,9 @@ public class ProjectRepository(AppDbContext context) : BaseRepository<ProjectEnt
 
         var entities = await query.ToListAsync();
 
-        return new RepositoryResult<IEnumerable<ProjectEntity>>
-        {
-            Succeeded = true,
-            StatusCode = 200,
-            Result = entities
-        };
+        return new RepositoryResult<IEnumerable<ProjectEntity>> { Succeeded = true, StatusCode = 200, Result = entities };
     }
-
+    
     public override async Task<RepositoryResult<ProjectEntity>> GetAsync(Expression<Func<ProjectEntity, bool>> findBy, params Expression<Func<ProjectEntity, object>>[] includes)
     {
         var query = _table
@@ -61,74 +57,45 @@ public class ProjectRepository(AppDbContext context) : BaseRepository<ProjectEnt
 
         var entity = await query.FirstOrDefaultAsync(findBy);
 
-        return new RepositoryResult<ProjectEntity>
-        {
-            Succeeded = true,
-            StatusCode = 200,
-            Result = entity
-        };
+        return new RepositoryResult<ProjectEntity> { Succeeded = true, StatusCode = 200, Result = entity };
     }
 
 
-
+    // Add a user to a project, making sure both exist and the user isn’t already a member.
     public async Task<RepositoryResult> AddProjectMemberAsync(string projectId, string userId, string roleId = "default")
     {
         try
         {
             Console.WriteLine($"AddProjectMemberAsync: projectId={projectId}, userId={userId}, roleId={roleId}");
-            // Kontrollera om projektet finns
             var projectExists = await _context.Projects.AnyAsync(p => p.Id == projectId);
             if (!projectExists)
-                return new RepositoryResult
-                {
-                    Succeeded = false,
-                    StatusCode = 404,
-                    Error = "Project not found"
-                };
-
-            // Kontrollera om användaren finns
+                return new RepositoryResult { Succeeded = false, StatusCode = 404, Error = "Project not found" };
+            
             var userExists = await _context.Users.AnyAsync(u => u.Id == userId);
             if (!userExists)
-                return new RepositoryResult
-                {
-                    Succeeded = false,
-                    StatusCode = 404,
-                    Error = "User not found"
-                };
-
-            // Kontrollera om projektroll finns (om inte default)
+                return new RepositoryResult { Succeeded = false, StatusCode = 404, Error = "User not found" };
+            
             if (roleId != "default")
             {
                 var roleExists = await _context.ProjectRoles.AnyAsync(r => r.Id == roleId);
                 if (!roleExists)
-                    return new RepositoryResult
-                    {
-                        Succeeded = false,
-                        StatusCode = 404,
-                        Error = "Project role not found"
-                    };
+                    return new RepositoryResult { Succeeded = false, StatusCode = 404, Error = "Project role not found" };
             }
-
-            // Om inte specifik roll angavs, använd default
+            
             if (roleId == "default")
             {
                 var defaultRole = await _context.ProjectRoles.FirstOrDefaultAsync(r => r.IsDefault);
                 roleId = defaultRole?.Id ?? throw new Exception("No default project role found");
             }
 
-            // Kontrollera om relationen redan finns
+            // check if the user is already a member of the project
             var existingMember = await _context.ProjectMembers
                 .FirstOrDefaultAsync(pm => pm.ProjectId == projectId && pm.UserId == userId);
 
             if (existingMember != null)
-                return new RepositoryResult
-                {
-                    Succeeded = false,
-                    StatusCode = 400,
-                    Error = "User is already a member of this project"
-                };
+                return new RepositoryResult { Succeeded = false, StatusCode = 400, Error = "User is already a member of this project" };
 
-            // Skapa projektmedlem
+            // add project member
             var projectMember = new ProjectMemberEntity
             {
                 ProjectId = projectId,
@@ -144,16 +111,12 @@ public class ProjectRepository(AppDbContext context) : BaseRepository<ProjectEnt
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Exception in AddProjectMemberAsync: {ex.Message}");
-            return new RepositoryResult
-            {
-                Succeeded = false,
-                StatusCode = 500,
-                Error = $"Failed to add project member: {ex.Message}"
-            };
+            // Console.WriteLine($"Exception in AddProjectMemberAsync: {ex.Message}");
+            return new RepositoryResult { Succeeded = false, StatusCode = 500, Error = $"Failed to add project member: {ex.Message}" };
         }
     }
 
+    // Get project members for a specific project, including their roles
     public async Task<RepositoryResult<IEnumerable<ProjectMemberEntity>>> GetProjectMembersAsync(string projectId)
     {
         try
@@ -164,24 +127,13 @@ public class ProjectRepository(AppDbContext context) : BaseRepository<ProjectEnt
                 .Include(pm => pm.Role)
                 .ToListAsync();
 
-            return new RepositoryResult<IEnumerable<ProjectMemberEntity>>
-            {
-                Succeeded = true,
-                StatusCode = 200,
-                Result = members
-            };
+            return new RepositoryResult<IEnumerable<ProjectMemberEntity>> { Succeeded = true, StatusCode = 200, Result = members };
         }
         catch (Exception ex)
-        {
-            return new RepositoryResult<IEnumerable<ProjectMemberEntity>>
-            {
-                Succeeded = false,
-                StatusCode = 500,
-                Error = $"Failed to get project members: {ex.Message}"
-            };
-        }
+        { return new RepositoryResult<IEnumerable<ProjectMemberEntity>> { Succeeded = false, StatusCode = 500, Error = $"Failed to get project members: {ex.Message}" }; }
     }
     
+    // Remove user from a project if they're actually a member.
     public async Task<RepositoryResult> RemoveProjectMemberAsync(string projectId, string userId)
     {
         try
@@ -190,12 +142,7 @@ public class ProjectRepository(AppDbContext context) : BaseRepository<ProjectEnt
                 .FirstOrDefaultAsync(pm => pm.ProjectId == projectId && pm.UserId == userId);
 
             if (member == null)
-                return new RepositoryResult
-                {
-                    Succeeded = false,
-                    StatusCode = 404,
-                    Error = "Project member not found"
-                };
+                return new RepositoryResult { Succeeded = false, StatusCode = 404, Error = "Project member not found" };
 
             _context.ProjectMembers.Remove(member);
             await _context.SaveChangesAsync();
@@ -203,16 +150,10 @@ public class ProjectRepository(AppDbContext context) : BaseRepository<ProjectEnt
             return new RepositoryResult { Succeeded = true, StatusCode = 200 };
         }
         catch (Exception ex)
-        {
-            return new RepositoryResult
-            {
-                Succeeded = false,
-                StatusCode = 500,
-                Error = $"Failed to remove project member: {ex.Message}"
-            };
-        }
+        { return new RepositoryResult { Succeeded = false, StatusCode = 500, Error = $"Failed to remove project member: {ex.Message}" }; }
     }
     
+    // Remove a user from all projects at once.
     public async Task<RepositoryResult> RemoveAllProjectMembershipsForUserAsync(string userId)
     {
         try
@@ -230,13 +171,6 @@ public class ProjectRepository(AppDbContext context) : BaseRepository<ProjectEnt
             return new RepositoryResult { Succeeded = true, StatusCode = 200 };
         }
         catch (Exception ex)
-        {
-            return new RepositoryResult
-            {
-                Succeeded = false,
-                StatusCode = 500,
-                Error = $"Failed to remove project memberships for user: {ex.Message}"
-            };
-        }
+        { return new RepositoryResult { Succeeded = false, StatusCode = 500, Error = $"Failed to remove project memberships for user: {ex.Message}" }; }
     }
 }

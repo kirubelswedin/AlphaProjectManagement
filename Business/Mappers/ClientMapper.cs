@@ -9,7 +9,6 @@ public static class ClientMapper
     public static ClientEntity ToEntity(AddClientFormDto? dto, string? imageUrl = null)
     {
         if (dto == null) return null!;
-
         return new ClientEntity
         {
             Id = Guid.NewGuid().ToString(),
@@ -26,46 +25,10 @@ public static class ClientMapper
             UpdatedAt = DateTime.UtcNow
         };
     }
-
-    public static ClientEntity ToEntity(UpdateClientFormDto? dto, string? imageUrl = null)
-    {
-        if (dto == null) return null!;
-
-        return new ClientEntity
-        {
-            Id = dto.Id,
-            ImageUrl = imageUrl ?? dto.ImageUrl,
-            ClientName = dto.ClientName,
-            Email = dto.Email,
-            PhoneNumber = dto.PhoneNumber,
-            UpdatedAt = DateTime.UtcNow
-        };
-    }
-
-    public static Client ToModel(ClientEntity? entity)
-    {
-        if (entity == null)
-            return null!;
-
-        return new Client
-        {
-            Id = entity.Id,
-            ImageUrl = entity.ImageUrl,
-            ClientName = entity.ClientName,
-            FirstName = entity.FirstName,
-            LastName = entity.LastName,
-            Email = entity.Email,
-            PhoneNumber = entity.PhoneNumber,
-            StreetAddress = entity.StreetAddress,
-            PostalCode = entity.PostalCode,
-            City = entity.City
-        };
-    }
     
     public static ClientDetailsDto ToDetailsDto(ClientEntity? entity)
     {
         if (entity == null) return null!;
-
         return new ClientDetailsDto
         {
             Id = entity.Id,

@@ -18,6 +18,7 @@ public class UsersController(IUserService userService, INotificationService noti
     private readonly IUserService _userService = userService;
     private readonly INotificationService _notificationService = notificationService;
     
+    // Displays the member management page with all members and forms for add/edit.
     [Route("admin/members")]
     public async Task<IActionResult> Index()
     {
@@ -32,6 +33,7 @@ public class UsersController(IUserService userService, INotificationService noti
         return View(viewModel);
     }
     
+    // Creates the page header for the members view.
     private static PageHeaderViewModel CreatePageHeader() => new()
     {
         Title = "Members",
@@ -83,7 +85,7 @@ public class UsersController(IUserService userService, INotificationService noti
 
         foreach (var member in members)
         {
-            Console.WriteLine($"Member: {member.FirstName} {member.LastName}, ImageUrl: {member.ImageUrl}");
+            // Console.WriteLine($"Member: {member.FirstName} {member.LastName}, ImageUrl: {member.ImageUrl}");
             var memberCard = MemberViewModelMapper.ToMemberCardViewModel(member);
             memberCards.Add(memberCard);
         }
@@ -129,6 +131,7 @@ public class UsersController(IUserService userService, INotificationService noti
         return Json(new { success = true, member = userViewModel });
     }
 
+    // Searches members by name or email for autocomplete/search features.
     [HttpGet("members/search")]
     public async Task<IActionResult> SearchMembers(string term)
     {
@@ -149,9 +152,10 @@ public class UsersController(IUserService userService, INotificationService noti
             })
             .ToList();
 
-        return Json(filteredMembers);
+        return Json(filteredMembers);   
     }
 
+    // Creates a notification for member-related actions (add, update, delete).
     private async Task CreateMemberNotification(string? imageUrl, string title, string message)
     {
         var notificationDetails = new NotificationDetailsDto
@@ -172,6 +176,7 @@ public class UsersController(IUserService userService, INotificationService noti
         }
     }
 
+    // Collects model validation errors for client-side display.
     private Dictionary<string, string[]> GetModelErrors()
     {
         return ModelState

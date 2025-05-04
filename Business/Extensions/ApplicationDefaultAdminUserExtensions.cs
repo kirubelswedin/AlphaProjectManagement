@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Business.Extensions;
 
+// Set up: Ensures default admin user exists in the system at startup.
 public static class ApplicationDefaultAdminUserExtensions
 {
     public static IApplicationBuilder UseDefaultAdminAccount(
