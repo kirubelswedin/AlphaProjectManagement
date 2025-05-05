@@ -222,15 +222,27 @@ public class ProjectsController(
     {
         public static string GetTimeLeft(DateTime endDate)
         {
-            var timeLeft = endDate - DateTime.UtcNow;
+            var now = DateTime.UtcNow;
+            var timeLeft = endDate - now;
+            if (timeLeft.TotalSeconds < 0) 
+                return "Overdue";
+            
             switch (timeLeft.TotalDays)
             {
-                case < 0:
-                    return "Overdue";
                 case < 1:
                     return "Due today";
+                case < 7:
+                    return $"{timeLeft.Days} day{(timeLeft.Days == 1 ? "" : "s")} left";
+                case < 31:
+                {
+                    var weeks = (int)Math.Ceiling(timeLeft.TotalDays / 7);
+                    return $"{weeks} week{(weeks == 1 ? "" : "s")} left";
+                }
                 default:
-                    return $"{timeLeft.Days} days left";
+                {
+                    var months = (int)Math.Ceiling(timeLeft.TotalDays / 30);
+                    return $"{months} month{(months == 1 ? "" : "s")} left";
+                }
             }
         }
     }
