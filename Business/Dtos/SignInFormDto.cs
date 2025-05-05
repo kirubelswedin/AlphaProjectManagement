@@ -11,8 +11,11 @@ public class SignInFormDto
     )]
     public string Email { get; set; } = null!;
     
-    [DataType(DataType.Password)]
     [Required(ErrorMessage = "Password is required")]
+    [DataType(DataType.Password)]
+    [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$",
+        ErrorMessage = "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, and one number."
+    )]
     public string Password { get; set; } = null!;
     
     public bool IsPersistent { get; set; }

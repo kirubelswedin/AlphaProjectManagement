@@ -1,91 +1,40 @@
-/**
- * Handles theme switching and system theme detection.
- */
 
 document.addEventListener("DOMContentLoaded", () => {
-	console.log("Theme script loaded");
-
-	// Set theme on html element
-	const savedTheme = localStorage.getItem("theme") || "light";
-	document.documentElement.setAttribute("data-theme", savedTheme);
-	document.documentElement.style.colorScheme = savedTheme;
-
-	// System theme detection
-	const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-	if (!localStorage.getItem("theme") && prefersDark) {
-		applyDarkTheme();
-	}
-
-	// Theme toggle event listeners
-	const themeToggles = document.querySelectorAll(
-		".theme-toggle, #darkModeToggle"
-	);
-	themeToggles.forEach((toggle) => {
-		toggle.addEventListener(
-			toggle.id === "darkModeToggle" ? "change" : "click",
-			() => {
-				console.log("Theme toggle clicked");
-				toggleTheme();
-			}
-		);
+	// initialize theme from localStorage or system
+	const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)");
+	let theme = localStorage.getItem("theme") || (systemPrefersDark.matches ? "dark" : "light");
+	setTheme(theme);
+	
+	// listen for theme toggles
+	document.querySelectorAll(".theme-toggle, #darkModeToggle").
+	forEach(toggle => {
+		const eventType = toggle.id === "darkModeToggle" ? "change" : "click";
+		toggle.addEventListener(eventType, toggleTheme);
 	});
-
-	// Theme changed event listener
-	window.addEventListener("themeChanged", (e) => {
-		console.log("Theme changed event received", e.detail.theme);
-		document.querySelectorAll("[data-theme]").forEach((el) => {
-			el.setAttribute("data-theme", e.detail.theme);
-		});
-
-		// Update the checkbox in dropdown menu
+	
+	// listen for custom theme change events
+	window.addEventListener("themeChanged", e => {
+		document.documentElement.setAttribute("data-theme", e.detail.theme);
+		document.documentElement.style.colorScheme = e.detail.theme;
 		const darkModeToggle = document.getElementById("darkModeToggle");
-		if (darkModeToggle) {
-			darkModeToggle.checked = e.detail.theme === "dark";
-		}
+		if (darkModeToggle) darkModeToggle.checked = e.detail.theme === "dark";
 	});
-
-	// System theme change listener
-	window
-		.matchMedia("(prefers-color-scheme: dark)")
-		.addEventListener("change", (e) => {
-			if (!localStorage.getItem("theme")) {
-				e.matches ? applyDarkTheme() : applyLightTheme();
-			}
-		});
+	
+	// listen for system theme changes
+	systemPrefersDark.addEventListener("change", e => {
+		if (!localStorage.getItem("theme")) setTheme(e.matches ? "dark" : "light");
+	});
 });
-
+// switch theme 
 function toggleTheme() {
-	console.log("Toggle theme called");
-	const currentTheme = document.documentElement.getAttribute("data-theme");
-	const newTheme = currentTheme === "dark" ? "light" : "dark";
-	console.log("Current theme:", currentTheme, "New theme:", newTheme);
-
-	document.documentElement.setAttribute("data-theme", newTheme);
-	document.documentElement.style.colorScheme = newTheme;
-	localStorage.setItem("theme", newTheme);
-
-	// Dispatch theme changed event
-	window.dispatchEvent(
-		new CustomEvent("themeChanged", { detail: { theme: newTheme } })
-	);
+	const current = document.documentElement.getAttribute("data-theme");
+	setTheme(current === "dark" ? "light" : "dark");
 }
 
-function applyDarkTheme() {
-	console.log("Applying dark theme");
-	document.documentElement.setAttribute("data-theme", "dark");
-	document.documentElement.style.colorScheme = "dark";
-	localStorage.setItem("theme", "dark");
-	window.dispatchEvent(
-		new CustomEvent("themeChanged", { detail: { theme: "dark" } })
-	);
-}
-
-function applyLightTheme() {
-	console.log("Applying light theme");
-	document.documentElement.setAttribute("data-theme", "light");
-	document.documentElement.style.colorScheme = "light";
-	localStorage.setItem("theme", "light");
-	window.dispatchEvent(
-		new CustomEvent("themeChanged", { detail: { theme: "light" } })
-	);
+// set and save theme, notify the rest of the site of the change.
+function setTheme(theme) {
+	document.documentElement.setAttribute("data-theme", theme);
+	document.documentElement.style.colorScheme = theme;
+	localStorage.setItem("theme", theme);
+	window.dispatchEvent(new CustomEvent("themeChanged", { detail: { theme } }));
 }

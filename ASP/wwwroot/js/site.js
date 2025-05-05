@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-	initSidebarState();
 	initSidebar();
 	initMobileMenu();
 	initFileUploads();
@@ -11,6 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		initTabScrolling();
 		initTabFilter();
 		initAvatarVisibility();
+		initBudgetFormatter();
 	}
 
 	if (window.location.pathname.includes("/clients")) {
@@ -28,98 +28,91 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /*
  * ----------------------------------------------------------------------
- * Set sidebar state
+ * sidebar resizer : Handles responsive, persistent, and interactive sidebar
  * ----------------------------------------------------------------------
  */
-function initSidebarState() {
-	const savedWidth = localStorage.getItem("sidebar-width");
-	if (savedWidth) {
-		const width = parseFloat(savedWidth);
-		const minWidth = 4;
-		
-		// Set sidebar width
-		document.documentElement.style.setProperty("--sidebar-width", `${width}rem`);
-		
-		if (width <= minWidth) {
-			const sidebar = document.querySelector("aside");
-			if (sidebar) sidebar.classList.add("minimized");
-		}
-	}
-}
+const SIDEBAR_DEFAULT_WIDTH = 20; // rem
+const SIDEBAR_MIN_WIDTH = 4; // rem
+const SIDEBAR_MOBILE_BREAKPOINT = 50;	// rem
 
-/*
- * ----------------------------------------------------------------------
- * Sidebar
- * ----------------------------------------------------------------------
- */
 function initSidebar() {
 	const sidebar = document.querySelector("aside");
 	const resizer = document.querySelector(".sidebar-resizer");
-
 	if (!sidebar || !resizer) return;
 
-	// Initialize sidebar state
-	const savedWidth = localStorage.getItem("sidebar-width");
-	const defaultWidth = 20;
-	const minWidth = 5;
-	const mobileBreakpoint = 800;
+	// Helper to set sidebar width, minimized state, and persist to localStorage
+	function setSidebarState(widthRem, minimized) {
+		document.documentElement.style.setProperty("--sidebar-width", `${widthRem}rem`);
+		sidebar.style.width = `${widthRem}rem`;
+		sidebar.classList.toggle("minimized", minimized);
+		localStorage.setItem("sidebar-width", widthRem);
+	}
 
+	// Restore sidebar width from localStorage if available
+	const savedWidth = parseFloat(localStorage.getItem("sidebar-width"));
+	if (!isNaN(savedWidth)) {
+		setSidebarState(savedWidth, savedWidth <= SIDEBAR_MIN_WIDTH);
+	}
+
+	// Expand sidebar to default width and update state
 	function expandSidebar() {
-		document.documentElement.style.setProperty(
-			"--sidebar-width",
-			`${defaultWidth}rem`
-		);
-		sidebar.style.width = `${defaultWidth}rem`;
-		sidebar.classList.remove("minimized");
-		localStorage.setItem("sidebar-width", defaultWidth);
+		setSidebarState(SIDEBAR_DEFAULT_WIDTH, false);
 	}
 
+	// Minimize sidebar and update state
 	function minimizeSidebar() {
-		document.documentElement.style.setProperty(
-			"--sidebar-width",
-			`${minWidth}rem`
-		);
-		sidebar.style.width = `${minWidth}rem`;
-		sidebar.classList.add("minimized");
-		localStorage.setItem("sidebar-width", minWidth);
+		setSidebarState(SIDEBAR_MIN_WIDTH, true);
 	}
 
+	// Toggle sidebar between expanded and minimized
 	function toggleSidebar() {
 		const currentWidth = parseFloat(getComputedStyle(sidebar).width) / 16;
-		currentWidth <= minWidth ? expandSidebar() : minimizeSidebar();
-	}
-
-	function handleResize() {
-		if (window.innerWidth <= mobileBreakpoint) {
-			sidebar.style.width = "";
-			sidebar.classList.remove("minimized");
-			document.documentElement.style.setProperty(
-				"--sidebar-width",
-				`${defaultWidth}rem`
-			);
-		} else if (savedWidth) {
-			const width = parseFloat(savedWidth);
-			width <= minWidth ? minimizeSidebar() : expandSidebar();
-		} else {
+		if (currentWidth <= SIDEBAR_MIN_WIDTH) {
 			expandSidebar();
+		} else {
+			minimizeSidebar();
 		}
 	}
 
-	// Event listeners
+	// Adjust sidebar for window resize and mobile breakpoint (rem)
+	function handleResize() {
+		// Convert px to rem for responsive breakpoint comparison
+		const windowWidthRem = window.innerWidth / 16;
+		if (windowWidthRem <= SIDEBAR_MOBILE_BREAKPOINT) {
+			// On mobile: reset sidebar to default width and remove minimized state
+			sidebar.style.width = "";
+			sidebar.classList.remove("minimized");
+			document.documentElement.style.setProperty("--sidebar-width", `${SIDEBAR_DEFAULT_WIDTH}rem`);
+		} else {
+			// On desktop: restore saved width or use default
+			const width = parseFloat(localStorage.getItem("sidebar-width"));
+			if (!isNaN(width)) {
+				if (width <= SIDEBAR_MIN_WIDTH) {
+					minimizeSidebar();
+				} else {
+					expandSidebar();
+				}
+			} else {
+				expandSidebar();
+			}
+		}
+	}
+
+	// Listen for clicks on the resizer to toggle sidebar
 	resizer.addEventListener("click", (e) => {
 		e.preventDefault();
 		toggleSidebar();
 	});
 
+	// Listen for window resize to adjust sidebar responsively
 	window.addEventListener("resize", handleResize);
 
-	// Initial setup
 	handleResize();
 }
 
 /*
  * ----------------------------------------------------------------------
- * Mobile menu
+ * Mobile menu : Handles hamburger toggle, overlay, and responsive reset
  * ----------------------------------------------------------------------
  */
 function initMobileMenu() {
@@ -129,57 +122,47 @@ function initMobileMenu() {
 
 	if (!hamburger || !mobileMenu || !overlay) return;
 
-	// Toggle menu on checkbox change
-	hamburger.addEventListener("change", () => {
-		const isOpen = hamburger.checked;
-		mobileMenu.classList.toggle("open", isOpen);
-		overlay.classList.toggle("open", isOpen);
-		document.body.classList.toggle("mobile-menu-active", isOpen);
-		document.body.style.overflow = isOpen ? "hidden" : "";
+	// Helper to open or close the mobile menu and update all related states.
+	function setMenuState(open) {
+		mobileMenu.classList.toggle("open", open);
+		overlay.classList.toggle("open", open);
+		document.body.classList.toggle("mobile-menu-active", open);
+		document.body.style.overflow = open ? "hidden" : "";
+		hamburger.checked = open;
+	}
 
-		if (!isOpen) {
-			hamburger.checked = false;
-		}
+	// Toggle menu on hamburger checkbox change
+	hamburger.addEventListener("change", () => {
+		setMenuState(hamburger.checked);
 	});
 
 	// Close menu when clicking overlay
 	overlay.addEventListener("click", () => {
-		hamburger.checked = false;
-		mobileMenu.classList.remove("open");
-		overlay.classList.remove("open");
-		document.body.classList.remove("mobile-menu-active");
-		document.body.style.overflow = "";
+		setMenuState(false);
 	});
 
-	// Prevent menu clicks from closing menu
+	// Prevent menu clicks from closing menu 
 	mobileMenu.addEventListener("click", (e) => e.stopPropagation());
 
-	// Handle screen size changes
+	// Handle screen size changes: close menu if resizing to desktop
 	const mediaQuery = window.matchMedia("(min-width: 501px)");
-	const handleScreenSizeChange = (e) => {
-		if (e.matches && mobileMenu.classList.contains("open")) {
-			hamburger.checked = false;
-			mobileMenu.classList.remove("open");
-			overlay.classList.remove("open");
-			document.body.classList.remove("mobile-menu-active");
-			document.body.style.overflow = "";
+	function handleScreenSizeChange(e) {
+		if (e.matches) {
+			setMenuState(false);
 		}
-	};
-
+	}
 	mediaQuery.addEventListener("change", handleScreenSizeChange);
+
+	// Initial responsive check
 	handleScreenSizeChange(mediaQuery);
 }
 
 /*
  * ----------------------------------------------------------------------
- * WYSIWYG Editor functionality
+ * WYSIWYG Editor functionality : Initializes Quill editor with toolbar and syncs content to textarea
  * ----------------------------------------------------------------------
  */
-function initWysiwygEditor(
-	editorSelector,
-	toolbarSelector,
-	textareaSelector,
-	content = ""
+function initWysiwygEditor(editorSelector, toolbarSelector, textareaSelector, content = ""
 ) {
 	const editor = document.querySelector(editorSelector);
 	const toolbar = document.querySelector(toolbarSelector);
@@ -187,6 +170,7 @@ function initWysiwygEditor(
 
 	if (!editor || !toolbar || !textarea) return;
 
+	// Initialize Quill editor, syntax highlighting and custom toolbar
 	const quill = new Quill(editor, {
 		theme: "snow",
 		modules: {
@@ -196,70 +180,85 @@ function initWysiwygEditor(
 		placeholder: "Type something",
 	});
 
+	// Set initial content if provided
 	if (content) {
 		quill.root.innerHTML = content;
+		textarea.value = content;
 	}
 
+	// Sync editor content
 	quill.on("text-change", () => {
 		textarea.value = quill.root.innerHTML;
 	});
 }
+
 // Make function globally available
 window.initWysiwygEditor = initWysiwygEditor;
 
 /*
  * ----------------------------------------------------------------------
- * File uploads
+ * File uploads: Handles image preview and container state for custom file inputs
  * ----------------------------------------------------------------------
  */
-function updateImagePreviewState(container, hasImage) {
-  if (hasImage) {
-    container.classList.add("has-image");
-  } else {
-    container.classList.remove("has-image");
-  }
+function initFileUploads() {
+// Initializes file upload components: handles image preview, click-to-upload, and state.
+	document.querySelectorAll("[data-file-upload]").forEach((container) => {
+		const input = container.querySelector('input[type="file"]');
+		const preview = container.querySelector("img");
+		if (!input || !preview) return;
+
+		// Updates the container's state and preview visibility based on image presence.
+		function setImageState(hasImage, src = "") {
+			container.classList.toggle("has-image", hasImage);
+			preview.classList.toggle("hide", !hasImage);
+			preview.src = src;
+		}
+
+		// Allow clicking anywhere in the container
+		container.addEventListener("click", (e) => {
+			if (e.target !== input) {
+				input.click();
+			}
+		});
+
+		// Handle file selection and preview
+		input.addEventListener("change", (e) => {
+			const file = e.target.files[0];
+			if (file && file.type.startsWith("image/")) {
+				const reader = new FileReader();
+				reader.onload = () => setImageState(true, reader.result);
+				reader.readAsDataURL(file);
+			} else {
+				// reset preview and state if not an image or no file removed
+				setImageState(false, "");
+			}
+		});
+	});
 }
 
-function initFileUploads() {
-  document.querySelectorAll("[data-file-upload]").forEach((container) => {
-    const input = container.querySelector('input[type="file"]');
-    const preview = container.querySelector("img");
-    container.addEventListener("click", (e) => {
-      if (e.target !== input) {
-        input?.click();
-      }
-    });
-    input?.addEventListener("change", (e) => {
-      const file = e.target.files[0];
-      if (file && file.type.startsWith("image/")) {
-        const reader = new FileReader();
-        reader.onload = () => {
-          preview.src = reader.result;
-          preview.classList.remove("hide");
-          updateImagePreviewState(container, true);
-        };
-        reader.readAsDataURL(file);
-      } else {
-        updateImagePreviewState(container, false);
-      }
-    });
-  });
+function updateImagePreviewState(container, hasImage) {
+	if (hasImage) {
+		container.classList.add("has-image");
+	} else {
+		container.classList.remove("has-image");
+	}
 }
 
 /*
  * ----------------------------------------------------------------------
- * Tab scrolling
+ * Tab scrolling : Enables horizontal drag-to-scroll for project tabs
  * ----------------------------------------------------------------------
  */
 function initTabScrolling() {
 	const tabsContainer = document.querySelector(".projects-tabs");
 	if (!tabsContainer) return;
 
-	// Initialize horizontal scroll functionality
+	// State for drag-to-scroll
 	let isDown = false;
-	let startX;
-	let scrollLeft;
+	let startX = 0;
+	let scrollLeft = 0;
 
+	// Mouse down: start drag
 	tabsContainer.addEventListener("mousedown", (e) => {
 		isDown = true;
 		tabsContainer.classList.add("active");
@@ -267,56 +266,53 @@ function initTabScrolling() {
 		scrollLeft = tabsContainer.scrollLeft;
 	});
 
-	tabsContainer.addEventListener("mouseleave", () => {
-		isDown = false;
-		tabsContainer.classList.remove("active");
-	});
+	// Mouse leave/up: end drag
+	["mouseleave", "mouseup"].forEach(event =>
+		tabsContainer.addEventListener(event, () => {
+			isDown = false;
+			tabsContainer.classList.remove("active");
+		})
+	);
 
-	tabsContainer.addEventListener("mouseup", () => {
-		isDown = false;
-		tabsContainer.classList.remove("active");
-	});
-
+	// Mouse move: perform drag
 	tabsContainer.addEventListener("mousemove", (e) => {
 		if (!isDown) return;
 		e.preventDefault();
 		const x = e.pageX - tabsContainer.offsetLeft;
-		const walk = (x - startX) * 2;
+		const walk = (x - startX) * 2; // scroll speed
 		tabsContainer.scrollLeft = scrollLeft - walk;
 	});
 
-	// Handle window resize
-	window.addEventListener("resize", () => {
+	// Update overflow on resize and scroll
+	function updateOverflow() {
 		const hasOverflow = tabsContainer.scrollWidth > tabsContainer.clientWidth;
 		tabsContainer.classList.toggle("has-overflow", hasOverflow);
-	});
 
-	// Handle scroll events
-	tabsContainer.addEventListener("scroll", () => {
 		const isAtEnd =
 			tabsContainer.scrollLeft + tabsContainer.clientWidth >=
 			tabsContainer.scrollWidth - 10;
-		tabsContainer.classList.toggle("has-overflow", !isAtEnd);
-	});
+		tabsContainer.classList.toggle("has-overflow", hasOverflow && !isAtEnd);
+	}
+	window.addEventListener("resize", updateOverflow);
+	tabsContainer.addEventListener("scroll", updateOverflow);
 
-	// Initial overflow check
-	const hasOverflow = tabsContainer.scrollWidth > tabsContainer.clientWidth;
-	tabsContainer.classList.toggle("has-overflow", hasOverflow);
+	updateOverflow();
 }
 
 /*
  * ----------------------------------------------------------------------
- * Tab Filter
+ * Tab Filter : Handles tab selection, URL sync, and AJAX project filtering
  * ----------------------------------------------------------------------
  */
 function initTabFilter() {
 	const tabsContainer = document.querySelector(".projects-tabs");
 	if (!tabsContainer) return;
 
-	// Initialize active tab from URL
+	// Highlight active tab based on URL parameter
 	const url = new URL(window.location);
 	const activeStatus = url.searchParams.get("tab") || "ALL";
-	const activeTab = Array.from(tabsContainer.querySelectorAll(".tab")).find(
+	const tabs = Array.from(tabsContainer.querySelectorAll(".tab"));
+	const activeTab = tabs.find(
 		(tab) => tab.textContent.trim().split("[")[0].trim() === activeStatus
 	);
 	if (activeTab) {
@@ -324,114 +320,240 @@ function initTabFilter() {
 	}
 
 	// Handle tab clicks
-	tabsContainer.querySelectorAll(".tab").forEach((tab) => {
+	tabs.forEach((tab) => {
 		tab.addEventListener("click", async (e) => {
 			e.preventDefault();
 			const status = tab.textContent.trim().split("[")[0].trim();
 
-			// Update URL
+			// Update URL without reloading page
 			const url = new URL(window.location);
 			url.searchParams.set("tab", status);
 			window.history.pushState({}, "", url);
 
-			// Update active state
-			tabsContainer.querySelectorAll(".tab").forEach((t) => {
-				t.classList.remove("active");
-			});
+			// Update active tab styling
+			tabs.forEach((t) => t.classList.remove("active"));
 			tab.classList.add("active");
 
-			// Fetch filtered projects
+			// Fetch and update projectlist via AJAX
 			try {
 				const response = await fetch(`/projects/list?tab=${status}`);
 				const html = await response.text();
-
 				const projectsGrid = document.querySelector(".projects-grid");
 				if (projectsGrid) {
 					projectsGrid.innerHTML = html;
 				}
 			} catch (error) {
 				console.error("Error fetching filtered projects:", error);
-				showToast("error", "Failed to load projects");
+				alert("Failed to load projects. Please try again.");
 			}
 		});
 	});
 }
 
-
 /*
 * ----------------------------------------------------------------------
-* Avatar visibility
+* Avatar visibility : Dynamically shows/hides avatars and counter based on container width
 * ----------------------------------------------------------------------
 */
+const AVATAR_OVERLAP = 8;
+const MAX_VISIBLE_AVATARS = 8;
+const AVATAR_DEFAULT_WIDTH = 40;
+const COUNTER_WIDTH = 32;
+const SAFETY_MARGIN = 20;
+
+// Helper to calculate total width needed for N avatars (and counter if needed)
+function calculateAvatarsWidth(avatarCount, avatarWidth, overlap, showCounter) {
+	const avatarsWidth = avatarWidth + (avatarCount - 1) * (avatarWidth - overlap);
+	const counterWidth = showCounter ? (COUNTER_WIDTH + SAFETY_MARGIN) : 0;
+	return avatarsWidth + counterWidth;
+}
+
 function initAvatarVisibility() {
 	function updateAvatarVisibility() {
 		document.querySelectorAll('.team-members').forEach(container => {
-
-			const avatars = Array.from(container.querySelectorAll('.avatar:not(.more-members)'));
-			const moreDiv = container.querySelector('.more-members');
-
-			if (!avatars.length) {
-				if (moreDiv) moreDiv.style.display = 'none';
+			const allAvatars = Array.from(container.querySelectorAll('.avatar:not(.more-members)'));
+			const visibleAvatars = allAvatars.filter(a => !a.classList.contains('hide'));
+			const counter = container.querySelector('.more-members');
+			if (!visibleAvatars.length) {
+				if (counter) counter.style.display = 'none';
 				return;
 			}
 
-			// reset all avatars to visible
-			avatars.forEach(a => a.style.display = '');
-			if (moreDiv) moreDiv.style.display = 'none';
+			// Reset all avatars to visible, hide counter
+			visibleAvatars.forEach(a => a.style.display = '');
+			if (counter) counter.style.display = 'none';
 
-			// calculate the maximum number of avatars that can fit
 			const containerWidth = container.offsetWidth;
-			const avatarWidth = avatars[0].offsetWidth;
-			const moreWidth = moreDiv ? moreDiv.offsetWidth : 0;
-			const overlapPerAvatar = 8; 
+			const avatarWidth = visibleAvatars[0]?.offsetWidth || AVATAR_DEFAULT_WIDTH;
+			const maxPossible = Math.min(MAX_VISIBLE_AVATARS, visibleAvatars.length);
 
-			// safety margin for the counter
-			const safetyMargin = 20;
-
-			// reserve space for the counter
-			const spaceNeededForCounter = moreWidth + safetyMargin;
-
-			// calculate how many avatars can fit
-			const availableWidth = containerWidth - spaceNeededForCounter;
-			const effectiveAvatarWidth = avatarWidth - overlapPerAvatar; // account for overlap
-
-			// calculate the maximum number of avatars that can fit
-			let maxFit = Math.floor(availableWidth / effectiveAvatarWidth) - 1;
-			if (maxFit < 1) maxFit = 1;
-			if (maxFit > 8) maxFit = 8;
-
-			// check if all avatars fit
-			const totalWidthNeeded = avatars.length * effectiveAvatarWidth + overlapPerAvatar;
-			if (totalWidthNeeded <= containerWidth && avatars.length <= 8) {
-				avatars.forEach(a => a.style.display = '');
-				if (moreDiv) moreDiv.style.display = 'none';
-				return;
+			// Try to fit as many avatars as possible, adding the counter only if needed
+			let visibleCount = 1;
+			for (let n = maxPossible; n >= 1; n--) {
+				const needsCounter = visibleAvatars.length > n;
+				const totalWidth = calculateAvatarsWidth(n, avatarWidth, AVATAR_OVERLAP, needsCounter);
+				if (totalWidth <= containerWidth) {
+					visibleCount = n;
+					break;
+				}
 			}
 
-			// otherwise, hide the excess avatars
-			avatars.forEach((a, i) => {
-				a.style.display = i < maxFit ? '' : 'none';
+			// Show only the avatars that fit
+			visibleAvatars.forEach((a, i) => {
+				a.style.display = i < visibleCount ? '' : 'none';
 			});
 
-			// show counter with the number of hidden avatars
-			const hiddenCount = avatars.length - maxFit;
-			if (moreDiv) {
+			// Show the counter if avatars are hidden
+			const hiddenCount = allAvatars.length - visibleCount;
+			if (counter) {
 				if (hiddenCount > 0) {
-					moreDiv.style.display = '';
-					moreDiv.querySelector('span').textContent = `+${hiddenCount}`;
+					counter.style.display = '';
+					const span = counter.querySelector('span');
+					if (span) span.textContent = `+${hiddenCount}`;
 				} else {
-					moreDiv.style.display = 'none';
+					counter.style.display = 'none';
 				}
 			}
 		});
 	}
 
-	// run directly on resize
 	updateAvatarVisibility();
 	window.addEventListener('resize', updateAvatarVisibility);
-
-	// run after a short delay to allow for any layout changes
 	setTimeout(updateAvatarVisibility, 100);
+}
+
+/*
+ * ----------------------------------------------------------------------
+ * Project budget formatting: allows only numbers, max 8 digits, spaces as thousands separator
+ * ----------------------------------------------------------------------
+ */
+function initBudgetFormatter() {
+	// console.log("BudgetFormatter initialized");
+
+	document.querySelectorAll('input[data-type="budget"]').forEach(input => {
+		input.addEventListener("input", handleBudgetInput);
+		formatBudgetInputValue(input);
+	});
+}
+
+function handleBudgetInput(e) {
+	formatBudgetInputValue(e.target);
+}
+
+function formatBudgetInputValue(input) {
+	let value = input.value.replace(/[^\d.]/g, ""); // Allow only numbers and dot
+	let [whole, decimal] = value.split(".");
+
+	if (whole.length > 8) {
+		whole = whole.substring(0, 8);
+	}
+	whole = whole.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+	if (decimal !== undefined) {
+		decimal = decimal.replace(/\./g, "");
+		value = `${whole}.${decimal}`;
+	} else {
+		value = whole;
+	}
+	input.value = value;
+}
+
+/*
+ * ----------------------------------------------------------------------
+ * Forms helper functions
+ * ----------------------------------------------------------------------
+ */
+// Shows validation errors for a form
+function displayValidationErrors(form, errors) {
+	form.querySelectorAll(".field-error").forEach(el => el.textContent = "");
+	Object.entries(errors).forEach(([field, msgs]) => {
+		const el = form.querySelector(`[data-valmsg-for="${field}"]`);
+		if (el) el.textContent = msgs[0];
+	});
+}
+
+// Closes modal by id and reloads the page
+function closeModalAndReload(modalId) {
+	const modal = document.getElementById(modalId);
+	if (modal) modal.classList.remove("show");
+	location.reload();
+}
+
+// Generic AJAX form handler
+function handleAjaxForm(form, { beforeSubmit, onSuccess, modalId }) {
+	form.addEventListener("submit", async (e) => {
+		e.preventDefault();
+		if (beforeSubmit) beforeSubmit(form);
+		const formData = new FormData(form);
+		try {
+			const response = await fetch(form.action, {
+				method: "POST",
+				body: formData,
+				headers: { Accept: "application/json" }
+			});
+			const result = await response.json();
+
+			if (result.success) {
+				if (onSuccess) onSuccess(result);
+				else if (modalId) closeModalAndReload(modalId);
+			} else if (result.errors) {
+				displayValidationErrors(form, result.errors);
+			} else if (result.error) {
+				console.error(result.error);
+			}
+		} catch (error) {
+			console.error("Error:", error);
+			console.error("An error occurred while submitting the form");
+		}
+	});
+}
+
+// 
+function fillSelect(select, options, selectedValue) {
+	select.innerHTML = "";
+	options.forEach(opt => {
+		const option = document.createElement("option");
+		option.value = opt.value;
+		option.textContent = opt.text;
+		if (String(opt.value) === String(selectedValue)) option.selected = true;
+		select.appendChild(option);
+	});
+}
+
+// 
+function fillInputs(form, data, fieldMap) {
+	fieldMap.forEach(([inputName, dataKey]) => {
+		const input = form.querySelector(`[name='${inputName}']`);
+		if (input) input.value = data[dataKey] ?? "";
+	});
+}
+
+// Generic deletion handler
+function initDeletionHandler({ selector, urlPrefix, confirmMessage, errorMessage }) {
+	document.querySelectorAll(selector).forEach((button) => {
+		button.addEventListener("click", async (e) => {
+			e.preventDefault();
+			const id = button.getAttribute("data-id");
+			if (!id) return;
+
+			if (confirm(confirmMessage)) {
+				try {
+					const response = await fetch(`/${urlPrefix}/${id}`, {
+						method: "DELETE",
+					});
+					const result = await response.json();
+
+					if (result.success) {
+						window.location.reload();
+					} else {
+						alert(result.error || errorMessage);
+					}
+				} catch (error) {
+					console.error("Error deleting:", error);
+					alert("An error occurred while deleting.");
+				}
+			}
+		});
+	});
 }
 
 /*
@@ -440,14 +562,12 @@ function initAvatarVisibility() {
  * ----------------------------------------------------------------------
  */
 function initProjectForm() {
-	const addProjectForm = document.getElementById("addProjectForm");
-	
-	if (addProjectForm) {
-		addProjectForm.addEventListener("submit", async (e) => {
-			e.preventDefault();
-			console.log("ProjectForm submitted...");
+	const form = document.getElementById("addProjectForm");
+	if (!form) return;
 
-			// make sure all selected members is in the select
+	handleAjaxForm(form, {
+		beforeSubmit: (form) => {
+			// Sync selected members to select
 			let selectedMembers = [];
 			if (window.getTagSelectorSelectedIds) {
 				selectedMembers = window.getTagSelectorSelectedIds('selected-members-add');
@@ -460,67 +580,29 @@ function initProjectForm() {
 				option.selected = true;
 				select.appendChild(option);
 			});
+		},
+		modalId: "addprojectmodal"
+	});
 
-			const formData = new FormData(addProjectForm);
-
-			try {
-				const response = await fetch(addProjectForm.action, {
-					method: "POST",
-					body: formData,
-					headers: { Accept: "application/json" }
-				});
-
-				const result = await response.json();
-
-				if (result.success) {
-					const modal = document.getElementById("addprojectmodal");
-					if (modal) {
-						modal.classList.remove("show");
-					}
-					location.reload();
-				} else {
-					if (result.errors) {
-						addProjectForm
-							.querySelectorAll(".field-error")
-							.forEach((el) => (el.textContent = ""));
-						Object.entries(result.errors).forEach(([field, errors]) => {
-							const errorElement = addProjectForm.querySelector(
-								`[data-valmsg-for="${field}"]`
-							);
-							if (errorElement) {
-								errorElement.textContent = errors[0];
-							}
-						});
-					} else if (result.error) {
-						console.error(result.error);
-					}
-				}
-			} catch (error) {
-				console.error("Error:", error);
-				console.error("An error occurred while submitting the form");
-			}
-		});
-		
-		initWysiwygEditor(
-			'#add-project-description-editor',
-			'#add-project-description-toolbar',
-			'#add-project-description',
-			''
-		);
-		initTagSelector({
-			containerId: 'selected-members-add',
-			inputId: 'member-search-add',
-			resultsId: 'search-results-add',
-			searchUrl: (query) => '/projects/members/search?term=' + encodeURIComponent(query),
-			displayProperty: 'fullName',
-			imageProperty: 'imageUrl',
-			tagClass: 'member-tag',
-			emptyMessage: 'No members found.',
-			preSelectedItems: [],
-			selectedInputIds: 'SelectedMemberIdsAdd',
-			allItems: []
-		});
-	}
+	initWysiwygEditor(
+		'#add-project-description-editor',
+		'#add-project-description-toolbar',
+		'#add-project-description',
+		''
+	);
+	initTagSelector({
+		containerId: 'selected-members-add',
+		inputId: 'member-search-add',
+		resultsId: 'search-results-add',
+		searchUrl: (query) => '/projects/members/search?term=' + encodeURIComponent(query),
+		displayProperty: 'fullName',
+		imageProperty: 'imageUrl',
+		tagClass: 'member-tag',
+		emptyMessage: 'No members found.',
+		preSelectedItems: [],
+		selectedInputIds: 'SelectedMemberIdsAdd',
+		allItems: []
+	});
 }
 
 /*
@@ -530,116 +612,102 @@ function initProjectForm() {
  */
 window.addEventListener("openModal", function (e) {
 	const { modalId, projectId } = e.detail || {};
-	if (modalId === "editprojectmodal" && projectId) {
-		const form = document.querySelector("#editprojectmodal form");
-		if (!form) {
-			console.error("Edit form not found in DOM");
-			return;
-		}
+	if (modalId !== "editprojectmodal" || !projectId)
+		return;
 
-		fetch(`/projects/${projectId}`)
-			.then((response) => response.json())
-			.then((data) => {
-				if (!(data.success && data.project)) {
-					console.error("Failed to fetch project data.");
-					return;
-				}
+	const form = document.querySelector("#editprojectmodal form");
+	if (!form) {
+		// console.error("Edit project form not found")
+		return;
+	}
 
-				// fill clients
-				const clientSelect = form.querySelector("[name='ClientId']");
-				if (clientSelect && data.clients) {
-					clientSelect.innerHTML = "";
-					data.clients.forEach(c => {
-						const option = document.createElement("option");
-						option.value = c.value;
-						option.textContent = c.text;
-						if (c.value === data.project.clientId) option.selected = true;
-						clientSelect.appendChild(option);
-					});
-				}
+	// fetch project data
+	fetch(`/projects/${projectId}`)
+		.then(response => response.json())
+		.then(data => {
+			if (!(data.success && data.project)) {
+				// console.error("Failed to fetch project data.");
+				return;
+			}
 
-				// fill statuses
-				const statusSelect = form.querySelector("[name='StatusId']");
-				if (statusSelect && data.statuses) {
-					statusSelect.innerHTML = "";
-					data.statuses.forEach(s => {
-						const option = document.createElement("option");
-						option.value = s.value;
-						option.textContent = s.text;
-						if (String(s.value) === String(data.project.status?.id || data.project.statusId)) option.selected = true;
-						statusSelect.appendChild(option);
-					});
-				}
+			// fill select fields using helper
+			fillSelect(form.querySelector("[name='ClientId']"), data.clients, data.project.clientId);
+			fillSelect(form.querySelector("[name='StatusId']"), data.statuses, data.project.status?.id || data.project.statusId);
 
-				// Project fields
-				form.querySelector("[name='Id']").value = data.project.id ?? "";
-				form.querySelector("[name='ProjectName']").value = data.project.projectName ?? "";
-				form.querySelector("[name='StartDate']").value = data.project.startDate ? data.project.startDate.split("T")[0] : "";
-				form.querySelector("[name='EndDate']").value = data.project.endDate ? data.project.endDate.split("T")[0] : "";
-				form.querySelector("[name='Budget']").value = data.project.budget ?? "";
+			// fill inputs using helper
+			fillInputs(form, data.project, [
+				["Id", "id"],
+				["ProjectName", "projectName"],
+				["StartDate", "startDate"],
+				["EndDate", "endDate"],
+				["Budget", "budget"]
+			]);
+			// format budget
+			const budgetInput = form.querySelector("[name='Budget']");
+			formatBudgetInputValue(budgetInput);
 
-				// Project image
-				const imgPreview = form.querySelector(".image-preview-container img");
-				const container = form.querySelector(".image-preview-container");
-				if (data.project.imageUrl && imgPreview) {
-					imgPreview.src = data.project.imageUrl;
-					imgPreview.classList.remove("hide");
-					updateImagePreviewState(container, true);
-				} else if (imgPreview) {
-					imgPreview.src = "";
-					imgPreview.classList.add("hide");
-					updateImagePreviewState(container, false);
-				}
+			// project image
+			const imgPreview = form.querySelector(".image-preview-container img");
+			const container = form.querySelector(".image-preview-container");
+			if (data.project.imageUrl && imgPreview) {
+				imgPreview.src = data.project.imageUrl;
+				imgPreview.classList.remove("hide");
+				updateImagePreviewState(container, true);
+			} else if (imgPreview) {
+				imgPreview.src = "";
+				imgPreview.classList.add("hide");
+				updateImagePreviewState(container, false);
+			}
 
-				// Quill Description
-				if (form.querySelector("#edit-project-description-editor").__quill) {
-					form.querySelector("#edit-project-description-editor").__quill = null;
-				}
-				const quillInstance = new Quill(form.querySelector("#edit-project-description-editor"), {
-					modules: { toolbar: '#edit-project-description-toolbar' },
-					theme: 'snow'
-				});
-				quillInstance.setContents([]);
-				if (data.project.description) {
-					quillInstance.clipboard.dangerouslyPasteHTML(data.project.description);
-				}
+			// Quill Description
+			if (form.querySelector("#edit-project-description-editor").__quill) {
+				form.querySelector("#edit-project-description-editor").__quill = null;
+			}
+			const quillInstance = new Quill(form.querySelector("#edit-project-description-editor"), {
+				modules: { toolbar: '#edit-project-description-toolbar' },
+				theme: 'snow'
+			});
+			quillInstance.setContents([]);
+			if (data.project.description) {
+				quillInstance.clipboard.dangerouslyPasteHTML(data.project.description);
+			}
 
-				// Member Selector
-				const selectedMembersContainer = document.getElementById('selected-members-edit');
-				if (selectedMembersContainer) selectedMembersContainer.innerHTML = '';
-				const projectMembersSelect = document.getElementById('SelectedMemberIds');
-				if (projectMembersSelect) projectMembersSelect.innerHTML = '';
+			// member Selector
+			const selectedMembersContainer = document.getElementById('selected-members-edit');
+			if (selectedMembersContainer) selectedMembersContainer.innerHTML = '';
+			const projectMembersSelect = document.getElementById('SelectedMemberIds');
+			if (projectMembersSelect) projectMembersSelect.innerHTML = '';
 
-				const preSelected = (data.project.allMembers || []).map(m => ({
-					id: m.id,
-					fullName: m.fullName || [m.firstName, m.lastName].filter(Boolean).join(" "),
-					imageUrl: m.imageUrl
-				}));
+			const preSelected = (data.project.allMembers || []).map(m => ({
+				id: m.id,
+				fullName: m.fullName || [m.firstName, m.lastName].filter(Boolean).join(" "),
+				imageUrl: m.imageUrl
+			}));
 
-				initTagSelector({
-					containerId: 'selected-members-edit',
-					inputId: 'member-search-edit',
-					resultsId: 'search-results-edit',
-					searchUrl: (query) => '/projects/members/search?term=' + encodeURIComponent(query),
-					displayProperty: 'fullName',
-					imageProperty: 'imageUrl',
-					tagClass: 'member-tag',
-					emptyMessage: 'No members found.',
-					preSelectedItems: preSelected,
-					selectedInputIds: 'SelectedMemberIdsEdit',
-					allItems: data.members 
-				});
+			initTagSelector({
+				containerId: 'selected-members-edit',
+				inputId: 'member-search-edit',
+				resultsId: 'search-results-edit',
+				searchUrl: (query) => '/projects/members/search?term=' + encodeURIComponent(query),
+				displayProperty: 'fullName',
+				imageProperty: 'imageUrl',
+				tagClass: 'member-tag',
+				emptyMessage: 'No members found.',
+				preSelectedItems: preSelected,
+				selectedInputIds: 'SelectedMemberIdsEdit',
+				allItems: data.members
+			});
 
-				// Ajax submit handler
-				form.onsubmit = async function (e) {
-					e.preventDefault();
-
+			// Ajax form handler
+			handleAjaxForm(form, {
+				modalId: "editprojectmodal",
+				beforeSubmit: (form) => {
 					// sync Quill to textarea
 					const quill = Quill.find(form.querySelector("#edit-project-description-editor"));
 					if (quill) {
 						form.querySelector("[name='Description']").value = quill.root.innerHTML;
 					}
-
+					// Sync tag-selector to select
 					let selectedMembers;
 					if (window.getTagSelectorSelectedIds) {
 						selectedMembers = window.getTagSelectorSelectedIds('selected-members-edit');
@@ -648,7 +716,6 @@ window.addEventListener("openModal", function (e) {
 							.filter(opt => opt.selected)
 							.map(opt => opt.value);
 					}
-
 					const select = document.getElementById('SelectedMemberIdsEdit');
 					select.innerHTML = '';
 					selectedMembers.forEach(id => {
@@ -657,35 +724,16 @@ window.addEventListener("openModal", function (e) {
 						option.selected = true;
 						select.appendChild(option);
 					});
-
-					const formData = new FormData(form);
-
-					try {
-						const response = await fetch('/projects/EditProject', {
-							method: 'POST',
-							body: formData
-						});
-						const result = await response.json();
-						if (result.success) {
-							WindowManager.closeModal("editprojectmodal");
-							location.reload();
-						} else if (result.errors) {
-							for (const [field, errors] of Object.entries(result.errors)) {
-								const errorElem = form.querySelector(`.field-error[data-valmsg-for='${field}']`);
-								if (errorElem) errorElem.textContent = errors.join(", ");
-							}
-						} else if (result.error) {
-							alert(result.error);
-						}
-					} catch (err) {
-						console.error("Error submitting edit client form:", err);
-					}
-				};
-			})
-			.catch(error => {
-				console.error("Error fetching client data:", error);
+				},
+				onSuccess: () => {
+					WindowManager.closeModal("editprojectmodal");
+					location.reload();
+				}
 			});
-	}
+		})
+		.catch(error => {
+			console.error("Error fetching project data:", error);
+		});
 });
 
 /*
@@ -694,34 +742,12 @@ window.addEventListener("openModal", function (e) {
  * ----------------------------------------------------------------------
  */
 function initProjectDeletion() {
-	document
-		.querySelectorAll('[data-action="delete-project"]')
-		.forEach((button) => {
-			button.addEventListener("click", async (e) => {
-				e.preventDefault();
-				const id = button.getAttribute("data-id");
-				if (!id) return;
-
-				if (confirm("Are you sure you want to delete this project?")) {
-					try {
-						const response = await fetch(`/projects/${id}`, {
-							method: "DELETE",
-						});
-
-						const result = await response.json();
-
-						if (result.success) {
-							window.location.reload();
-						} else {
-							showToast("error", result.error || "Failed to delete project");
-						}
-					} catch (error) {
-						console.error("Error deleting project:", error);
-						showToast("error", "An error occurred while deleting the project");
-					}
-				}
-			});
-		});
+	initDeletionHandler({
+		selector: '[data-action="delete-project"]',
+		urlPrefix: 'projects',
+		confirmMessage: 'Are you sure you want to delete this project?',
+		errorMessage: 'Failed to delete project'
+	});
 }
 
 /*
@@ -730,59 +756,12 @@ function initProjectDeletion() {
  * ----------------------------------------------------------------------
  */
 function initAddClientForm() {
-	const addClientForm = document.getElementById("addClientForm");
+	const form = document.getElementById("addClientForm");
+	if (!form) return;
 
-	if (addClientForm) {
-		addClientForm.addEventListener("submit", async (e) => {
-			e.preventDefault();
-			console.log("ClientForm submitted...");
-			
-			const formData = new FormData(addClientForm);
-	
-			try {
-				const response = await fetch(addClientForm.action, {
-					method: "POST",
-					body: formData,
-					headers: {
-						Accept: "application/json",
-					},
-				});
-	
-				const result = await response.json();
-	
-				if (result.success) {
-					// Close modal and reload page
-					const modal = document.getElementById("addclientmodal");
-					if (modal) {
-						modal.classList.remove("show");
-					}
-					location.reload();
-				} else {
-					// Handle validation errors
-					if (result.errors) {
-						// Clear previous errors
-						document
-							.querySelectorAll(".field-error")
-							.forEach((el) => (el.textContent = ""));
-						// Display new errors
-						Object.entries(result.errors).forEach(([field, errors]) => {
-							const errorElement = document.querySelector(
-								`[data-valmsg-for="${field}"]`
-							);
-							if (errorElement) {
-								errorElement.textContent = errors[0];
-							}
-						});
-					} else if (result.error) {
-						console.error(result.error);
-					}
-				}
-			} catch (error) {
-				console.error("Error:", error);
-				console.error("An error occurred while submitting the form");
-			}
-		});
-	}
+	handleAjaxForm(form, {
+		modalId: "addclientmodal"
+	});
 }
 
 /*
@@ -792,110 +771,77 @@ function initAddClientForm() {
  */
 window.addEventListener("openModal", function (e) {
 	const { modalId, clientId } = e.detail || {};
-	if (modalId === "editclientmodal" && clientId) {
-		const form = document.querySelector("#editclientmodal form");
-		if (!form) {
-			console.error("Edit client form not found in DOM");
-			return;
-		}
+	if (modalId !== "editclientmodal" || !clientId) return;
 
-		fetch(`/clients/${clientId}`)
-			.then(response => response.json())
-			.then(data => {
-				console.log('Clientdata:', data);
-
-				if (!(data.success && data.client)) {
-					console.error("Failed to fetch client data.");
-					return;
-				}
-
-				const client = data.client;
-
-				// fill the contact person field
-				const firstName = form.querySelector("[name='FirstName']").value.trim();
-				const lastName = form.querySelector("[name='LastName']").value.trim();
-				const contactPersonInput = form.querySelector("[name='ContactPerson']");
-				if (contactPersonInput) {
-					contactPersonInput.value = (firstName + " " + lastName).trim();
-				}
-
-				// Fill in the rest of the fields
-				const fields = [
-					['Id', 'id'],
-					['ClientName', 'clientName'],
-					['FirstName', 'firstName'],
-					['LastName', 'lastName'],
-					['Email', 'email'],
-					['PhoneNumber', 'phoneNumber'],
-					['StreetAddress', 'streetAddress'],
-					['PostalCode', 'postalCode'],
-					['City', 'city']
-				];
-				fields.forEach(([inputName, clientKey]) => {
-					const input = form.querySelector(`[name='${inputName}']`);
-					if (input && input.value !== (client[clientKey] ?? "")) {
-						input.value = client[clientKey] ?? "";
-					}
-				});
-
-				// Image preview and container
-				const imgPreview = form.querySelector(".image-preview-container img");
-				const container = form.querySelector(".image-preview-container");
-				if (imgPreview) {
-					if (client.imageUrl) {
-						if (imgPreview.src !== client.imageUrl) imgPreview.src = client.imageUrl;
-						imgPreview.classList.remove("hide");
-						if (typeof updateImagePreviewState === "function" && container) {
-							updateImagePreviewState(container, true);
-						}
-					} else {
-						if (imgPreview.src !== "") imgPreview.src = "";
-						imgPreview.classList.add("hide");
-						if (typeof updateImagePreviewState === "function" && container) {
-							updateImagePreviewState(container, false);
-						}
-					}
-				}
-
-				// Reset file input
-				const fileInput = form.querySelector("input[type='file'][name='ImageFile']");
-				if (fileInput) fileInput.value = "";
-
-				// Reset validation errors
-				form.querySelectorAll(".field-error").forEach(el => { if (el.textContent !== "") el.textContent = ""; });
-
-				// Ajax submit handler
-				form.onsubmit = async function (ev) {
-					ev.preventDefault();
-					
-					const formData = new FormData(form);
-					// const clientId = formData.get("Id");
-					try {
-						const response = await fetch(`/clients/EditClient`, {
-							method: "POST",
-							body: formData
-						});
-						const result = await response.json();
-						if (result.success) {
-							WindowManager.closeModal("editclientmodal");
-							location.reload();
-						} else if (result.errors) {
-							for (const [field, errors] of Object.entries(result.errors)) {
-								const errorElem = form.querySelector(`.field-error[data-valmsg-for='${field}']`);
-								if (errorElem) errorElem.textContent = errors.join(", ");
-							}
-						} else if (result.error) {
-							alert(result.error);
-						}
-					} catch (err) {
-						console.error("Error submitting edit client form:", err);
-					}
-				};
-			})
-			.catch(error => {
-				console.error("Error fetching client data:", error);
-			});
+	const form = document.querySelector("#editclientmodal form");
+	if (!form) {
+		console.error("Edit client form not found");
+		return;
 	}
+
+	fetch(`/clients/${clientId}`)
+		.then(response => response.json())
+		.then(data => {
+			if (!(data.success && data.client)) {
+				console.error("Failed to fetch client data.");
+				return;
+			}
+
+			const client = data.client;
+
+			// fill inputs using helper
+			fillInputs(form, client, [
+				['Id', 'id'],
+				['ClientName', 'clientName'],
+				['FirstName', 'firstName'],
+				['LastName', 'lastName'],
+				['Email', 'email'],
+				['PhoneNumber', 'phoneNumber'],
+				['StreetAddress', 'streetAddress'],
+				['PostalCode', 'postalCode'],
+				['City', 'city'],
+				['ContactPerson', 'contactPerson']
+			]);
+
+			// image preview and container
+			const imgPreview = form.querySelector(".image-preview-container img");
+			const container = form.querySelector(".image-preview-container");
+			if (imgPreview) {
+				if (client.imageUrl) {
+					imgPreview.src = client.imageUrl;
+					imgPreview.classList.remove("hide");
+					if (typeof updateImagePreviewState === "function" && container) {
+						updateImagePreviewState(container, true);
+					}
+				} else {
+					imgPreview.src = "";
+					imgPreview.classList.add("hide");
+					if (typeof updateImagePreviewState === "function" && container) {
+						updateImagePreviewState(container, false);
+					}
+				}
+			}
+
+			// reset file input
+			const fileInput = form.querySelector("input[type='file'][name='ImageFile']");
+			if (fileInput) fileInput.value = "";
+
+			// reset validation errors
+			form.querySelectorAll(".field-error").forEach(el => { el.textContent = ""; });
+
+			// Ajax form handler
+			handleAjaxForm(form, {
+				modalId: "editclientmodal",
+				onSuccess: () => {
+					WindowManager.closeModal("editclientmodal");
+					location.reload();
+				}
+			});
+		})
+		.catch(error => {
+				console.error("Error fetching client data:", error);
+			}
+		);
 });
 
 /*
@@ -980,34 +926,12 @@ function initClientList() {
  * ----------------------------------------------------------------------
  */
 function initClientDeletion() {
-	document
-		.querySelectorAll('[data-action="delete-client"]')
-		.forEach((button) => {
-			button.addEventListener("click", async function (e) {
-				e.preventDefault();
-				const id = this.getAttribute("data-id");
-				if (!id) return;
-
-				if (confirm("Are you sure you want to delete this client?")) {
-					try {
-						const response = await fetch(`/clients/${id}`, {
-							method: "DELETE",
-						});
-
-						const result = await response.json();
-
-						if (result.success) {
-							window.location.reload();
-						} else {
-							showToast("error", result.error || "Failed to delete client");
-						}
-					} catch (error) {
-						console.error("Error deleting client:", error);
-						showToast("error", "An error occurred while deleting the client");
-					}
-				}
-			});
-		});
+	initDeletionHandler({
+		selector: '[data-action="delete-client"]',
+		urlPrefix: 'clients',
+		confirmMessage: 'Are you sure you want to delete this client?',
+		errorMessage: 'Failed to delete client'
+	});
 }
 
 /*
@@ -1016,55 +940,12 @@ function initClientDeletion() {
  * ----------------------------------------------------------------------
  */
 function initMemberForm() {
-	const addMemberForm = document.getElementById("addMemberForm");
-	
-	if (addMemberForm) {
-		addMemberForm.addEventListener("submit", async (e) => {
-			e.preventDefault();
-			console.log("MemberForm submitted...");
-	
-			const formData = new FormData(addMemberForm);
-	
-			try {
-				const response = await fetch(addMemberForm.action, {
-					method: "POST",
-					body: formData,
-					headers: {
-						Accept: "application/json",
-					},
-				});
-	
-				const result = await response.json();
-	
-				if (result.success) {
-					const modal = document.getElementById("addmembermodal");
-					if (modal) {
-						modal.classList.remove("show");
-					}
-					window.location.reload();
-				} else {
-					if (result.errors) {
-						document
-							.querySelectorAll(".field-error")
-							.forEach((el) => (el.textContent = ""));
-						Object.entries(result.errors).forEach(([field, errors]) => {
-							const errorElement = document.querySelector(
-								`[data-valmsg-for="${field}"]`
-							);
-							if (errorElement) {
-								errorElement.textContent = errors[0];
-							}
-						});
-					} else if (result.error) {
-						console.error(result.error);
-					}
-				}
-			} catch (error) {
-				console.error("Error:", error);
-				console.error("An error occurred while submitting the form");
-			}
-		});
-	}
+	const form = document.getElementById("addMemberForm");
+	if (!form) return;
+
+	handleAjaxForm(form, {
+		modalId: "addmembermodal"
+	});
 }
 
 /*
@@ -1074,99 +955,76 @@ function initMemberForm() {
  */
 window.addEventListener("openModal", function (e) {
 	const { modalId, memberId } = e.detail || {};
-	if (modalId === "editmembermodal" && memberId) {
-		const form = document.querySelector("#editmembermodal form");
-		if (!form) {
-			console.error("Edit member form not found in DOM");
-			return;
-		}
+	if (modalId !== "editmembermodal" || !memberId) return;
 
-		fetch(`/members/${memberId}`)
-			.then(response => response.json())
-			.then(data => {
-				if (!(data.success && data.member)) {
-					console.error("Failed to fetch member data.");
-					return;
-				}
-
-				const member = data.member;
-
-				// Fill in the fields
-				const fields = [
-					['Id', 'id'],
-					['FirstName', 'firstName'],
-					['LastName', 'lastName'],
-					['Email', 'email'],
-					['PhoneNumber', 'phoneNumber'],
-					['JobTitle', 'jobTitle'],
-					['StreetAddress', 'streetAddress'],
-					['PostalCode', 'postalCode'],
-					['City', 'city']
-				];
-				fields.forEach(([inputName, memberKey]) => {
-					const input = form.querySelector(`[name='${inputName}']`);
-					if (input && input.value !== (member[memberKey] ?? "")) {
-						input.value = member[memberKey] ?? "";
-					}
-				});
-
-				// Image preview and container
-				const imgPreview = form.querySelector(".image-preview-container img");
-				const container = form.querySelector(".image-preview-container");
-				if (imgPreview) {
-					if (member.imageUrl) {
-						if (imgPreview.src !== member.imageUrl) imgPreview.src = member.imageUrl;
-						imgPreview.classList.remove("hide");
-						if (typeof updateImagePreviewState === "function" && container) {
-							updateImagePreviewState(container, true);
-						}
-					} else {
-						if (imgPreview.src !== "") imgPreview.src = "";
-						imgPreview.classList.add("hide");
-						if (typeof updateImagePreviewState === "function" && container) {
-							updateImagePreviewState(container, false);
-						}
-					}
-				}
-
-				// Reset file input
-				const fileInput = form.querySelector("input[type='file'][name='ImageFile']");
-				if (fileInput) fileInput.value = "";
-
-				// Reset validation errors
-				form.querySelectorAll(".field-error").forEach(el => { if (el.textContent !== "") el.textContent = ""; });
-
-				// Ajax submit handler
-				form.onsubmit = async function (ev) {
-					ev.preventDefault();
-
-					const formData = new FormData(form);
-					try {
-						const response = await fetch(`/users/EditMember`, {
-							method: "POST",
-							body: formData
-						});
-						const result = await response.json();
-						if (result.success) {
-							WindowManager.closeModal("editmembermodal");
-							location.reload();
-						} else if (result.errors) {
-							for (const [field, errors] of Object.entries(result.errors)) {
-								const errorElem = form.querySelector(`.field-error[data-valmsg-for='${field}']`);
-								if (errorElem) errorElem.textContent = errors.join(", ");
-							}
-						} else if (result.error) {
-							alert(result.error);
-						}
-					} catch (err) {
-						console.error("Error submitting edit member form:", err);
-					}
-				};
-			})
-			.catch(error => {
-				console.error("Error fetching member data:", error);
-			});
+	const form = document.querySelector("#editmembermodal form");
+	if (!form) {
+		console.error("Edit member form not found");
+		return;
 	}
+
+	fetch(`/members/${memberId}`)
+		.then(response => response.json())
+		.then(data => {
+			if (!(data.success && data.member)) {
+				console.error("Failed to fetch member data.");
+				return;
+			}
+
+			const member = data.member;
+
+			// fill inputs using helper
+			fillInputs(form, member, [
+				['Id', 'id'],
+				['FirstName', 'firstName'],
+				['LastName', 'lastName'],
+				['Email', 'email'],
+				['PhoneNumber', 'phoneNumber'],
+				['JobTitle', 'jobTitle'],
+				['StreetAddress', 'streetAddress'],
+				['PostalCode', 'postalCode'],
+				['City', 'city']
+			]);
+
+			// image preview and container
+			const imgPreview = form.querySelector(".image-preview-container img");
+			const container = form.querySelector(".image-preview-container");
+			if (imgPreview) {
+				if (member.imageUrl) {
+					imgPreview.src = member.imageUrl;
+					imgPreview.classList.remove("hide");
+					if (typeof updateImagePreviewState === "function" && container) {
+						updateImagePreviewState(container, true);
+					}
+				} else {
+					imgPreview.src = "";
+					imgPreview.classList.add("hide");
+					if (typeof updateImagePreviewState === "function" && container) {
+						updateImagePreviewState(container, false);
+					}
+				}
+			}
+
+			// reset file input
+			const fileInput = form.querySelector("input[type='file'][name='ImageFile']");
+			if (fileInput) fileInput.value = "";
+
+			// reset validation errors
+			form.querySelectorAll(".field-error").forEach(el => { el.textContent = ""; });
+
+			// Ajax form handler
+			handleAjaxForm(form, {
+				modalId: "editmembermodal",
+				onSuccess: () => {
+					WindowManager.closeModal("editmembermodal");
+					location.reload();
+				}
+			});
+		})
+		.catch(error => {
+				console.error("Error fetching member data:", error);
+			}
+		);
 });
 
 /*
@@ -1175,39 +1033,17 @@ window.addEventListener("openModal", function (e) {
  * ----------------------------------------------------------------------
  */
 function initMemberDeletion() {
-	document
-		.querySelectorAll('[data-action="delete-member"]')
-		.forEach((button) => {
-			button.addEventListener("click", async (e) => {
-				e.preventDefault();
-				const id = button.getAttribute("data-id");
-				if (!id) return;
-
-				if (confirm("Are you sure you want to delete this member?")) {
-					try {
-						const response = await fetch(`/members/${id}`, {
-							method: "DELETE",
-						});
-
-						const result = await response.json();
-
-						if (result.success) {
-							window.location.reload();
-						} else {
-							showToast("error", result.error || "Failed to delete member");
-						}
-					} catch (error) {
-						console.error("Error deleting member:", error);
-						showToast("error", "An error occurred while deleting the member");
-					}
-				}
-			});
-		});
+	initDeletionHandler({
+		selector: '[data-action="delete-member"]',
+		urlPrefix: 'members',
+		confirmMessage: 'Are you sure you want to delete this member?',
+		errorMessage: 'Failed to delete member'
+	});
 }
 
 /*
  * ----------------------------------------------------------------------
- * Members functionality
+ * Toggle admin role - not working yet...
  * ----------------------------------------------------------------------
  */
 function initMemberToggleAdmin() {
@@ -1238,7 +1074,6 @@ async function toggleAdminRole(userId, isAdmin) {
 		}
 	} catch (error) {
 		console.error("Error toggling admin role:", error);
-		showToast("error", "Failed to update admin status");
 	}
 }
 

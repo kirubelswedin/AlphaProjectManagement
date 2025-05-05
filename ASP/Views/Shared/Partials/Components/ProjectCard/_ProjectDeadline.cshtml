@@ -4,18 +4,25 @@
   var deadlineClass = "deadline";
   var deadlineText = Model.TimeLeft ?? string.Empty;
 
-  if (Model.Status?.StatusName == "C ompleted")
+  if (Model.Status?.StatusName == "Completed")
   {
     // completed project - green gradient on time, red gradient if overdue
     deadlineClass += Model.CompletedOnTime ? " completed-success" : " completed-overdue";
-
     deadlineText = Model.CompletedOnTime ? "Completed on time" : "Completed late";
   }
-  else if (Model.IsUrgent && !Model.IsOverdue)
+  else if (Model.IsOverdue)
+  {
+    
+    // Not completed, overdue
+    deadlineClass += " urgent";
+    deadlineText = Model.TimeLeft; 
+  }
+  else if (Model.IsUrgent)
   {
     // Projects close to deadline - red background
     deadlineClass += " urgent";
   }
+  
 }
 
 <div class="@deadlineClass">

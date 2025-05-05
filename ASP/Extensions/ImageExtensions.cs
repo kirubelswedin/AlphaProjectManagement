@@ -1,4 +1,3 @@
-
 namespace ASP.Extensions;
 
 
@@ -9,25 +8,20 @@ public static class ImageExtensions
 {
     public static string GetImageUrl(this string? imageUrl, string type)
     {
-        // If image is missing or is a default, return the default image path
         if (string.IsNullOrWhiteSpace(imageUrl) || imageUrl.StartsWith("default-"))
             return $"/images/default-images/{imageUrl ?? $"default-{type.TrimEnd('s')}.svg"}";
-
-        // If image is stored in Azure or already a valid URL/path, return as is
+        
         if (imageUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
             imageUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
             imageUrl.StartsWith("/images/", StringComparison.OrdinalIgnoreCase))
             return imageUrl;
-
-        // If image path starts with /{type}/, prepend /images
+        
         if (imageUrl.StartsWith($"/{type}/", StringComparison.OrdinalIgnoreCase))
             return $"/images{imageUrl}";
-
-        // If image path starts with {type}/, prepend /images/
+        
         if (imageUrl.StartsWith($"{type}/", StringComparison.OrdinalIgnoreCase))
             return $"/images/{imageUrl}";
-
-        // If imageUrl does not contain a slash, assume it's just a filename and build path
+        
         if (!imageUrl.Contains('/'))
             return $"/images/{type}/{imageUrl}";
 

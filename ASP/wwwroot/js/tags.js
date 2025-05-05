@@ -1,3 +1,6 @@
+
+// tag selector for selecting multiple items ex. members.
+// searching, keyboard navigation, tag removal
 function initTagSelector(config) {
 	let activeIndex = -1;
 	let selectedIds = [];
@@ -9,11 +12,12 @@ function initTagSelector(config) {
 
 	if (!selectElement) return;
 
-	// --- Rensa DOM och state ---
+	// Clear previous tags and selected state
 	container.innerHTML = '';
 	selectElement.innerHTML = '';
 	selectedIds = [];
 
+	// Add any pre-selected items as tags
 	if (Array.isArray(config.preSelectedItems)) {
 		config.preSelectedItems.forEach((item) => addTag(item));
 	}
@@ -28,6 +32,7 @@ function initTagSelector(config) {
 		}, 200);
 	});
 
+	// Handle input, fetch and render search results
 	searchInput.addEventListener('input', () => {
 		const query = searchInput.value.trim();
 		activeIndex = -1;
@@ -45,6 +50,7 @@ function initTagSelector(config) {
 			});
 	});
 
+	// Keyboard navigation in search results
 	searchInput.addEventListener("keydown", (e) => {
 		const items = searchResults.querySelectorAll(".search-item");
 
@@ -76,7 +82,7 @@ function initTagSelector(config) {
 				break;
 		}
 	});
-
+	
 	function updateActiveItem(items) {
 		items.forEach((item) => item.classList.remove("active"));
 		if (items[activeIndex]) {
@@ -85,6 +91,7 @@ function initTagSelector(config) {
 		}
 	}
 
+	// Renders search results in the dropdown
 	function renderSearchResults(data) {
 		searchResults.innerHTML = "";
 
@@ -112,6 +119,7 @@ function initTagSelector(config) {
 		searchResults.classList.add("show");
 	}
 
+	// Adds tag for a selected item
 	function addTag(item) {
 		if (selectedIds.includes(item.id)) return;
 		selectedIds.push(item.id);
@@ -141,6 +149,7 @@ function initTagSelector(config) {
 		updateSelectedIdsInput();
 	}
 
+	// Removes the last tag if backspace is pressed on empty input
 	function removeLastTag() {
 		const tags = container.querySelectorAll(".member-tag");
 		if (tags.length === 0) return;
@@ -164,8 +173,7 @@ function initTagSelector(config) {
 			select.appendChild(option);
 		});
 	}
-
-
+	
 	window.getTagSelectorSelectedIds = function() {
 		return selectedIds.slice();
 	};
