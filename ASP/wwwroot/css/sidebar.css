@@ -95,3 +95,13 @@ aside {
 		background-color: var(--navlink-active-background);
 	}
 }
+
+body.preload aside.sidebar {
+	transition: none !important;
+	/*background-color: red;*/
+}
+body.sidebar-minimized aside.sidebar {
+	width: 4rem !important;
+	padding: 1.25rem 0.5rem;
+	align-items: center;
+}

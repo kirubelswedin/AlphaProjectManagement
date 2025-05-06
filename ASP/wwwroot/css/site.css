@@ -346,7 +346,7 @@ body {
 
 	&:hover {
 		/* make it invisible */
-		background: linear-gradient(to right, transparent, var(--main-background));
+		/*background: linear-gradient(to right, transparent, var(--main-background));*/
 		width: 8rem;
 		cursor: ew-resize;
 	}

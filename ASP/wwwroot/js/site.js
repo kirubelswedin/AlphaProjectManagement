@@ -1,5 +1,4 @@
-
-document.addEventListener("DOMContentLoaded", () => {
+﻿document.addEventListener("DOMContentLoaded", () => {
 	initSidebar();
 	initMobileMenu();
 	initFileUploads();
@@ -45,8 +44,9 @@ function initSidebar() {
 	// Helper to set sidebar width, minimized state, and persist to localStorage
 	function setSidebarState(widthRem, minimized) {
 		document.documentElement.style.setProperty("--sidebar-width", `${widthRem}rem`);
-		sidebar.style.width = `${widthRem}rem`;
+		// sidebar.style.width = `${widthRem}rem`;
 		sidebar.classList.toggle("minimized", minimized);
+		document.body.classList.toggle("sidebar-minimized", minimized);
 		localStorage.setItem("sidebar-width", widthRem);
 	}
 
@@ -82,9 +82,11 @@ function initSidebar() {
 		const windowWidthRem = window.innerWidth / 16;
 		if (windowWidthRem <= SIDEBAR_MOBILE_BREAKPOINT) {
 			// On mobile: reset sidebar to default width and remove minimized state
-			sidebar.style.width = "";
-			sidebar.classList.remove("minimized");
+			// sidebar.style.width = "";
 			document.documentElement.style.setProperty("--sidebar-width", `${SIDEBAR_DEFAULT_WIDTH}rem`);
+			sidebar.classList.remove("minimized");
+			document.body.classList.remove("sidebar-minimized");
+			
 		} else {
 			// On desktop: restore saved width or use default
 			const width = parseFloat(localStorage.getItem("sidebar-width"));

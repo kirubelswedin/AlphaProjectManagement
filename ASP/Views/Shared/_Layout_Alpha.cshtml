@@ -5,6 +5,33 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <script>
+        // fix sidebar lag problem
+        (function() {
+            try {
+                var width = parseFloat(localStorage.getItem("sidebar-width"));
+                if (!isNaN(width)) {
+                    document.documentElement.style.setProperty("--sidebar-width", width + "rem");
+                    if (width <= 4) {
+                        document.body.classList.add("sidebar-minimized");
+                    }
+                }
+            } catch(e) {}
+        })();
+
+        // fix blinking problem
+        (function() {
+            try {
+                var theme = localStorage.getItem('theme');
+                if (!theme) {
+                    theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                }
+                document.documentElement.setAttribute('data-theme', theme);
+                document.documentElement.style.colorScheme = theme;
+            } catch(e) {}
+        })();
+    </script>
+    
     <title>@(ViewData["Title"] == null ? "Alpha" : ViewData["Title"] + " - Alpha")</title>
 
     <!-- External Libraries -->
@@ -23,7 +50,7 @@
     
     @await RenderSectionAsync("Styles", required: false)
 </head>
-    <body data-theme="light">
+    <body class="preload">
         <!-- Mobile Menu -->
         <div class="mobile-menu">
             <div class="mobile-menu-content">
@@ -66,6 +93,12 @@
         <script src="~/js/site.js" asp-append-version="true"></script>
         <script src="~/js/tags.js" asp-append-version="true"></script>
         <script src="~/js/theme.js" asp-append-version="true"></script>
+        
+        <script>
+            window.addEventListener("DOMContentLoaded", function() {
+            document.body.classList.remove("preload");
+            });
+        </script>
 
         @await RenderSectionAsync("Scripts", required: false)
     </body>
