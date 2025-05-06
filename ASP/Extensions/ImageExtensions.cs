@@ -6,6 +6,7 @@ namespace ASP.Extensions;
 // This ensures the frontend always gets a valid image URL, regardless of storage type.
 public static class ImageExtensions
 {
+    // took some help from chatGPT to get this to work as I wanted  
     public static string GetImageUrl(this string? imageUrl, string type)
     {
         if (string.IsNullOrWhiteSpace(imageUrl) || imageUrl.StartsWith("default-"))

@@ -1,4 +1,5 @@
 
+// took some help from chatGPT to get this to work as I wanted
 document.addEventListener("DOMContentLoaded", () => {
     document.body.addEventListener("click", handleBodyClick);
     document.body.addEventListener("keydown", handleKeydown);

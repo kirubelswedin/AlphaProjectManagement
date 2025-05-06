@@ -8,7 +8,7 @@ public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
 {
     public AppDbContext CreateDbContext(string[] args)
     {
-        // Locate the api project's appsettings.json file
+        // Locate the base path 
         var basePath = Path.Combine(Directory.GetCurrentDirectory(), "../ASP");
         
         var configuration = new ConfigurationBuilder()

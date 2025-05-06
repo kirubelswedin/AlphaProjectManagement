@@ -1,4 +1,5 @@
 
+// took some help from chatGPT to get this to work as I wanted
 document.addEventListener("DOMContentLoaded", () => {
 	// initialize theme from localStorage or system
 	const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)");

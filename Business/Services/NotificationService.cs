@@ -65,7 +65,7 @@ public class NotificationService(INotificationRepository notificationRepository,
     // Gets notifications for a user, filtered by role and excluding dismissed notifications.
     public async Task<NotificationResult<IEnumerable<NotificationDetailsDto>>> GetNotificationsAsync(string userId, string? roleName = null, int take = 100)
     {
-        Console.WriteLine($"[DEBUG] GetNotificationsAsync called with userId: '{userId}', roleName: '{roleName}'");
+        // Console.WriteLine($" GetNotificationsAsync called with userId: '{userId}', roleName: '{roleName}'");
         
         const string adminTargetName = "Admin";
         var dismissedNotificationResult = await _notificationDismissedRepository.GetNotificationsIdsAsync(userId);

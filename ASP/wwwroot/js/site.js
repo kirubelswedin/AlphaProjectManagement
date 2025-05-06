@@ -1,3 +1,4 @@
+
 document.addEventListener("DOMContentLoaded", () => {
 	initSidebar();
 	initMobileMenu();
@@ -35,6 +36,7 @@ const SIDEBAR_DEFAULT_WIDTH = 20; // rem
 const SIDEBAR_MIN_WIDTH = 4; // rem
 const SIDEBAR_MOBILE_BREAKPOINT = 50;	// rem
 
+// took some help from chatGPT to get this to work as I wanted
 function initSidebar() {
 	const sidebar = document.querySelector("aside");
 	const resizer = document.querySelector(".sidebar-resizer");
@@ -249,6 +251,7 @@ function updateImagePreviewState(container, hasImage) {
  * Tab scrolling : Enables horizontal drag-to-scroll for project tabs
  * ----------------------------------------------------------------------
  */
+// took some help from chatGPT to get this to work as I wanted
 function initTabScrolling() {
 	const tabsContainer = document.querySelector(".projects-tabs");
 	if (!tabsContainer) return;
@@ -355,6 +358,7 @@ function initTabFilter() {
 * Avatar visibility : Dynamically shows/hides avatars and counter based on container width
 * ----------------------------------------------------------------------
 */
+// took some help from chatGPT to get this to work as I wanted
 const AVATAR_OVERLAP = 8;
 const MAX_VISIBLE_AVATARS = 8;
 const AVATAR_DEFAULT_WIDTH = 40;
@@ -440,6 +444,7 @@ function handleBudgetInput(e) {
 	formatBudgetInputValue(e.target);
 }
 
+// took some help from chatGPT to get this to work as I wanted
 function formatBudgetInputValue(input) {
 	let value = input.value.replace(/[^\d.]/g, ""); // Allow only numbers and dot
 	let [whole, decimal] = value.split(".");
@@ -507,7 +512,7 @@ function handleAjaxForm(form, { beforeSubmit, onSuccess, modalId }) {
 	});
 }
 
-// 
+// Fills a select element 
 function fillSelect(select, options, selectedValue) {
 	select.innerHTML = "";
 	options.forEach(opt => {
@@ -519,7 +524,7 @@ function fillSelect(select, options, selectedValue) {
 	});
 }
 
-// 
+// Fills input fields 
 function fillInputs(form, data, fieldMap) {
 	fieldMap.forEach(([inputName, dataKey]) => {
 		const input = form.querySelector(`[name='${inputName}']`);
@@ -610,6 +615,7 @@ function initProjectForm() {
  * Project form / Edit
  * ----------------------------------------------------------------------
  */
+// took some help from chatGPT to get this to work 
 window.addEventListener("openModal", function (e) {
 	const { modalId, projectId } = e.detail || {};
 	if (modalId !== "editprojectmodal" || !projectId)

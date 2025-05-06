@@ -17,6 +17,7 @@ public interface IProjectRepository : IBaseRepository<ProjectEntity>
 public class ProjectRepository(AppDbContext context) : BaseRepository<ProjectEntity>(context), IProjectRepository
 {
     // Get all, including all related information
+    // took some help from chatGPT to get this to work as I wanted
     public override async Task<RepositoryResult<IEnumerable<ProjectEntity>>> GetAllAsync(bool orderByDescending = false, Expression<Func<ProjectEntity, object>>? sortByColumn = null, Expression<Func<ProjectEntity, bool>>? filterBy = null, int take = 0, params Expression<Func<ProjectEntity, object>>[] includes)
     {
         var query = _table
@@ -43,8 +44,9 @@ public class ProjectRepository(AppDbContext context) : BaseRepository<ProjectEnt
         return new RepositoryResult<IEnumerable<ProjectEntity>> { Succeeded = true, StatusCode = 200, Result = entities };
     }
     
-    public override async Task<RepositoryResult<ProjectEntity>> GetAsync(Expression<Func<ProjectEntity, bool>> findBy, params Expression<Func<ProjectEntity, object>>[] includes)
+    public override async Task<RepositoryResult<ProjectEntity>> GetAsync(Expression<Func<ProjectEntity, bool>>? findBy, params Expression<Func<ProjectEntity, object>>[]? includes)
     {
+        if (findBy == null) throw new ArgumentNullException(nameof(findBy));
         var query = _table
             .Include(x => x.User)
             .Include(x => x.Status)
@@ -62,11 +64,12 @@ public class ProjectRepository(AppDbContext context) : BaseRepository<ProjectEnt
 
 
     // Add a user to a project, making sure both exist and the user isn’t already a member.
+    // took some help from ChatGPT to get this right.
     public async Task<RepositoryResult> AddProjectMemberAsync(string projectId, string userId, string roleId = "default")
     {
         try
         {
-            Console.WriteLine($"AddProjectMemberAsync: projectId={projectId}, userId={userId}, roleId={roleId}");
+            // Console.WriteLine($"AddProjectMemberAsync: projectId={projectId}, userId={userId}, roleId={roleId}");
             var projectExists = await _context.Projects.AnyAsync(p => p.Id == projectId);
             if (!projectExists)
                 return new RepositoryResult { Succeeded = false, StatusCode = 404, Error = "Project not found" };

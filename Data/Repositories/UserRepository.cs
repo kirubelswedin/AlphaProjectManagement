@@ -14,7 +14,7 @@ public interface IUserRepository : IBaseRepository<UserEntity>
 public class UserRepository(AppDbContext context) : BaseRepository<UserEntity>(context), IUserRepository
 {
     // Get all users, including address information.
-    public override async Task<RepositoryResult<IEnumerable<UserEntity>>> GetAllAsync(bool orderByDescending = false, Expression<Func<UserEntity, object>>? sortByColumn = null, Expression<Func<UserEntity, bool>>? filterBy = null, int take = 0, params Expression<Func<UserEntity, object>>[] includes)
+    public override async Task<RepositoryResult<IEnumerable<UserEntity>>> GetAllAsync(bool orderByDescending = false, Expression<Func<UserEntity, object>>? sortByColumn = null, Expression<Func<UserEntity, bool>>? filterBy = null, int take = 0, params Expression<Func<UserEntity, object>>[]? includes)
     {
         var query = _table.Include(x => x.Address);
 
@@ -32,8 +32,9 @@ public class UserRepository(AppDbContext context) : BaseRepository<UserEntity>(c
         return new RepositoryResult<IEnumerable<UserEntity>> { Succeeded = true, StatusCode = 200, Result = entities };
     }
 
-    public override async Task<RepositoryResult<UserEntity>> GetAsync(Expression<Func<UserEntity, bool>> findBy, params Expression<Func<UserEntity, object>>[] includes)
+    public override async Task<RepositoryResult<UserEntity>> GetAsync(Expression<Func<UserEntity, bool>>? findBy, params Expression<Func<UserEntity, object>>[]? includes)
     {
+        if (findBy == null) throw new ArgumentNullException(nameof(findBy));
         var query = _table.Include(x => x.Address);
         var entity = await query.FirstOrDefaultAsync(findBy);
 

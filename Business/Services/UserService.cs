@@ -157,7 +157,6 @@ public class UserService(
                 return new UserResult<UserDetailsDto> { Succeeded = false, StatusCode = 400, Error = result.Errors.FirstOrDefault()?.Description };
 
             await UpdateCacheAsync();
-
             var dto = UserMapper.ToDetailsDto(existingUser);
             return new UserResult<UserDetailsDto> { Succeeded = true, StatusCode = 200, Result = dto };
         }

@@ -30,6 +30,7 @@ public static class ProjectMapper
         };
     }
     
+    // took some help from ChatGPT to get the mapping correct
     public static ProjectDetailsDto ToDetailsDto(ProjectEntity? entity)
     {
         if (entity == null) return null!;

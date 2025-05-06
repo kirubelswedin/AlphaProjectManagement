@@ -4,7 +4,6 @@ using Business.Mappers;
 using Data.Entities;
 using Data.Repositories;
 using Domain.Responses;
-using Microsoft.Extensions.Logging;
 
 namespace Business.Services;
 
@@ -49,6 +48,8 @@ public class ProjectService(
             if (!result.Succeeded)
                 return new ProjectResult<ProjectDetailsDto> { Succeeded = false, StatusCode = 500, Error = result.Error };
 
+            var dto = ProjectMapper.ToDetailsDto(entity);
+            
             // adds project members
             if (formDto.SelectedMemberIds.Any())
             {
@@ -61,12 +62,14 @@ public class ProjectService(
                         failedMembers.Add($"{memberId} ({memberResult.Error})");
                     }
                 }
+                
                 if (failedMembers.Count != 0)
                 {
+                    return new ProjectResult<ProjectDetailsDto>
+                    { Succeeded = true, StatusCode = 201, Result = dto, Error = $"Project created, but some members could not be added: {string.Join(", ", failedMembers)}" };
                 }
             }
             await UpdateCacheAsync();
-            var dto = ProjectMapper.ToDetailsDto(entity);
             return new ProjectResult<ProjectDetailsDto> { Succeeded = true, StatusCode = 201, Result = dto };
         }
         catch (Exception ex)
@@ -141,6 +144,7 @@ public class ProjectService(
         { return new ProjectResult<ProjectDetailsDto> { Succeeded = false, StatusCode = 500, Error = $"Failed to retrieve project: {ex.Message}" }; }
     }
 
+    // took some help from ChatGPT to refactor this method and get everything right
     public async Task<ProjectResult<ProjectDetailsDto>> UpdateProjectAsync(UpdateProjectFormDto formDto)
     {
         try
@@ -204,9 +208,7 @@ public class ProjectService(
                 return new ProjectResult<ProjectDetailsDto> { Succeeded = false, StatusCode = 500, Error = result.Error };
 
             await UpdateCacheAsync();
-            
             var detailsDto = ProjectMapper.ToDetailsDto(entity);
-
             return new ProjectResult<ProjectDetailsDto> { Succeeded = true, StatusCode = 200, Result = detailsDto };
         }
         catch (Exception ex)
