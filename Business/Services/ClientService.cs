@@ -49,15 +49,19 @@ public class ClientService(IClientRepository clientRepository, IImageHandler ima
         catch (Exception ex)
         { return new ClientResult<ClientDetailsDto> { Succeeded = false, StatusCode = 500, Error = $"Failed to create project: {ex.Message}" }; }
     }
-
-    // TODO implement orderByDescending and cacheHandler
+    
     public async Task<ClientResult<IEnumerable<ClientDetailsDto>>> GetClientsAsync()
     {
         var cachedClients = _cacheHandler.GetFromCache(_cacheKey);
         if (cachedClients != null)
             return new ClientResult<IEnumerable<ClientDetailsDto>> { Succeeded = true, StatusCode = 200, Result = cachedClients };
         
-        var result = await _clientRepository.GetAllAsync();
+        var result = await _clientRepository.GetAllAsync
+        (
+            orderByDescending: true,
+            sortByColumn: x => x.CreatedAt
+            );
+        
         if (!result.Succeeded)
             return new ClientResult<IEnumerable<ClientDetailsDto>> { Succeeded = false, StatusCode = result.StatusCode, Error = result.Error };
 
@@ -97,7 +101,6 @@ public class ClientService(IClientRepository clientRepository, IImageHandler ima
                 return new ClientResult<ClientDetailsDto> { Succeeded = false, StatusCode = 500, Error = result.Error };
             
             await UpdateCacheAsync();
-            
             var dto = ClientMapper.ToDetailsDto(existingClient);
             return new ClientResult<ClientDetailsDto> { Succeeded = result.Succeeded, StatusCode = 200, Result = dto };
         }

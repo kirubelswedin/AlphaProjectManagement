@@ -127,6 +127,21 @@
 	}
 
 	/* Form */
+	.form-modal-content {
+		/*max-height: 95vh;*/
+	}
+	.form-modal-wrapper {
+		margin: 4.75rem auto;
+	}
+
+	.form-actions {
+		padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0));
+		position: sticky;
+		bottom: 0;
+		background: var(--surface-background);
+		z-index: 2;
+	}
+	
 	.form-column {
 		gap: 1rem;
 	}
@@ -139,10 +154,6 @@
 	.image-placeholder {
 		width: 120px;
 		height: 120px;
-	}
-
-	.form-modal-content {
-		max-height: 95vh;
 	}
 
 	.image-placeholder {

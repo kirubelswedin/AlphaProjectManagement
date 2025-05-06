@@ -345,9 +345,8 @@ function initTabFilter() {
 				if (projectsGrid) {
 					projectsGrid.innerHTML = html;
 				}
-			} catch (error) {
-				console.error("Error fetching filtered projects:", error);
-				alert("Failed to load projects. Please try again.");
+			} catch (err) {
+				console.error("Error fetching filtered projects:", err);
 			}
 		});
 	});
@@ -505,9 +504,8 @@ function handleAjaxForm(form, { beforeSubmit, onSuccess, modalId }) {
 			} else if (result.error) {
 				console.error(result.error);
 			}
-		} catch (error) {
-			console.error("Error:", error);
-			console.error("An error occurred while submitting the form");
+		} catch (err) {
+			console.error("An error occurred while submitting the form", err);
 		}
 	});
 }
@@ -550,11 +548,11 @@ function initDeletionHandler({ selector, urlPrefix, confirmMessage, errorMessage
 					if (result.success) {
 						window.location.reload();
 					} else {
-						alert(result.error || errorMessage);
+						console.error("Delete failed:", result.error || errorMessage);
 					}
-				} catch (error) {
-					console.error("Error deleting:", error);
-					alert("An error occurred while deleting.");
+				} catch (err) {
+					console.error("Failed to delete item:", err);
+
 				}
 			}
 		});
@@ -737,8 +735,8 @@ window.addEventListener("openModal", function (e) {
 				}
 			});
 		})
-		.catch(error => {
-			console.error("Error fetching project data:", error);
+		.catch(err => {
+			console.error("Error fetching project data:", err);
 		});
 });
 
@@ -781,7 +779,7 @@ window.addEventListener("openModal", function (e) {
 
 	const form = document.querySelector("#editclientmodal form");
 	if (!form) {
-		console.error("Edit client form not found");
+		// console.error("Edit client form not found");
 		return;
 	}
 
@@ -789,7 +787,7 @@ window.addEventListener("openModal", function (e) {
 		.then(response => response.json())
 		.then(data => {
 			if (!(data.success && data.client)) {
-				console.error("Failed to fetch client data.");
+				// console.error("Failed to fetch client data.");
 				return;
 			}
 
@@ -844,8 +842,8 @@ window.addEventListener("openModal", function (e) {
 				}
 			});
 		})
-		.catch(error => {
-				console.error("Error fetching client data:", error);
+		.catch(err => {
+				console.error("Error fetching client data:", err);
 			}
 		);
 });
@@ -965,7 +963,7 @@ window.addEventListener("openModal", function (e) {
 
 	const form = document.querySelector("#editmembermodal form");
 	if (!form) {
-		console.error("Edit member form not found");
+		// console.error("Edit member form not found");
 		return;
 	}
 
@@ -973,7 +971,7 @@ window.addEventListener("openModal", function (e) {
 		.then(response => response.json())
 		.then(data => {
 			if (!(data.success && data.member)) {
-				console.error("Failed to fetch member data.");
+				// console.error("Failed to fetch member data.");
 				return;
 			}
 
@@ -1027,8 +1025,8 @@ window.addEventListener("openModal", function (e) {
 				}
 			});
 		})
-		.catch(error => {
-				console.error("Error fetching member data:", error);
+		.catch(err => {
+				console.error("Error fetching member data:", err);
 			}
 		);
 });
@@ -1074,12 +1072,12 @@ async function toggleAdminRole(userId, isAdmin) {
 
 		const data = await response.json();
 		if (data.success) {
-			showToast("success", data.message);
+			console.log("Admin status updated:", data.message);
 		} else {
-			showToast("error", data.message || "Failed to update admin status");
+			console.error("Failed to update admin status:", data.message || data.error);
 		}
-	} catch (error) {
-		console.error("Error toggling admin role:", error);
+	} catch (err) {
+		console.error("Error toggling admin role:", err);
 	}
 }
 

@@ -81,7 +81,7 @@ public class ClientsController(IClientService clientService, INotificationServic
 
         foreach (var client in clients)
         {
-            Console.WriteLine($"Client: {client.ClientName}, ImageUrl: {client.ImageUrl}");
+            // Console.WriteLine($"Client: {client.ClientName}, ImageUrl: {client.ImageUrl}");
             var clientViewModel = ClientViewModelMapper.ToClientListViewModel(client);
             clientList.Add(clientViewModel);
         }

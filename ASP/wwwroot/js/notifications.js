@@ -20,8 +20,8 @@ const notificationManager = {
 		this.connection.on("ReceiveNotification", n => this.handleNewNotification(n));
 		this.connection.on("NotificationDismissed", id => this.removeNotification(id));
 
-		this.connection.start().catch(() => 
-			showToast("error", "Failed to connect to notifications")
+		this.connection.start().catch(() =>
+			console.error("Failed to connect to notifications")
 		);
 	},
 
@@ -107,8 +107,8 @@ const notificationManager = {
 					relativeTime = `${diffWeeks} weeks ago`;
 				
 				el.textContent = relativeTime;
-			} catch {
-				showToast("error", "Failed to update notification time");
+			} catch (err) {
+				console.error("Failed to update notification time", err);
 			}
 		});
 	},
@@ -119,9 +119,9 @@ const notificationManager = {
 		try {
 			const response = await fetch(`/api/notifications/dismiss/${id}`, { method: "POST" });
 			if (response.ok) this.removeNotification(id);
-			else showToast("error", "Failed to dismiss notification");
-		} catch {
-			showToast("error", "Failed to dismiss notification");
+			else console.error("Failed to dismiss notification");
+		} catch (err) {
+			console.error("Failed to dismiss notification", err);
 		}
 	},
 	

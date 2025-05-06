@@ -70,7 +70,27 @@ function positionDropdown(dropdown, trigger) {
 
 // Event delegation
 function handleBodyClick(e) {
-    // console.log('Clicked:', e.target);
+
+    // Modal close button
+    const closeBtn = e.target.closest("[data-close='true']");
+    if (closeBtn) {
+        const targetSelector = closeBtn.getAttribute('data-target');
+        if (targetSelector) {
+            const modal = document.querySelector(targetSelector);
+            if (modal) {
+                closeModal(modal.id);
+            }
+        } else {
+            // close closest modal
+            const modal = closeBtn.closest('.modal');
+            if (modal) {
+                closeModal(modal.id);
+            }
+        }
+        e.preventDefault();
+        return;
+    }
+    
     // Modal open
     const modalTrigger = e.target.closest("[data-window='modal']");
     if (modalTrigger) {
