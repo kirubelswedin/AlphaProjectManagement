@@ -43,18 +43,16 @@ public class NotificationService(INotificationRepository notificationRepository,
             }
 
             var notificationEntity = NotificationMapper.ToEntity(detailsDto);
+            notificationEntity.CreatedAt = DateTime.UtcNow;
             var result = await _notificationRepository.AddAsync(notificationEntity);
 
-            var notifications = await GetNotificationsAsync(userId);
-            var newNotification = notifications.Result?.OrderByDescending(x => x.CreatedAt).FirstOrDefault();
+            var dto = NotificationMapper.ToDetailsDto(notificationEntity);
 
             if (result.Succeeded)
             {
-                var notificationResult = await _notificationRepository.GetLatestNotification();
-                await _notificationHub.Clients.All.SendAsync("ReceiveNotification", notificationResult.Result);
+                await _notificationHub.Clients.All.SendAsync("ReceiveNotification", dto);
             }
             
-            var dto = NotificationMapper.ToDetailsDto(notificationEntity);
             return new NotificationResult<NotificationDetailsDto> { Succeeded = result.Succeeded, StatusCode = result.StatusCode, Error = result.Error, Result = dto };
         }
         catch (Exception ex)

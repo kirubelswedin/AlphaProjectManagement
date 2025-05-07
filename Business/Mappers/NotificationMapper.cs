@@ -17,7 +17,7 @@ public static class NotificationMapper
       ImageUrl = dto.ImageUrl,
       ImageType = dto.ImageType,
       Message = dto.Message,
-      CreatedAt = dto.CreatedAt,
+      CreatedAt = DateTime.SpecifyKind(dto.CreatedAt, DateTimeKind.Utc),
       IsRead = false
     };
   }
@@ -33,7 +33,7 @@ public static class NotificationMapper
       ImageUrl = entity.ImageUrl,
       ImageType = entity.ImageType,
       Message = entity.Message,
-      CreatedAt = entity.CreatedAt,
+      CreatedAt = DateTime.SpecifyKind(entity.CreatedAt, DateTimeKind.Utc),
       IsRead = entity.IsRead
     };
   }

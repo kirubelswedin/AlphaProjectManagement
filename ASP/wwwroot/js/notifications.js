@@ -17,7 +17,7 @@ const notificationManager = {
 			.build();
 
 		// Listen for new notifications and dismissed notifications
-		this.connection.on("ReceiveNotification", n => this.handleNewNotification(n));
+		this.connection.on("ReceiveNotification", n => {this.handleNewNotification(n);});
 		this.connection.on("NotificationDismissed", id => this.removeNotification(id));
 
 		this.connection.start().catch(() =>
@@ -47,25 +47,25 @@ const notificationManager = {
 	},
 
 	// Create notification element
-	createNotificationElement({ id, imageUrl, message }) {
+	createNotificationElement({ id, imageUrl, message, createdAt }) {
 		const el = document.createElement("div");
 		el.className = "dropdown-item";
 		el.dataset.id = id;
 		el.dataset.read = "false";
 		el.innerHTML = `
-			<div class="content-item">
-				<img src="${imageUrl}" alt="Notification image" class="notification-image" />
-				<div class="notification-content">
-					<div class="notification-message">${message}</div>
-					<div class="notification-time time" data-created="${new Date().toISOString()}">
-						Just now
-					</div>
-				</div>
-				<button class="notification-close" type="button">
-					<i class="fa-solid fa-xmark"></i>
-				</button>
-			</div>
-		`;
+        <div class="content-item">
+            <img src="${imageUrl}" alt="Notification image" class="notification-image" />
+            <div class="notification-content">
+                <div class="notification-message">${message}</div>
+                <div class="notification-time time" data-created="${createdAt || new Date().toISOString()}">
+                    Just now
+                </div>
+            </div>
+            <button class="notification-close" type="button">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+    `;
 		el.querySelector(".notification-close").onclick = e => this.dismissNotification(id, e);
 		return el;
 	},
@@ -80,13 +80,14 @@ const notificationManager = {
 			
 			try {
 				const created = new Date(timestamp);
+
+				// console.log("now:", now, "created:", created, "diff (min):", (now - created) / 60000);
 				const diff = now - created;
-				const 
-					diffSeconds = Math.floor(diff / 1000), 
-					diffMinutes = Math.floor(diffSeconds / 60), 
-					diffHours = Math.floor(diffMinutes / 60),
-					diffDays = Math.floor(diffHours / 24), 
-					diffWeeks = Math.floor(diffDays / 7);
+				const diffSeconds = Math.floor(diff / 1000);
+				const diffMinutes = Math.floor(diffSeconds / 60);
+				const diffHours = Math.floor(diffMinutes / 60);
+				const diffDays = Math.floor(diffHours / 24);
+				const diffWeeks = Math.floor(diffDays / 7);
 				let relativeTime = "";
 				
 				if (diffSeconds < 30) 
