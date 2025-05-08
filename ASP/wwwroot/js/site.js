@@ -431,13 +431,23 @@ function initAvatarVisibility() {
  * ----------------------------------------------------------------------
  * Project budget formatting: allows only numbers, max 8 digits, spaces as thousands separator
  * ----------------------------------------------------------------------
- */
+ */ 
 function initBudgetFormatter() {
-	// console.log("BudgetFormatter initialized");
-
+	// took some help from chatGPT to get this to work as I wanted
 	document.querySelectorAll('input[data-type="budget"]').forEach(input => {
 		input.addEventListener("input", handleBudgetInput);
 		formatBudgetInputValue(input);
+		
+		// remove spaces from budget input before form is submitted
+		const form = input.form;
+		if (form && !form.dataset.budgetSanitized) {
+			form.addEventListener('submit', function() {
+				form.querySelectorAll('input[data-type="budget"]').forEach(input => {
+					input.value = input.value.replace(/\s/g, '');
+				});
+			});
+			form.dataset.budgetSanitized = "true";
+		}
 	});
 }
 
@@ -445,7 +455,7 @@ function handleBudgetInput(e) {
 	formatBudgetInputValue(e.target);
 }
 
-// took some help from chatGPT to get this to work as I wanted
+
 function formatBudgetInputValue(input) {
 	let value = input.value.replace(/[^\d.]/g, ""); // Allow only numbers and dot
 	let [whole, decimal] = value.split(".");
