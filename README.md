@@ -1,4 +1,4 @@
-# Alpha Project Management
+# School Project | Alpha Project Management
 
 A modern web application for project and client management, built with **ASP.NET Core MVC**. Features user authentication, role-based access control, and real-time notifications.
 
